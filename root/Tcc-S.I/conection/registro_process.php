@@ -13,6 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($stmt->execute()) {
         echo "Registro realizado com sucesso!";
+        header("Location: ../templates/dashboard.php");
     } else {
         echo "Erro ao registrar: " . $conn->error;
     }
