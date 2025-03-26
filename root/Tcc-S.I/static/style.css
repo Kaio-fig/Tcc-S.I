@@ -6,6 +6,25 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+h1{
+    margin: auto;
+    padding: 50px;
+}
+
+p{
+    padding: 50px;
+}
+
+h3{
+    padding: 50px;
+}
+
+exemplo {
+    width: 200px;
+    height: 300px;
+    object-fit: fill;
+}
+
 :root {
     --primary-color: #6a1b9a;
     --secondary-color: #9c27b0;
@@ -25,6 +44,7 @@ body {
 a {
     text-decoration: none;
     color: var(--primary-color);
+    margin: auto;
 }
 
 .btn {
@@ -131,7 +151,11 @@ nav {
 }
 
 .hero-buttons {
-    display: flex;
+    margin: 0;
+    position: absolute;
+    left: 10%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
 
 .hero-image {

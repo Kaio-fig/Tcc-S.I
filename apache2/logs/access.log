@@ -50,3 +50,7 @@
 127.0.0.1 - - [25/Mar/2025:16:01:58 -0300] "GET /Tcc-S.I/static/Abner.webp HTTP/1.1" 200 18692
 127.0.0.1 - - [25/Mar/2025:16:01:58 -0300] "GET /Tcc-S.I/static/Mestra.jpg HTTP/1.1" 200 887446
 127.0.0.1 - - [25/Mar/2025:16:01:58 -0300] "GET /favicon.ico HTTP/1.1" 404 209
+127.0.0.1 - - [25/Mar/2025:16:10:46 -0300] "GET /Tcc-S.I/templates/login.php HTTP/1.1" 200 4821
+127.0.0.1 - - [25/Mar/2025:16:10:46 -0300] "GET /Tcc-S.I/static/login.css HTTP/1.1" 200 3817
+127.0.0.1 - - [25/Mar/2025:16:10:46 -0300] "GET /favicon.ico HTTP/1.1" 404 209
+127.0.0.1 - - [25/Mar/2025:16:10:46 -0300] "GET /img/pattern_japanese-pattern-2_1_2_0-0_0_1__ffffff00_000000.png HTTP/1.1" 404 261
