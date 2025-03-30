@@ -3,17 +3,17 @@ body{
 	font-family: 'Poppins', sans-serif;
 	font-weight: 300;
 	line-height: 1.7;
-	color: #ffeba7;
-	background-color: #1f2029;
+	color: #9c27b0;
+	background-color: #f1f1f1;
 }
 a:hover {
 	text-decoration: none;
 }
 .link {
-  color: #ffeba7;
+  color: #9c27b0;
 }
 .link:hover {
-  color: #c4c3ca;
+  color: #6a1b9a;
 }
 p {
   font-weight: 500;
@@ -49,7 +49,7 @@ display: none;
   padding: 0;
   margin: 10px auto;
   cursor: pointer;
-  background-color: #ffeba7;
+  background-color: #9c27b0;
 }
 .checkbox:checked + label:before,
 .checkbox:not(:checked) + label:before{
@@ -58,8 +58,8 @@ display: none;
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  color: #ffeba7;
-  background-color: #020305;
+  color: #9c27b0;
+  background-color: #f7f7f7;
   font-family: 'unicons';
   content: '\eb4f';
   z-index: 20;
@@ -69,6 +69,7 @@ display: none;
   text-align: center;
   font-size: 24px;
   transition: all 0.5s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 .checkbox:checked + label:before {
   transform: translateX(44px) rotate(-270deg);
@@ -94,11 +95,12 @@ display: none;
 .card-front, .card-back {
   width: 100%;
   height: 100%;
-  background-color: #2b2e38;
+  background-color: #f5f5f5;
   background-image: url('/img/pattern_japanese-pattern-2_1_2_0-0_0_1__ffffff00_000000.png');
   position: absolute;
   border-radius: 6px;
   -webkit-transform-style: preserve-3d;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 .card-back {
   transform: rotateY(180deg);
@@ -133,8 +135,8 @@ display: none;
   line-height: 22px;
   letter-spacing: 0.5px;
   outline: none;
-  color: #c4c3ca;
-  background-color: #1f2029;
+  color: #9c27b0;
+  background-color: #f5f5f5;
   border: none;
   -webkit-transition: all 200ms linear;
   transition: all 200ms linear;
@@ -171,11 +173,11 @@ display: none;
   display: -ms-inline-flexbox;
   display: inline-flex;
   align-items: center;
-  background-color: #ffeba7;
-  color: #000000;
+  background-color: #9c27b0;
+  color: #f5f5f5;
 }
 .btn:hover{  
-  background-color: #000000;
-  color: #ffeba7;
+  background-color: #6a1b9a;
+  color: #f5f5f5;
   box-shadow: 0 8px 24px 0 rgba(16,39,112,.2);
 }
