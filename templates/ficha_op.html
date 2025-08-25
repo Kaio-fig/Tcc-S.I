@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Ordem Paranormal Automatizada</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/ficha_op.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-dragon"></i> Ficha de Ordem Paranormal</h1>
+            <p>Automatizada para Agentes da Ordem</p>
+        </header>
+        
+        <!-- Painel Esquerdo: Token e Nome -->
+        <div class="left-panel">
+            <div class="token-container">
+                <div class="token-preview" id="token-preview">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <input type="file" id="token-upload" accept="image/*" class="token-upload">
+                <button class="btn-save" onclick="document.getElementById('token-upload').click()">
+                    <i class="fas fa-upload"></i> Importar Token
+                </button>
+            </div>
+            
+            <div class="character-name">
+                <input type="text" id="char-name" placeholder="Nome do Personagem">
+            </div>
+        </div>
+        
+        <!-- Painel Direito: Abas e Conteúdo -->
+        <div class="right-panel">
+            <div class="tab-controls">
+                <div class="tab-btn active" data-tab="status-tab">
+                    <i class="fas fa-heart"></i> Status
+                </div>
+                <div class="tab-btn" data-tab="powers-tab">
+                    <i class="fas fa-fire"></i> Poderes e Rituais
+                </div>
+                <div class="tab-btn" data-tab="equipment-tab">
+                    <i class="fas fa-shield-alt"></i> Equipamento
+                </div>
+            </div>
+            
+            <div class="tab-content">
+                <!-- Aba Status -->
+                <div id="status-tab" class="tab-pane active">
+                    <h2>Atributos e Perícias</h2>
+                    
+                    <div class="attributes-grid">
+                        <div class="attribute">
+                            <label>FORÇA</label>
+                            <input type="number" id="for" min="0" max="5" value="1">
+                            <div class="modifier" id="for-mod">+1</div>
+                        </div>
+                        <div class="attribute">
+                            <label>AGILIDADE</label>
+                            <input type="number" id="agi" min="0" max="5" value="1">
+                            <div class="modifier" id="agi-mod">+1</div>
+                        </div>
+                        <div class="attribute">
+                            <label>INTELECTO</label>
+                            <input type="number" id="int" min="0" max="5" value="1">
+                            <div class="modifier" id="int-mod">+1</div>
+                        </div>
+                        <div class="attribute">
+                            <label>VIGOR</label>
+                            <input type="number" id="vig" min="0" max="5" value="1">
+                            <div class="modifier" id="vig-mod">+1</div>
+                        </div>
+                        <div class="attribute">
+                            <label>PRESENÇA</label>
+                            <input type="number" id="pre" min="0" max="5" value="1">
+                            <div class="modifier" id="pre-mod">+1</div>
+                        </div>
+                    </div>
+                    
+                    <div class="skills-grid">
+                        <div class="skill-category">
+                            <h3>Físicas</h3>
+                            <div class="skill">
+                                <span>Acrobacia (AGI)</span>
+                                <input type="number" id="acrobacia" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Atletismo (FOR)</span>
+                                <input type="number" id="atletismo" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Furtividade (AGI)</span>
+                                <input type="number" id="furtividade" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Pilotagem (AGI)</span>
+                                <input type="number" id="pilotagem" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Pontaria (AGI)</span>
+                                <input type="number" id="pontaria" value="1">
+                            </div>
+                        </div>
+                        
+                        <div class="skill-category">
+                            <h3>Mentais</h3>
+                            <div class="skill">
+                                <span>Atualidades (INT)</span>
+                                <input type="number" id="atualidades" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Ciências (INT)</span>
+                                <input type="number" id="ciencias" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Crime (INT)</span>
+                                <input type="number" id="crime" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Investigação (INT)</span>
+                                <input type="number" id="investigacao" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Medicina (INT)</span>
+                                <input type="number" id="medicina" value="1">
+                            </div>
+                        </div>
+                        
+                        <div class="skill-category">
+                            <h3>Sociais</h3>
+                            <div class="skill">
+                                <span>Diplomacia (PRE)</span>
+                                <input type="number" id="diplomacia" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Enganação (PRE)</span>
+                                <input type="number" id="enganacao" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Intimidação (PRE)</span>
+                                <input type="number" id="intimidacao" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Percepção (PRE)</span>
+                                <input type="number" id="percepcao" value="1">
+                            </div>
+                            <div class="skill">
+                                <span>Vontade (PRE)</span>
+                                <input type="number" id="vontade" value="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Aba Poderes e Rituais -->
+                <div id="powers-tab" class="tab-pane">
+                    <h2>Poderes de Classe e Rituais</h2>
+                    
+                    <div class="abilities-list">
+                        <div class="ability">
+                            <h3>Ataque Especial</h3>
+                            <p>Gaste 2 PE para receber +5 em um ataque</p>
+                        </div>
+                        <div class="ability">
+                            <h3>Golpe Pesado</h3>
+                            <p>Seu ataque causa +1 dado de dano</p>
+                        </div>
+                        <div class="ability">
+                            <h3>Combate Defensivo</h3>
+                            <p>Ganhe +5 em Defesa</p>
+                        </div>
+                        <div class="ability">
+                            <h3>Escudo Mental</h3>
+                            <p>Protege sua mente contra efeitos paranormais</p>
+                        </div>
+                        <div class="ability">
+                            <h3>Amaldiçoar Arma</h3>
+                            <p>Ritual: Arma causa dano paranormal adicional</p>
+                        </div>
+                        <div class="ability">
+                            <h3>Definhar</h3>
+                            <p>Ritual: Enfraquece inimigos próximos</p>
+                        </div>
+                        <div class="ability">
+                            <h3>Perturbação</h3>
+                            <p>Ritual: Cria ilusões para confundir oponentes</p>
+                        </div>
+                        <div class="ability">
+                            <h3>Arma Atroz</h3>
+                            <p>Ritual: Cria uma arma feita de energia paranormal</p>
+                        </div>
+                    </div>
+                    
+                    <div class="add-item">
+                        <button class="btn-save">
+                            <i class="fas fa-plus"></i> Adicionar Novo Poder
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Aba Equipamento -->
+                <div id="equipment-tab" class="tab-pane">
+                    <h2>Equipamentos e Itens</h2>
+                    
+                    <div class="equipment-grid">
+                        <div class="equipment-category">
+                            <h3>Armas</h3>
+                            <div class="equipment-item">
+                                <span>Pistola 9mm</span>
+                                <div class="equipment-actions">
+                                    <button class="btn-edit" data-item="Pistola 9mm">Editar</button>
+                                    <button class="btn-remove">Remover</button>
+                                </div>
+                            </div>
+                            <div class="equipment-item">
+                                <span>Faca de Combate</span>
+                                <div class="equipment-actions">
+                                    <button class="btn-edit" data-item="Faca de Combate">Editar</button>
+                                    <button class="btn-remove">Remover</button>
+                                </div>
+                            </div>
+                            <div class="add-item">
+                                <button class="btn-save" id="add-weapon">
+                                    <i class="fas fa-plus"></i> Adicionar Arma
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="equipment-category">
+                            <h3>Armaduras</h3>
+                            <div class="equipment-item">
+                                <span>Colete Balístico</span>
+                                <div class="equipment-actions">
+                                    <button class="btn-edit" data-item="Colete Balístico">Editar</button>
+                                    <button class="btn-remove">Remover</button>
+                                </div>
+                            </div>
+                            <div class="add-item">
+                                <button class="btn-save" id="add-armor">
+                                    <i class="fas fa-plus"></i> Adicionar Armadura
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="equipment-category">
+                            <h3>Itens Paranormais</h3>
+                            <div class="equipment-item">
+                                <span>Amuleto de Proteção</span>
+                                <div class="equipment-actions">
+                                    <button class="btn-edit" data-item="Amuleto de Proteção">Editar</button>
+                                    <button class="btn-remove">Remover</button>
+                                </div>
+                            </div>
+                            <div class="add-item">
+                                <button class="btn-save" id="add-paranormal">
+                                    <i class="fas fa-plus"></i> Adicionar Item Paranormal
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="equipment-category">
+                            <h3>Itens Gerais</h3>
+                            <div class="equipment-item">
+                                <span>Kit Médico</span>
+                                <div class="equipment-actions">
+                                    <button class="btn-edit" data-item="Kit Médico">Editar</button>
+                                    <button class="btn-remove">Remover</button>
+                                </div>
+                            </div>
+                            <div class="equipment-item">
+                                <span>Lanterna</span>
+                                <div class="equipment-actions">
+                                    <button class="btn-edit" data-item="Lanterna">Editar</button>
+                                    <button class="btn-remove">Remover</button>
+                                </div>
+                            </div>
+                            <div class="equipment-item">
+                                <span>Rádio Comunicador</span>
+                                <div class="equipment-actions">
+                                    <button class="btn-edit" data-item="Rádio Comunicador">Editar</button>
+                                    <button class="btn-remove">Remover</button>
+                                </div>
+                            </div>
+                            <div class="add-item">
+                                <button class="btn-save" id="add-general">
+                                    <i class="fas fa-plus"></i> Adicionar Item Geral
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="save-button">
+                <button class="btn-save" id="save-btn">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para seleção de equipamentos -->
+    <div class="modal" id="equipment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Selecionar Equipamento</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="equipment-filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="weapon">Armas</button>
+                <button class="filter-btn" data-filter="armor">Proteções</button>
+                <button class="filter-btn" data-filter="paranormal">Paranormais</button>
+                <button class="filter-btn" data-filter="general">Gerais</button>
+            </div>
+            
+            <div class="equipment-list" id="equipment-options">
+                <!-- As opções de equipamento serão preenchidas via JavaScript -->
+            </div>
+            
+            <div class="equipment-details" id="equipment-details">
+                <h3>Detalhes do Item</h3>
+                <p>Selecione um item para ver os detalhes</p>
+            </div>
+            
+            <div class="save-button">
+                <button class="btn-save" id="select-equipment">
+                    <i class="fas fa-check"></i> Selecionar Item
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Elementos DOM
+        const tokenPreview = document.getElementById('token-preview');
+        const tokenUpload = document.getElementById('token-upload');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const atributos = ['for', 'agi', 'int', 'vig', 'pre'];
+        const equipmentModal = document.getElementById('equipment-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const equipmentOptions = document.getElementById('equipment-options');
+        const equipmentDetails = document.getElementById('equipment-details');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const closeModal = document.querySelector('.close-modal');
+        const selectEquipmentBtn = document.getElementById('select-equipment');
+        const addWeaponBtn = document.getElementById('add-weapon');
+        const addArmorBtn = document.getElementById('add-armor');
+        const addParanormalBtn = document.getElementById('add-paranormal');
+        const addGeneralBtn = document.getElementById('add-general');
+        
+        // Dados de equipamentos (baseados nas tabelas fornecidas)
+        const equipmentData = {
+            weapons: [
+                { name: "Faca", category: 0, damage: "1d4", critical: "19", range: "Curto", type: "C", spaces: 1 },
+                { name: "Pistola", category: 1, damage: "1d12", critical: "18", range: "Curto", type: "B", spaces: 1 },
+                { name: "Revolver", category: 1, damage: "2d6", critical: "19×3", range: "Curto", type: "B", spaces: 1 },
+                { name: "Fuzil de caça", category: 1, damage: "2d8", critical: "19×3", range: "Médio", type: "B", spaces: 2 },
+                { name: "Espada", category: 1, damage: "1d8/1d10", critical: "19", range: "-", type: "C", spaces: 1 },
+                { name: "Machado", category: 1, damage: "1d8", critical: "×3", range: "-", type: "C", spaces: 1 },
+                { name: "Submetralhadora", category: 1, damage: "2d6", critical: "19/x3", range: "Curto", type: "B", spaces: 1 },
+                { name: "Espingarda", category: 1, damage: "4d6", critical: "×3", range: "Curto", type: "B", spaces: 2 },
+                { name: "Fuzil de assalto", category: 2, damage: "2d10", critical: "19/x3", range: "Médio", type: "B", spaces: 2 },
+                { name: "Fuzil de precisão", category: 3, damage: "2d10", critical: "19/x3", range: "Longo", type: "B", spaces: 2 }
+            ],
+            armors: [
+                { name: "Leve", defense: "+5", category: 1, spaces: 2 },
+                { name: "Pesada", defense: "+10", category: 2, spaces: 5 },
+                { name: "Escudo", defense: "+2", category: 1, spaces: 2 }
+            ],
+            paranormal: [
+                { name: "Amuleto de Proteção", effect: "Fornece +2 em Defesa", category: 1, spaces: 1 },
+                { name: "Anel do Elo Mental", effect: "Permite comunicação telepática", category: 2, spaces: 1 },
+                { name: "Pérola de Sangue", effect: "Fornece +5 em testes físicos temporariamente", category: 2, spaces: 1 },
+                { name: "Máscara das Sombras", effect: "Permite teletransporte entre sombras", category: 3, spaces: 1 }
+            ],
+            general: [
+                { name: "Kit Médico", category: 0, spaces: 1 },
+                { name: "Lanterna", category: 0, spaces: 1 },
+                { name: "Rádio Comunicador", category: 0, spaces: 1 },
+                { name: "Binóculos", category: 0, spaces: 1 },
+                { name: "Corda", category: 0, spaces: 1 },
+                { name: "Máscara de gás", category: 0, spaces: 1 },
+                { name: "Granada de Fragmentação", category: 1, spaces: 1 },
+                { name: "Granada de Fumaça", category: 0, spaces: 1 }
+            ]
+        };
+        
+        // Estado atual
+        let currentEquipmentType = "";
+        let selectedEquipment = null;
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configurar eventos
+            setupEventListeners();
+            
+            // Atualizar a ficha inicial
+            updateCharacterSheet();
+        });
+        
+        function setupEventListeners() {
+            // Upload de token
+            tokenUpload.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        tokenPreview.innerHTML = `<img src="${e.target.result}" alt="Token do Personagem">`;
+                    }
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            // Controle das abas
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    // Desativar todas as abas
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabPanes.forEach(p => p.classList.remove('active'));
+                    
+                    // Ativar aba clicada
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Atualizar modificadores de atributos
+            atributos.forEach(atr => {
+                const input = document.getElementById(atr);
+                const mod = document.getElementById(`${atr}-mod`);
+                
+                input.addEventListener('input', function() {
+                    const value = parseInt(this.value) || 0;
+                    const modifier = Math.floor((value - 1) / 2);
+                    mod.textContent = modifier >= 0 ? `+${modifier}` : modifier;
+                });
+            });
+            
+            // Botões para adicionar equipamentos
+            addWeaponBtn.addEventListener('click', () => openEquipmentModal('weapon', 'Armas'));
+            addArmorBtn.addEventListener('click', () => openEquipmentModal('armor', 'Proteções'));
+            addParanormalBtn.addEventListener('click', () => openEquipmentModal('paranormal', 'Itens Paranormais'));
+            addGeneralBtn.addEventListener('click', () => openEquipmentModal('general', 'Itens Gerais'));
+            
+            // Filtros do modal
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.dataset.filter;
+                    filterEquipmentOptions(filter);
+                });
+            });
+            
+            // Fechar modal
+            closeModal.addEventListener('click', () => {
+                equipmentModal.style.display = 'none';
+            });
+            
+            // Selecionar equipamento
+            selectEquipmentBtn.addEventListener('click', addSelectedEquipment);
+            
+            // Botão de salvar
+            document.getElementById('save-btn').addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+                
+                // Simular salvamento
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-check"></i> Salvo com sucesso!';
+                    
+                    // Resetar após 2 segundos
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-save"></i> Salvar Alterações';
+                    }, 2000);
+                }, 1000);
+            });
+        }
+        
+        function updateCharacterSheet() {
+            // Atualizar modificadores de atributos
+            atributos.forEach(atr => {
+                const mod = Math.floor((parseInt(document.getElementById(atr).value) - 1) / 2);
+                document.getElementById(`${atr}-mod`).textContent = mod >= 0 ? `+${mod}` : mod;
+            });
+        }
+        
+        function openEquipmentModal(type, title) {
+            currentEquipmentType = type;
+            modalTitle.textContent = `Selecionar ${title}`;
+            equipmentModal.style.display = 'flex';
+            
+            // Resetar seleção
+            selectedEquipment = null;
+            equipmentDetails.innerHTML = '<h3>Detalhes do Item</h3><p>Selecione um item para ver os detalhes</p>';
+            
+            // Preencher opções
+            filterEquipmentOptions('all');
+        }
+        
+        function filterEquipmentOptions(filter) {
+            equipmentOptions.innerHTML = '';
+            
+            // Determinar quais tipos mostrar
+            const typesToShow = filter === 'all' 
+                ? ['weapons', 'armors', 'paranormal', 'general'] 
+                : [filter];
+            
+            typesToShow.forEach(type => {
+                if (equipmentData[type]) {
+                    equipmentData[type].forEach(item => {
+                        const option = document.createElement('div');
+                        option.className = 'equipment-option';
+                        option.dataset.type = type;
+                        option.dataset.name = item.name;
+                        
+                        let details = '';
+                        if (type === 'weapons') {
+                            details = `<p><strong>Dano:</strong> ${item.damage}</p>
+                                       <p><strong>Crítico:</strong> ${item.critical}</p>
+                                       <p><strong>Alcance:</strong> ${item.range}</p>`;
+                        } else if (type === 'armors') {
+                            details = `<p><strong>Defesa:</strong> ${item.defense}</p>`;
+                        }
+                        
+                        option.innerHTML = `
+                            <h4>${item.name}</h4>
+                            <p><strong>Categoria:</strong> ${item.category}</p>
+                            <p><strong>Espaços:</strong> ${item.spaces}</p>
+                            ${details}
+                        `;
+                        
+                        option.addEventListener('click', () => selectEquipment(item, type));
+                        equipmentOptions.appendChild(option);
+                    });
+                }
+            });
+        }
+        
+        function selectEquipment(item, type) {
+            // Remover seleção anterior
+            document.querySelectorAll('.equipment-option').forEach(opt => {
+                opt.style.border = '1px solid var(--border-color)';
+            });
+            
+            // Destacar seleção atual
+            event.currentTarget.style.border = '2px solid var(--primary-color)';
+            
+            // Mostrar detalhes
+            let detailsHTML = `
+                <h3>${item.name}</h3>
+                <p><strong>Categoria:</strong> ${item.category}</p>
+                <p><strong>Espaços:</strong> ${item.spaces}</p>
+            `;
+            
+            if (type === 'weapons') {
+                detailsHTML += `
+                    <p><strong>Dano:</strong> ${item.damage}</p>
+                    <p><strong>Crítico:</strong> ${item.critical}</p>
+                    <p><strong>Alcance:</strong> ${item.range}</p>
+                    <p><strong>Tipo:</strong> ${item.type}</p>
+                `;
+            } else if (type === 'armors') {
+                detailsHTML += `<p><strong>Defesa:</strong> ${item.defense}</p>`;
+            } else if (type === 'paranormal' || type === 'general') {
+                detailsHTML += `<p><strong>Efeito:</strong> ${item.effect || 'Item utilitário'}</p>`;
+            }
+            
+            equipmentDetails.innerHTML = detailsHTML;
+            selectedEquipment = { ...item, sourceType: type };
+        }
+        
+        function addSelectedEquipment() {
+            if (!selectedEquipment) {
+                alert('Por favor, selecione um item primeiro.');
+                return;
+            }
+            
+            // Aqui você implementaria a lógica para adicionar o item à ficha
+            // Por enquanto, vamos apenas fechar o modal e mostrar uma mensagem
+            equipmentModal.style.display = 'none';
+            alert(`${selectedEquipment.name} adicionado à ficha!`);
+            
+            // Em uma implementação completa, você adicionaria o item à lista apropriada
+            // e calcularia automaticamente a categoria com modificações
+        }
+    </script>
+</body>
+</html>
