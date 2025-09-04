@@ -1,5 +1,9 @@
 <?php
+// login_process.php
 include 'db_connect.php';
+
+// Iniciar a sessão no início do script
+session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
@@ -15,20 +19,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_result($id, $nome_usuario, $senha_armazenada);
         $stmt->fetch();
 
-        if ($senha === $senha_armazenada) { // Comparação direta com MD5
-            session_start();
-            $_SESSION["usuario"] = $nome_usuario;
-            echo "Login bem-sucedido!";
+        if ($senha === $senha_armazenada) {
+            // Configurar todas as variáveis de sessão necessárias
+            $_SESSION['user_id'] = $id;
+            $_SESSION['user_name'] = $nome_usuario;
+            $_SESSION['user_email'] = $email;
+            $_SESSION['logged_in'] = true;
+            
+            // Redirecionar para o dashboard
             header("Location: ../templates/dashboard.php");
             exit();
         } else {
-            echo "Senha incorreta!";
+            // Senha incorreta - redirecionar de volta para login com mensagem de erro
+            header("Location: ../templates/login.php?erro=senha");
+            exit();
         }
     } else {
-        echo "Usuário não encontrado!";
+        // Usuário não encontrado - redirecionar de volta para login com mensagem de erro
+        header("Location: ../templates/login.php?erro=usuario");
+        exit();
     }
 
     $stmt->close();
     $conn->close();
+} else {
+    // Se não for POST, redirecionar para login
+    header("Location: ../templates/login.php");
+    exit();
 }
 ?>

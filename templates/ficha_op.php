@@ -1,3 +1,48 @@
+<?php
+// ficha_op.php
+// Correção do caminho da conexão
+require_once '../conection/db_connect.php';
+
+
+// Obter personagem atual
+$personagem_id = isset($_GET['personagem_id']) ? intval($_GET['personagem_id']) : 0;
+$personagem = null;
+
+if ($personagem_id > 0) {
+    // Buscar dados do personagem (verificando se pertence ao usuário)
+    $stmt = $conn->prepare("SELECT * FROM personagens WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $personagem_id, $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $personagem = $result->fetch_assoc();
+    
+    if (!$personagem) {
+        // Personagem não encontrado ou não pertence ao usuário
+        header('Location: meus_personagens.php');
+        exit;
+    }
+} else {
+    // Nenhum personagem especificado
+    header('Location: meus_personagens.php');
+    exit;
+}
+
+// Mensagem de sucesso se acabou de criar o personagem
+if (isset($_GET['criado']) && $_GET['criado'] == 1) {
+    $mensagem_sucesso = "Personagem criado com sucesso!";
+}
+// Carregar itens do banco de dados
+$armas = getArmas();
+$protecoes = getProtecoes();
+$itens_gerais = getItensGerais();
+$itens_paranormais = getItensParanormais();
+
+// Converter para JSON para uso no JavaScript
+$armas_json = json_encode($armas);
+$protecoes_json = json_encode($protecoes);
+$itens_gerais_json = json_encode($itens_gerais);
+$itens_paranormais_json = json_encode($itens_paranormais);
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -12,13 +57,20 @@
         <header>
             <h1><i class="fas fa-dragon"></i> Ficha de Ordem Paranormal</h1>
             <p>Automatizada para Agentes da Ordem</p>
+            <?php if ($personagem): ?>
+                <p>Personagem: <?php echo htmlspecialchars($personagem['nome']); ?> | NEX: <?php echo $personagem['nivel'] * 5; ?>%</p>
+            <?php endif; ?>
         </header>
         
         <!-- Painel Esquerdo: Token e Nome -->
         <div class="left-panel">
             <div class="token-container">
                 <div class="token-preview" id="token-preview">
-                    <i class="fas fa-user-circle"></i>
+                    <?php if ($personagem && $personagem['imagem'] != 'default.jpg'): ?>
+                        <img src="../uploads/<?php echo $personagem['imagem']; ?>" alt="Token do Personagem">
+                    <?php else: ?>
+                        <i class="fas fa-user-circle"></i>
+                    <?php endif; ?>
                 </div>
                 <input type="file" id="token-upload" accept="image/*" class="token-upload">
                 <button class="btn-save" onclick="document.getElementById('token-upload').click()">
@@ -27,7 +79,8 @@
             </div>
             
             <div class="character-name">
-                <input type="text" id="char-name" placeholder="Nome do Personagem">
+                <input type="text" id="char-name" placeholder="Nome do Personagem" 
+                    value="<?php echo $personagem ? htmlspecialchars($personagem['nome']) : ''; ?>">
             </div>
         </div>
         
@@ -206,19 +259,8 @@
                     <div class="equipment-grid">
                         <div class="equipment-category">
                             <h3>Armas</h3>
-                            <div class="equipment-item">
-                                <span>Pistola 9mm</span>
-                                <div class="equipment-actions">
-                                    <button class="btn-edit" data-item="Pistola 9mm">Editar</button>
-                                    <button class="btn-remove">Remover</button>
-                                </div>
-                            </div>
-                            <div class="equipment-item">
-                                <span>Faca de Combate</span>
-                                <div class="equipment-actions">
-                                    <button class="btn-edit" data-item="Faca de Combate">Editar</button>
-                                    <button class="btn-remove">Remover</button>
-                                </div>
+                            <div id="weapons-list">
+                                <!-- As armas serão carregadas via JavaScript -->
                             </div>
                             <div class="add-item">
                                 <button class="btn-save" id="add-weapon">
@@ -229,12 +271,8 @@
                         
                         <div class="equipment-category">
                             <h3>Armaduras</h3>
-                            <div class="equipment-item">
-                                <span>Colete Balístico</span>
-                                <div class="equipment-actions">
-                                    <button class="btn-edit" data-item="Colete Balístico">Editar</button>
-                                    <button class="btn-remove">Remover</button>
-                                </div>
+                            <div id="armors-list">
+                                <!-- As proteções serão carregadas via JavaScript -->
                             </div>
                             <div class="add-item">
                                 <button class="btn-save" id="add-armor">
@@ -245,12 +283,8 @@
                         
                         <div class="equipment-category">
                             <h3>Itens Paranormais</h3>
-                            <div class="equipment-item">
-                                <span>Amuleto de Proteção</span>
-                                <div class="equipment-actions">
-                                    <button class="btn-edit" data-item="Amuleto de Proteção">Editar</button>
-                                    <button class="btn-remove">Remover</button>
-                                </div>
+                            <div id="paranormal-list">
+                                <!-- Os itens paranormais serão carregados via JavaScript -->
                             </div>
                             <div class="add-item">
                                 <button class="btn-save" id="add-paranormal">
@@ -261,26 +295,8 @@
                         
                         <div class="equipment-category">
                             <h3>Itens Gerais</h3>
-                            <div class="equipment-item">
-                                <span>Kit Médico</span>
-                                <div class="equipment-actions">
-                                    <button class="btn-edit" data-item="Kit Médico">Editar</button>
-                                    <button class="btn-remove">Remover</button>
-                                </div>
-                            </div>
-                            <div class="equipment-item">
-                                <span>Lanterna</span>
-                                <div class="equipment-actions">
-                                    <button class="btn-edit" data-item="Lanterna">Editar</button>
-                                    <button class="btn-remove">Remover</button>
-                                </div>
-                            </div>
-                            <div class="equipment-item">
-                                <span>Rádio Comunicador</span>
-                                <div class="equipment-actions">
-                                    <button class="btn-edit" data-item="Rádio Comunicador">Editar</button>
-                                    <button class="btn-remove">Remover</button>
-                                </div>
+                            <div id="general-list">
+                                <!-- Os itens gerais serão carregados via JavaScript -->
                             </div>
                             <div class="add-item">
                                 <button class="btn-save" id="add-general">
@@ -332,8 +348,48 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para modificações -->
+    <div class="modal" id="modifications-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modifications-title">Modificações do Item</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="modifications-list" id="modifications-options">
+                <!-- As opções de modificação serão preenchidas via JavaScript -->
+            </div>
+            
+            <div class="selected-modifications" id="selected-modifications">
+                <h3>Modificações Selecionadas</h3>
+                <ul id="selected-mods-list"></ul>
+            </div>
+            
+            <div class="save-button">
+                <button class="btn-save" id="save-modifications">
+                    <i class="fas fa-check"></i> Aplicar Modificações
+                </button>
+            </div>
+        </div>
+    </div>
     
     <script>
+        // Dados de equipamentos do banco (convertidos de PHP para JavaScript)
+        const equipmentData = {
+            weapons: <?php echo $armas_json; ?>,
+            armors: <?php echo $protecoes_json; ?>,
+            paranormal: <?php echo $itens_paranormais_json; ?>,
+            general: <?php echo $itens_gerais_json; ?>
+        };
+
+        // Dados do personagem atual
+        const currentCharacter = {
+            id: <?php echo $personagem ? $personagem['id'] : 0; ?>,
+            name: "<?php echo $personagem ? addslashes($personagem['nome']) : ''; ?>",
+            nex: <?php echo $personagem ? $personagem['nivel'] * 5 : 0; ?>
+        };
+
         // Elementos DOM
         const tokenPreview = document.getElementById('token-preview');
         const tokenUpload = document.getElementById('token-upload');
@@ -341,57 +397,32 @@
         const tabPanes = document.querySelectorAll('.tab-pane');
         const atributos = ['for', 'agi', 'int', 'vig', 'pre'];
         const equipmentModal = document.getElementById('equipment-modal');
+        const modificationsModal = document.getElementById('modifications-modal');
         const modalTitle = document.getElementById('modal-title');
+        const modificationsTitle = document.getElementById('modifications-title');
         const equipmentOptions = document.getElementById('equipment-options');
+        const modificationsOptions = document.getElementById('modifications-options');
         const equipmentDetails = document.getElementById('equipment-details');
         const filterBtns = document.querySelectorAll('.filter-btn');
-        const closeModal = document.querySelector('.close-modal');
+        const closeModal = document.querySelectorAll('.close-modal');
         const selectEquipmentBtn = document.getElementById('select-equipment');
+        const saveModificationsBtn = document.getElementById('save-modifications');
         const addWeaponBtn = document.getElementById('add-weapon');
         const addArmorBtn = document.getElementById('add-armor');
         const addParanormalBtn = document.getElementById('add-paranormal');
         const addGeneralBtn = document.getElementById('add-general');
         
-        // Dados de equipamentos (baseados nas tabelas fornecidas)
-        const equipmentData = {
-            weapons: [
-                { name: "Faca", category: 0, damage: "1d4", critical: "19", range: "Curto", type: "C", spaces: 1 },
-                { name: "Pistola", category: 1, damage: "1d12", critical: "18", range: "Curto", type: "B", spaces: 1 },
-                { name: "Revolver", category: 1, damage: "2d6", critical: "19×3", range: "Curto", type: "B", spaces: 1 },
-                { name: "Fuzil de caça", category: 1, damage: "2d8", critical: "19×3", range: "Médio", type: "B", spaces: 2 },
-                { name: "Espada", category: 1, damage: "1d8/1d10", critical: "19", range: "-", type: "C", spaces: 1 },
-                { name: "Machado", category: 1, damage: "1d8", critical: "×3", range: "-", type: "C", spaces: 1 },
-                { name: "Submetralhadora", category: 1, damage: "2d6", critical: "19/x3", range: "Curto", type: "B", spaces: 1 },
-                { name: "Espingarda", category: 1, damage: "4d6", critical: "×3", range: "Curto", type: "B", spaces: 2 },
-                { name: "Fuzil de assalto", category: 2, damage: "2d10", critical: "19/x3", range: "Médio", type: "B", spaces: 2 },
-                { name: "Fuzil de precisão", category: 3, damage: "2d10", critical: "19/x3", range: "Longo", type: "B", spaces: 2 }
-            ],
-            armors: [
-                { name: "Leve", defense: "+5", category: 1, spaces: 2 },
-                { name: "Pesada", defense: "+10", category: 2, spaces: 5 },
-                { name: "Escudo", defense: "+2", category: 1, spaces: 2 }
-            ],
-            paranormal: [
-                { name: "Amuleto de Proteção", effect: "Fornece +2 em Defesa", category: 1, spaces: 1 },
-                { name: "Anel do Elo Mental", effect: "Permite comunicação telepática", category: 2, spaces: 1 },
-                { name: "Pérola de Sangue", effect: "Fornece +5 em testes físicos temporariamente", category: 2, spaces: 1 },
-                { name: "Máscara das Sombras", effect: "Permite teletransporte entre sombras", category: 3, spaces: 1 }
-            ],
-            general: [
-                { name: "Kit Médico", category: 0, spaces: 1 },
-                { name: "Lanterna", category: 0, spaces: 1 },
-                { name: "Rádio Comunicador", category: 0, spaces: 1 },
-                { name: "Binóculos", category: 0, spaces: 1 },
-                { name: "Corda", category: 0, spaces: 1 },
-                { name: "Máscara de gás", category: 0, spaces: 1 },
-                { name: "Granada de Fragmentação", category: 1, spaces: 1 },
-                { name: "Granada de Fumaça", category: 0, spaces: 1 }
-            ]
-        };
+        // Listas de equipamentos do personagem
+        const weaponsList = document.getElementById('weapons-list');
+        const armorsList = document.getElementById('armors-list');
+        const paranormalList = document.getElementById('paranormal-list');
+        const generalList = document.getElementById('general-list');
         
         // Estado atual
         let currentEquipmentType = "";
         let selectedEquipment = null;
+        let currentModifications = [];
+        let selectedItemForModification = null;
         
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
@@ -400,6 +431,11 @@
             
             // Atualizar a ficha inicial
             updateCharacterSheet();
+            
+            // Carregar equipamentos do personagem se existir
+            if (currentCharacter.id > 0) {
+                loadCharacterEquipment();
+            }
         });
         
         function setupEventListeners() {
@@ -460,28 +496,22 @@
                 });
             });
             
-            // Fechar modal
-            closeModal.addEventListener('click', () => {
-                equipmentModal.style.display = 'none';
+            // Fechar modais
+            closeModal.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    equipmentModal.style.display = 'none';
+                    modificationsModal.style.display = 'none';
+                });
             });
             
             // Selecionar equipamento
             selectEquipmentBtn.addEventListener('click', addSelectedEquipment);
             
+            // Aplicar modificações
+            saveModificationsBtn.addEventListener('click', applyModifications);
+            
             // Botão de salvar
-            document.getElementById('save-btn').addEventListener('click', function() {
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-                
-                // Simular salvamento
-                setTimeout(() => {
-                    this.innerHTML = '<i class="fas fa-check"></i> Salvo com sucesso!';
-                    
-                    // Resetar após 2 segundos
-                    setTimeout(() => {
-                        this.innerHTML = '<i class="fas fa-save"></i> Salvar Alterações';
-                    }, 2000);
-                }, 1000);
-            });
+            document.getElementById('save-btn').addEventListener('click', saveCharacter);
         }
         
         function updateCharacterSheet() {
@@ -519,21 +549,25 @@
                         const option = document.createElement('div');
                         option.className = 'equipment-option';
                         option.dataset.type = type;
-                        option.dataset.name = item.name;
+                        option.dataset.id = item.id;
                         
                         let details = '';
                         if (type === 'weapons') {
-                            details = `<p><strong>Dano:</strong> ${item.damage}</p>
-                                       <p><strong>Crítico:</strong> ${item.critical}</p>
-                                       <p><strong>Alcance:</strong> ${item.range}</p>`;
+                            details = `<p><strong>Dano:</strong> ${item.dano}</p>
+                                       <p><strong>Crítico:</strong> ${item.crit}</p>
+                                       <p><strong>Alcance:</strong> ${item.alcance || '-'}</p>`;
                         } else if (type === 'armors') {
-                            details = `<p><strong>Defesa:</strong> ${item.defense}</p>`;
+                            details = `<p><strong>Defesa:</strong> ${item.defesa}</p>`;
+                        } else if (type === 'paranormal') {
+                            details = `<p><strong>Efeito:</strong> ${item.efeito}</p>`;
+                        } else if (type === 'general') {
+                            details = `<p><strong>Bônus:</strong> ${item.bonus || 'Item utilitário'}</p>`;
                         }
                         
                         option.innerHTML = `
-                            <h4>${item.name}</h4>
-                            <p><strong>Categoria:</strong> ${item.category}</p>
-                            <p><strong>Espaços:</strong> ${item.spaces}</p>
+                            <h4>${item.nome}</h4>
+                            <p><strong>Categoria:</strong> ${item.categoria}</p>
+                            <p><strong>Espaços:</strong> ${item.espaco}</p>
                             ${details}
                         `;
                         
@@ -555,22 +589,34 @@
             
             // Mostrar detalhes
             let detailsHTML = `
-                <h3>${item.name}</h3>
-                <p><strong>Categoria:</strong> ${item.category}</p>
-                <p><strong>Espaços:</strong> ${item.spaces}</p>
+                <h3>${item.nome}</h3>
+                <p><strong>Categoria:</strong> ${item.categoria}</p>
+                <p><strong>Espaços:</strong> ${item.espaco}</p>
             `;
             
             if (type === 'weapons') {
                 detailsHTML += `
-                    <p><strong>Dano:</strong> ${item.damage}</p>
-                    <p><strong>Crítico:</strong> ${item.critical}</p>
-                    <p><strong>Alcance:</strong> ${item.range}</p>
-                    <p><strong>Tipo:</strong> ${item.type}</p>
+                    <p><strong>Dano:</strong> ${item.dano}</p>
+                    <p><strong>Crítico:</strong> ${item.crit}</p>
+                    <p><strong>Alcance:</strong> ${item.alcance || '-'}</p>
+                    <p><strong>Tipo:</strong> ${item.tipo || '-'}</p>
                 `;
             } else if (type === 'armors') {
-                detailsHTML += `<p><strong>Defesa:</strong> ${item.defense}</p>`;
-            } else if (type === 'paranormal' || type === 'general') {
-                detailsHTML += `<p><strong>Efeito:</strong> ${item.effect || 'Item utilitário'}</p>`;
+                detailsHTML += `<p><strong>Defesa:</strong> ${item.defesa}</p>`;
+            } else if (type === 'paranormal') {
+                detailsHTML += `<p><strong>Efeito:</strong> ${item.efeito}</p>`;
+                if (item.elemento) {
+                    detailsHTML += `<p><strong>Elemento:</strong> ${item.elemento}</p>`;
+                }
+            } else if (type === 'general') {
+                detailsHTML += `<p><strong>Bônus:</strong> ${item.bonus || 'Item utilitário'}</p>`;
+                if (item.tipo) {
+                    detailsHTML += `<p><strong>Tipo:</strong> ${item.tipo}</p>`;
+                }
+            }
+            
+            if (item.descricao) {
+                detailsHTML += `<p><strong>Descrição:</strong> ${item.descricao}</p>`;
             }
             
             equipmentDetails.innerHTML = detailsHTML;
@@ -583,13 +629,264 @@
                 return;
             }
             
-            // Aqui você implementaria a lógica para adicionar o item à ficha
-            // Por enquanto, vamos apenas fechar o modal e mostrar uma mensagem
+            // Fechar modal de equipamentos
             equipmentModal.style.display = 'none';
-            alert(`${selectedEquipment.name} adicionado à ficha!`);
             
-            // Em uma implementação completa, você adicionaria o item à lista apropriada
-            // e calcularia automaticamente a categoria com modificações
+            // Abrir modal de modificações
+            openModificationsModal();
+        }
+        
+        function openModificationsModal() {
+            modificationsTitle.textContent = `Modificações para ${selectedEquipment.nome}`;
+            modificationsModal.style.display = 'flex';
+            
+            // Resetar modificações selecionadas
+            currentModifications = [];
+            document.getElementById('selected-mods-list').innerHTML = '';
+            
+            // Carregar modificações disponíveis para este tipo de item
+            loadModifications(selectedEquipment.sourceType);
+        }
+        
+        function loadModifications(itemType) {
+            // Fazer requisição para buscar modificações do banco
+            fetch(`get_modifications.php?tipo=${itemType}`)
+                .then(response => response.json())
+                .then(modifications => {
+                    displayModifications(modifications);
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar modificações:', error);
+                    modificationsOptions.innerHTML = '<p>Nenhuma modificação disponível.</p>';
+                });
+        }
+        
+        function displayModifications(modifications) {
+            modificationsOptions.innerHTML = '';
+            
+            if (modifications.length === 0) {
+                modificationsOptions.innerHTML = '<p>Nenhuma modificação disponível para este tipo de item.</p>';
+                return;
+            }
+            
+            modifications.forEach(mod => {
+                const option = document.createElement('div');
+                option.className = 'modification-option';
+                option.dataset.id = mod.id;
+                
+                option.innerHTML = `
+                    <h4>${mod.nome}</h4>
+                    <p><strong>Efeito:</strong> ${mod.efeito}</p>
+                    <p><strong>Categoria Extra:</strong> +${mod.categoria_extra}</p>
+                    ${mod.descricao ? `<p><strong>Descrição:</strong> ${mod.descricao}</p>` : ''}
+                    <button class="btn-add-mod">Adicionar</button>
+                `;
+                
+                const addButton = option.querySelector('.btn-add-mod');
+                addButton.addEventListener('click', () => addModification(mod));
+                
+                modificationsOptions.appendChild(option);
+            });
+        }
+        
+        function addModification(modification) {
+            // Adicionar modificação à lista
+            currentModifications.push(modification);
+            
+            // Atualizar lista de modificações selecionadas
+            updateSelectedModificationsList();
+        }
+        
+        function updateSelectedModificationsList() {
+            const list = document.getElementById('selected-mods-list');
+            list.innerHTML = '';
+            
+            currentModifications.forEach((mod, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    ${mod.nome} (+${mod.categoria_extra} categoria)
+                    <button class="btn-remove-mod" data-index="${index}">Remover</button>
+                `;
+                
+                const removeButton = listItem.querySelector('.btn-remove-mod');
+                removeButton.addEventListener('click', () => removeModification(index));
+                
+                list.appendChild(listItem);
+            });
+        }
+        
+        function removeModification(index) {
+            currentModifications.splice(index, 1);
+            updateSelectedModificationsList();
+        }
+        
+        function applyModifications() {
+            // Calcular categoria final
+            let categoriaFinal = selectedEquipment.categoria;
+            let primeiraModParanormal = true;
+            
+            currentModifications.forEach(mod => {
+                if (mod.categoria_extra >= 2) {
+                    // Modificação paranormal
+                    if (primeiraModParanormal) {
+                        categoriaFinal += 2;
+                        primeiraModParanormal = false;
+                    } else {
+                        categoriaFinal += 1;
+                    }
+                } else {
+                    // Modificação normal
+                    categoriaFinal += 1;
+                }
+            });
+            
+            // Adicionar item à lista do personagem
+            addItemToCharacter(selectedEquipment, currentModifications, categoriaFinal);
+            
+            // Fechar modal
+            modificationsModal.style.display = 'none';
+        }
+        
+        function addItemToCharacter(item, modifications, categoriaFinal) {
+            // Fazer requisição para adicionar item ao personagem
+            const formData = new FormData();
+            formData.append('personagem_id', currentCharacter.id);
+            formData.append('item_id', item.id);
+            formData.append('tipo_item', item.sourceType);
+            formData.append('modificacoes', JSON.stringify(modifications.map(m => m.id)));
+            formData.append('categoria_final', categoriaFinal);
+            
+            fetch('add_item_personagem.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Recarregar equipamentos do personagem
+                    loadCharacterEquipment();
+                    alert('Item adicionado com sucesso!');
+                } else {
+                    alert('Erro ao adicionar item: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao adicionar item.');
+            });
+        }
+        
+        function loadCharacterEquipment() {
+            if (currentCharacter.id === 0) return;
+            
+            // Fazer requisição para carregar equipamentos do personagem
+            fetch(`get_character_equipment.php?personagem_id=${currentCharacter.id}`)
+                .then(response => response.json())
+                .then(equipment => {
+                    displayCharacterEquipment(equipment);
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar equipamentos:', error);
+                });
+        }
+        
+        function displayCharacterEquipment(equipment) {
+            // Limpar listas
+            weaponsList.innerHTML = '';
+            armorsList.innerHTML = '';
+            paranormalList.innerHTML = '';
+            generalList.innerHTML = '';
+            
+            // Agrupar equipamentos por tipo
+            const weapons = equipment.filter(item => item.tipo_item === 'arma');
+            const armors = equipment.filter(item => item.tipo_item === 'protecao');
+            const paranormal = equipment.filter(item => item.tipo_item === 'paranormal');
+            const general = equipment.filter(item => item.tipo_item === 'geral');
+            
+            // Preencher listas
+            fillEquipmentList(weapons, weaponsList, 'arma');
+            fillEquipmentList(armors, armorsList, 'protecao');
+            fillEquipmentList(paranormal, paranormalList, 'paranormal');
+            fillEquipmentList(general, generalList, 'geral');
+        }
+        
+        function fillEquipmentList(items, listElement, type) {
+            if (items.length === 0) {
+                listElement.innerHTML = '<p>Nenhum item adicionado.</p>';
+                return;
+            }
+            
+            items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'equipment-item';
+                
+                let details = `Categoria: ${item.categoria_final} | Espaços: ${item.espaco}`;
+                if (type === 'arma') {
+                    details = `Dano: ${item.dano} | Crítico: ${item.crit} | ${details}`;
+                } else if (type === 'protecao') {
+                    details = `Defesa: ${item.defesa} | ${details}`;
+                } else if (type === 'paranormal') {
+                    details = `Efeito: ${item.efeito} | ${details}`;
+                } else if (type === 'geral') {
+                    details = `Bônus: ${item.bonus} | ${details}`;
+                }
+                
+                itemElement.innerHTML = `
+                    <span>${item.nome}</span>
+                    <span>${details}</span>
+                    <div class="equipment-actions">
+                        <button class="btn-edit" data-id="${item.id}" data-type="${type}">Editar</button>
+                        <button class="btn-remove" data-id="${item.id}" data-type="${type}">Remover</button>
+                    </div>
+                `;
+                
+                // Adicionar event listeners para os botões
+                const editBtn = itemElement.querySelector('.btn-edit');
+                const removeBtn = itemElement.querySelector('.btn-remove');
+                
+                editBtn.addEventListener('click', () => editEquipmentItem(item.id, type));
+                removeBtn.addEventListener('click', () => removeEquipmentItem(item.id, type));
+                
+                listElement.appendChild(itemElement);
+            });
+        }
+        
+        function editEquipmentItem(itemId, itemType) {
+            // Implementar edição de item
+            alert(`Editar item ${itemId} do tipo ${itemType}`);
+        }
+        
+        function removeEquipmentItem(itemId, itemType) {
+            if (confirm('Tem certeza que deseja remover este item?')) {
+                // Fazer requisição para remover item
+                const formData = new FormData();
+                formData.append('item_id', itemId);
+                formData.append('tipo_item', itemType);
+                
+                fetch('remove_item_personagem.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Recarregar equipamentos
+                        loadCharacterEquipment();
+                        alert('Item removido com sucesso!');
+                    } else {
+                        alert('Erro ao remover item: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao remover item.');
+                });
+            }
+        }
+        
+        function saveCharacter() {
+            // Implementar salvamento da ficha completa
+            alert('Salvando alterações...');
         }
     </script>
 </body>

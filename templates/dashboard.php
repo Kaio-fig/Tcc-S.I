@@ -1,9 +1,16 @@
 <?php
+// dashboard.php
+// Iniciar sessão e verificar login
 session_start();
-if (!isset($_SESSION["usuario"])) {
-    header("Location: ../templates/login.php");
-    exit();
+
+// Verificar se o usuário está logado
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header('Location: login.php');
+    exit;
 }
+
+// Incluir conexão com banco
+require_once '../conection/db_connect.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -11,44 +18,44 @@ if (!isset($_SESSION["usuario"])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Arca do Aventureiro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <nav>
-                <a href="#" class="logo">Arca do Aventureiro</a>
-                <ul class="nav-links">
-                    <li><a class="a" href="#personagens">Personagens</a></li>
-                    <li><a class="a" href="#mundos">Mundos</a></li>
-                    <li><a class="a" href="#itens">Itens</a></li>
-                    <li><a class="a" href="#historias">Histórias</a></li>
-                    <li><a class="a" href="../conection/logout.php" class="btn btn-secondary">Logout</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
     <main>
-        <section class="dashboard">
-            <h1>Bem-vindo, <?php echo $_SESSION["usuario"]; ?>!</h1>
-            <p>Aqui você pode gerenciar suas campanhas de RPG.</p>
+        <header>
+            <div class="container">
+                <nav>
+                    <a href="../index.html" class="logo">Arca do Aventureiro</a>
+                    <ul class="nav-links">
+                        <li><a href="../index.html">Início</a></li>
+                        <li><a href="meus_personagens.php">Personagens</a></li>
+                        <li><a href="#">Mundos</a></li>
+                        <li><a href="#">Itens</a></li>
+                        <li><a href="logout.php" class="btn btn-secondary">Sair</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <section class="dashboard-content">
+            <h1>Bem-vindo, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</h1>
+            
             <div class="dashboard-grid">
-                <div class="dashboard-card" id="personagens">
-                    <h2>Personagens</h2>
-                    <p>Gerencie suas fichas e atributos.</p>
-                </div>
-                <div class="dashboard-card" id="mundos">
-                    <h2>Mundos</h2>
-                    <p>Crie e compartilhe cenários de campanha.</p>
-                </div>
-                <div class="dashboard-card" id="itens">
-                    <h2>Itens</h2>
-                    <p>Catalogue equipamentos e tesouros.</p>
-                </div>
-                <div class="dashboard-card" id="historias">
-                    <h2>Histórias</h2>
-                    <p>Documente as aventuras dos jogadores.</p>
-                </div>
+                <a href="meus_personagens.php" class="dashboard-card">
+                    <h3>Personagens</h3>
+                    <p>Gerencie seus personagens</p>
+                </a>
+                
+                <a href="#" class="dashboard-card">
+                    <h3>Criar Mundo</h3>
+                    <p>Desenvolva novos mundos</p>
+                </a>
+                
+                <a href="#" class="dashboard-card">
+                    <h3>Itens</h3>
+                    <p>Explore itens e equipamentos</p>
+                </a>
             </div>
         </section>
     </main>
