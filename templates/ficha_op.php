@@ -1,7 +1,15 @@
 <?php
-// ficha_op.php
-// Correção do caminho da conexão
+session_start();
+
+// Verificar login
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header("Location: login.php");
+    exit();
+}
+
 require_once '../conection/db_connect.php';
+require_once '../conection/item_functions.php';
+
 
 
 // Obter personagem atual
@@ -58,7 +66,6 @@ $itens_paranormais_json = json_encode($itens_paranormais);
             <h1><i class="fas fa-dragon"></i> Ficha de Ordem Paranormal</h1>
             <p>Automatizada para Agentes da Ordem</p>
             <?php if ($personagem): ?>
-                <p>Personagem: <?php echo htmlspecialchars($personagem['nome']); ?> | NEX: <?php echo $personagem['nivel'] * 5; ?>%</p>
             <?php endif; ?>
         </header>
         
@@ -650,7 +657,7 @@ $itens_paranormais_json = json_encode($itens_paranormais);
         
         function loadModifications(itemType) {
             // Fazer requisição para buscar modificações do banco
-            fetch(`get_modifications.php?tipo=${itemType}`)
+            fetch(`../conection/get_modifications.php?tipo=${itemType}`)
                 .then(response => response.json())
                 .then(modifications => {
                     displayModifications(modifications);
@@ -756,7 +763,7 @@ $itens_paranormais_json = json_encode($itens_paranormais);
             formData.append('modificacoes', JSON.stringify(modifications.map(m => m.id)));
             formData.append('categoria_final', categoriaFinal);
             
-            fetch('add_item_personagem.php', {
+            fetch('../conection/add_item_personagem.php', {
                 method: 'POST',
                 body: formData
             })
@@ -780,7 +787,7 @@ $itens_paranormais_json = json_encode($itens_paranormais);
             if (currentCharacter.id === 0) return;
             
             // Fazer requisição para carregar equipamentos do personagem
-            fetch(`get_character_equipment.php?personagem_id=${currentCharacter.id}`)
+            fetch(`../conection/get_character_equipment.php?personagem_id=${currentCharacter.id}`)
                 .then(response => response.json())
                 .then(equipment => {
                     displayCharacterEquipment(equipment);
@@ -863,7 +870,7 @@ $itens_paranormais_json = json_encode($itens_paranormais);
                 formData.append('item_id', itemId);
                 formData.append('tipo_item', itemType);
                 
-                fetch('remove_item_personagem.php', {
+                fetch('../conection/remove_item_personagem.php', {
                     method: 'POST',
                     body: formData
                 })

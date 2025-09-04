@@ -5,7 +5,7 @@ session_start();
 
 // Verificar se o usuário está logado
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    header('Location: login.php');
+    header('Location: ../templates/login.php');
     exit;
 }
 
@@ -32,7 +32,7 @@ require_once '../conection/db_connect.php';
                         <li><a href="meus_personagens.php">Personagens</a></li>
                         <li><a href="#">Mundos</a></li>
                         <li><a href="#">Itens</a></li>
-                        <li><a href="logout.php" class="btn btn-secondary">Sair</a></li>
+                        <li><a href="../conection/logout.php" class="btn btn-secondary">Sair</a></li>
                     </ul>
                 </nav>
             </div>

@@ -3,11 +3,11 @@
 // Iniciar sessão e verificar login
 session_start();
 
-// Verificar se o usuário está logado
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    header('Location: login.php');
-    exit;
+    header("Location: login.php");
+    exit();
 }
+
 
 // Correção do caminho da conexão
 require_once '../conection/db_connect.php';

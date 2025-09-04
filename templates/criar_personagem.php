@@ -1,6 +1,12 @@
 <?php
-// criar_personagem.php
-// Correção do caminho da conexão
+session_start();
+
+// Verificar login
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header("Location: login.php");
+    exit();
+}
+
 require_once '../conection/db_connect.php';
 
 
