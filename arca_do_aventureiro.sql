@@ -221,12 +221,15 @@ CREATE TABLE IF NOT EXISTS `personagens` (
   `user_id` int(11) NOT NULL,
   `nome` varchar(100) NOT NULL,
   `sistema` varchar(50) NOT NULL,
-  `nivel` int(11) NOT NULL DEFAULT '1',
+  `nex` int(11) NOT NULL DEFAULT '1',
+  `vida` int(11) NOT NULL DEFAULT '0',
+  `pe` int(11) NOT NULL DEFAULT '0',
+  `san` int(11) NOT NULL DEFAULT '0',
   `imagem` varchar(255) DEFAULT 'default.jpg',
   `data_criacao` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `personagens`

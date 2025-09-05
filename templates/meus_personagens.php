@@ -350,7 +350,6 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
                             <div class="character-details">
                                 <p><strong>Sistema:</strong> <?php echo htmlspecialchars($personagem['sistema']); ?></p>
                                 <p><strong>Nível:</strong> <?php echo $personagem['nivel']; ?> (NEX: <?php echo $personagem['nivel'] * 5; ?>%)</p>
-                                <p><strong>Criado em:</strong> <?php echo date('d/m/Y', strtotime($personagem['data_criacao'])); ?></p>
                             </div>
                             <div class="character-actions">
                                 <!-- CORREÇÃO: Caminho para ficha_op.php -->
@@ -402,27 +401,30 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
     </div>
 
     <script>
-        function abrirModalSistemas() {
-            document.getElementById('sistema-modal').style.display = 'flex';
+    function abrirModalSistemas() {
+        document.getElementById('sistema-modal').style.display = 'flex';
+    }
+    
+    function fecharModalSistemas() {
+        document.getElementById('sistema-modal').style.display = 'none';
+    }
+    
+    function criarPersonagem(sistema) {
+        // Redirecionar diretamente para a ficha do sistema escolhido
+        if (sistema === 'Ordem Paranormal') {
+            window.location.href = `../templates/ficha_op.php?criar_novo=1&sistema=${encodeURIComponent(sistema)}`;
+        } else if (sistema === 'Tormenta 20') {
+            window.location.href = `../templates/ficha_t20.php?criar_novo=1&sistema=${encodeURIComponent(sistema)}`;
         }
-        
-        function fecharModalSistemas() {
-            document.getElementById('sistema-modal').style.display = 'none';
+    }
+    
+    // Fechar modal ao clicar fora dele
+    window.onclick = function(event) {
+        const modal = document.getElementById('sistema-modal');
+        if (event.target === modal) {
+            fecharModalSistemas();
         }
-        
-        function criarPersonagem(sistema) {
-            // Redirecionar para a página de criação do personagem
-            // CORREÇÃO: Caminho para criar_personagem.php
-            window.location.href = `criar_personagem.php?sistema=${encodeURIComponent(sistema)}`;
-        }
-        
-        // Fechar modal ao clicar fora dele
-        window.onclick = function(event) {
-            const modal = document.getElementById('sistema-modal');
-            if (event.target === modal) {
-                fecharModalSistemas();
-            }
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
