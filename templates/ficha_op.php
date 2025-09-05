@@ -1,12 +1,12 @@
 <?php
 session_start();
 
+
 // Verificar login
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     header("Location: login.php");
     exit();
 }
-
 require_once '../conection/db_connect.php';
 require_once '../conection/item_functions.php';
 
@@ -45,6 +45,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "INSERT INTO personagens (user_id, nome, sistema, nex, vida, pe, san, imagem)
                 VALUES ('$user_id', '$nome', '$sistema', '$nex', '$vida', '$pe', '$san', '$imagem')";
     }
+
+    
 }
 
 // Carregar itens do banco de dados
