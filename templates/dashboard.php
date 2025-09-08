@@ -48,13 +48,18 @@ require_once '../conection/db_connect.php';
                 </a>
                 
                 <a href="#" class="dashboard-card">
-                    <h3>Criar Mundo</h3>
+                    <h3>Mundos</h3>
                     <p>Desenvolva novos mundos</p>
                 </a>
                 
                 <a href="#" class="dashboard-card">
                     <h3>Itens</h3>
                     <p>Explore itens e equipamentos</p>
+                </a>
+
+                <a href="#" class="dashboard-card">
+                    <h3>Historias</h3>
+                    <p>Escreva todas suas ideias</p>
                 </a>
             </div>
         </section>
