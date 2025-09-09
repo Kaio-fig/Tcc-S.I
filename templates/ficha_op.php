@@ -22,7 +22,7 @@ if ($id > 0) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nome   = $_POST['nome'];
     $sistema = $_POST['sistema'];
-    $nex    = $_POST['nex'];
+    $nivel    = $_POST['nivel'];
     $vida   = $_POST['vida'];
     $pe     = $_POST['pe'];
     $san    = $_POST['san'];
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "UPDATE personagens 
                 SET nome='$nome',
                     sistema='$sistema',
-                    nex='$nex',
+                    nivel='$nivel',
                     vida='$vida',
                     pe='$pe',
                     san='$san',
@@ -42,8 +42,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 WHERE id='$id'";
     } else {
         // Criar novo personagem
-        $sql = "INSERT INTO personagens (user_id, nome, sistema, nex, vida, pe, san, imagem)
-                VALUES ('$user_id', '$nome', '$sistema', '$nex', '$vida', '$pe', '$san', '$imagem')";
+        $sql = "INSERT INTO personagens (user_id, nome, sistema, nivel, vida, pe, san, imagem)
+                VALUES ('$user_id', '$nome', '$sistema', '$nivel', '$vida', '$pe', '$san', '$imagem')";
     }
 }
 
@@ -101,7 +101,7 @@ $itens_paranormais_json = json_encode($itens_paranormais);
                     value="<?php echo $personagem ? htmlspecialchars($personagem['nome']) : ''; ?>">
                 <br><br>
                 <!-- Seleção de NEX -->
-                <select name="nex" id="nex" class="nex-select" required>
+                <select name="nivel" id="nivel" class="nex-select" required>
                     <option value="">Selecione um NEX</option>
                     <option value="1">NEX – 5%</option>
                     <option value="2">NEX – 10%</option>
@@ -437,7 +437,7 @@ $itens_paranormais_json = json_encode($itens_paranormais);
         const currentCharacter = {
             id: <?php echo $personagem ? intval($personagem['id']) : 0; ?>,
             name: "<?php echo $personagem ? addslashes($personagem['nome']) : ''; ?>",
-            nex: <?php echo isset($personagem['nex']) ? intval($personagem['nex']) : 0; ?>
+            nivel: <?php echo isset($personagem['nivel']) ? intval($personagem['nivel']) : 0; ?>
         };
 
         // Elementos DOM usados de fato
@@ -798,25 +798,82 @@ $itens_paranormais_json = json_encode($itens_paranormais);
 
         // Salvar ficha (AJAX)
         function saveCharacter() {
-            const formData = new FormData(document.getElementById('ficha-form'));
-            fetch('../conection/save_character.php', {
+            const formData = new FormData();
+
+            // IDs / inputs esperados no HTML; ajuste conforme seus IDs
+            formData.append('personagem_id', document.getElementById('personagem_id').value || 0);
+            formData.append('nome', document.getElementById('nome').value || '');
+            formData.append('nivel', document.getElementById('nivel').value || 0);
+            formData.append('vida', document.getElementById('vida').value || 0);
+            formData.append('pe', document.getElementById('pe').value || 0);
+            formData.append('san', document.getElementById('san').value || 0);
+            formData.append('forca', document.getElementById('forca').value || 0);
+            formData.append('agilidade', document.getElementById('agilidade').value || 0);
+            formData.append('intelecto', document.getElementById('intelecto').value || 0);
+            formData.append('vigor', document.getElementById('vigor').value || 0);
+            formData.append('presenca', document.getElementById('presenca').value || 0);
+
+            // novos campos
+            formData.append('sistema', document.getElementById('sistema').value || '');
+            
+            formData.append('origem', document.getElementById('origem').value || '');
+            formData.append('classe', document.getElementById('classe').value || '');
+            formData.append('defesa', document.getElementById('defesa').value || 0);
+
+            // Perícias: monte um objeto { "Atletismo": 5, "Percepcao": 3, ... }
+            const periciasObj = {};
+            document.querySelectorAll('.pericia-input').forEach(el => {
+                const key = el.dataset.nome; // ex: data-nome="Atletismo"
+                if (!key) return;
+                periciasObj[key] = parseInt(el.value) || 0;
+            });
+            formData.append('pericias', JSON.stringify(periciasObj));
+
+            // Habilidades / rituais / equipamento: colecione inputs com classes específicas
+            const habilidades = [];
+            document.querySelectorAll('.habilidade-input').forEach(el => {
+                if (el.value.trim() !== '') habilidades.push(el.value.trim());
+            });
+            formData.append('habilidades', JSON.stringify(habilidades));
+
+            const rituais = [];
+            document.querySelectorAll('.ritual-input').forEach(el => {
+                if (el.value.trim() !== '') rituais.push(el.value.trim());
+            });
+            formData.append('rituais', JSON.stringify(rituais));
+
+            const equipamento = [];
+            document.querySelectorAll('.equipamento-input').forEach(el => {
+                if (el.value.trim() !== '') equipamento.push(el.value.trim());
+            });
+            formData.append('equipamento', JSON.stringify(equipamento));
+
+            // Imagem (input type="file" id="imagem")
+            const fileInput = document.getElementById('imagem');
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                formData.append('imagem', fileInput.files[0]);
+            }
+
+            // Ajuste o caminho conforme a localização do arquivo save_character.php relativo a ficha_op.php
+            fetch('conection/save_character.php', {
                     method: 'POST',
                     body: formData
                 })
-                .then(r => r.json())
+                .then(resp => resp.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Personagem salvo!');
-                        if (data.personagem_id) {
-                            currentCharacter.id = data.personagem_id;
-                            const newUrl = window.location.href.split('?')[0] + '?id=' + data.personagem_id;
-                            window.history.replaceState({}, '', newUrl);
-                        }
+                        // ação ao salvar
+                        alert('Personagem salvo! ID: ' + data.personagem_id);
+                        // opcional: atualizar campo hidden com novo id se foi um insert
+                        document.getElementById('personagem_id').value = data.personagem_id;
                     } else {
                         alert('Erro: ' + data.message);
                     }
                 })
-                .catch(() => alert('Erro ao salvar.'));
+                .catch(err => {
+                    console.error(err);
+                    alert('Erro de conexão.');
+                });
         }
     </script>
 

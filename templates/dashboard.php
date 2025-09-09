@@ -32,6 +32,7 @@ require_once '../conection/db_connect.php';
                         <li><a href="meus_personagens.php">Personagens</a></li>
                         <li><a href="#">Mundos</a></li>
                         <li><a href="#">Itens</a></li>
+                        <li><a href="#">Histórias</a></li>
                         <li><a href="../conection/logout.php" class="btn btn-secondary">Sair</a></li>
                     </ul>
                 </nav>

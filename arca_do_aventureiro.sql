@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Máquina: localhost
--- Data de Criação: 04-Set-2025 às 15:35
+-- Data de Criação: 09-Set-2025 às 11:43
 -- Versão do servidor: 5.6.13
 -- versão do PHP: 5.4.17
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `op_armas` (
   `alcance` varchar(20) DEFAULT NULL,
   `descricao` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=71 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=11 ;
 
 --
 -- Extraindo dados da tabela `op_armas`
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `op_gerais` (
   `tipo` varchar(50) DEFAULT NULL,
   `descricao` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=57 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=9 ;
 
 --
 -- Extraindo dados da tabela `op_gerais`
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS `op_modificacoes` (
   `categoria_extra` int(11) NOT NULL DEFAULT '0',
   `descricao` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=85 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=13 ;
 
 --
 -- Extraindo dados da tabela `op_modificacoes`
@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS `op_paranormal` (
   `elemento` varchar(20) DEFAULT NULL,
   `descricao` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=43 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
 
 --
 -- Extraindo dados da tabela `op_paranormal`
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS `op_protecoes` (
   `tipo` varchar(50) DEFAULT NULL,
   `descricao` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=22 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
 
 --
 -- Extraindo dados da tabela `op_protecoes`
@@ -216,27 +216,25 @@ INSERT INTO `op_protecoes` (`id`, `nome`, `defesa`, `categoria`, `espaco`, `tipo
 -- Estrutura da tabela `personagens`
 --
 
-CREATE TABLE IF NOT EXISTS `personagens` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
-  `sistema` varchar(50) NOT NULL,
-  `nex` int(11) NOT NULL DEFAULT '1',
-  `vida` int(11) NOT NULL DEFAULT '0',
-  `pe` int(11) NOT NULL DEFAULT '0',
-  `san` int(11) NOT NULL DEFAULT '0',
-  `imagem` varchar(255) DEFAULT 'default.jpg',
-  `data_criacao` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS personagens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL, -- id do dono
+    sistema VARCHAR(50) NOT NULL, -- Ex: "Ordem Paranormal"
+    nome VARCHAR(100) NOT NULL,
+    nivel INT NOT NULL DEFAULT 1,
+    origem VARCHAR(100) DEFAULT NULL,
+    classe VARCHAR(100) DEFAULT NULL,
+    vida INT NOT NULL DEFAULT 0,
+    pe INT NOT NULL DEFAULT 0,
+    san INT NOT NULL DEFAULT 0,
+    defesa INT NOT NULL DEFAULT 0,
+    pericias TEXT,         -- lista JSON com 30 pericias
+    habilidades TEXT,      -- lista JSON
+    rituais TEXT,          -- lista JSON
+    equipamento TEXT,      -- lista JSON
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
---
--- Extraindo dados da tabela `personagens`
---
-
-INSERT INTO `personagens` (`id`, `user_id`, `nome`, `sistema`, `nivel`, `imagem`, `data_criacao`) VALUES
-(3, 1, 'myke', 'Ordem Paranormal', 9, 'default.jpg', '2025-09-04 15:22:33');
 
 -- --------------------------------------------------------
 
@@ -251,7 +249,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `senha` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
 --
 -- Extraindo dados da tabela `usuarios`
