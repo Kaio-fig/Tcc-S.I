@@ -71,360 +71,363 @@ $itens_paranormais_json = json_encode($itens_paranormais);
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-dragon"></i> Ficha de Ordem Paranormal</h1>
-            <p>Automatizada para Agentes da Ordem</p>
-            <?php if ($personagem): ?>
-            <?php endif; ?>
-        </header>
+    <form action="../conection/save_character.php" method="POST" enctype="multipart/form-data">
+        <div class="container">
+            <header>
+                <h1><i class="fas fa-dragon"></i> Ficha de Ordem Paranormal</h1>
+                <p>Automatizada para Agentes da Ordem</p>
+                <?php if ($personagem): ?>
+                <?php endif; ?>
+            </header>
 
-        <!-- Painel Esquerdo: Token e Nome -->
+            <!-- Painel Esquerdo: Token e Nome -->
 
-        <div class="left-panel">
-            <div class="token-container">
-                <div class="token-preview" id="token-preview">
-                    <?php if ($personagem && $personagem['imagem'] != 'default.jpg'): ?>
-                        <img src="../uploads/<?php echo $personagem['imagem']; ?>" alt="Token do Personagem">
-                    <?php else: ?>
-                        <i class="fas fa-user-circle"></i>
-                    <?php endif; ?>
+            <div class="left-panel">
+                <div class="token-container">
+                    <div class="token-preview" id="token-preview">
+                        <?php if ($personagem && $personagem['imagem'] != 'default.jpg'): ?>
+                            <img src="../uploads/<?php echo $personagem['imagem']; ?>" alt="Token do Personagem">
+                        <?php else: ?>
+                            <i class="fas fa-user-circle"></i>
+                        <?php endif; ?>
+                    </div>
+                    <input type="file" name="imagem" id="token-upload" accept="image/*" class="token-upload">
+                    <button class="btn-save" onclick="document.getElementById('token-upload').click()">
+                        <i class="fas fa-upload"></i> Importar Token
+                    </button>
                 </div>
-                <input type="file" id="token-upload" accept="image/*" class="token-upload">
-                <button class="btn-save" onclick="document.getElementById('token-upload').click()">
-                    <i class="fas fa-upload"></i> Importar Token
-                </button>
+
+                <div class="character-name">
+                    <input type="text" name="nome" id="char-name" placeholder="Nome do Personagem"
+                        value="<?php echo $personagem ? htmlspecialchars($personagem['nome']) : ''; ?>">
+                    <br><br>
+                    <!-- Seleção de NEX -->
+                    <select name="nivel" id="nivel" class="nex-select" required>
+                        <option value="">Selecione um NEX</option>
+                        <option value="1">NEX – 5%</option>
+                        <option value="2">NEX – 10%</option>
+                        <option value="3">NEX – 15%</option>
+                        <option value="4">NEX – 20%</option>
+                        <option value="5">NEX – 25%</option>
+                        <option value="6">NEX – 30%</option>
+                        <option value="7">NEX – 35%</option>
+                        <option value="8">NEX – 40%</option>
+                        <option value="9">NEX – 45%</option>
+                        <option value="10">NEX – 50%</option>
+                        <option value="11">NEX – 55%</option>
+                        <option value="12">NEX – 60%</option>
+                        <option value="13">NEX – 65%</option>
+                        <option value="14">NEX – 70%</option>
+                        <option value="15">NEX – 75%</option>
+                        <option value="16">NEX – 80%</option>
+                        <option value="17">NEX – 85%</option>
+                        <option value="18">NEX – 90%</option>
+                        <option value="19">NEX – 95%</option>
+                        <option value="20">NEX – 99%</option>
+                    </select>
+
+                    <!-- Vida -->
+                    <input type="number" name="vida" id="vida" placeholder="Vida" required>
+                    <br><br>
+                    <!-- Pontos de Esforço -->
+                    <input type="number" name="pe" id="pe" placeholder="PE" required>
+                    <br><br>
+                    <!-- Sanidade -->
+                    <input type="number" name="san" id="san" placeholder="Sanidade" required>
+                    <br><br>
+                    <input type="hidden" name="sistema" value="<?php echo htmlspecialchars($sistema); ?>">
+                </div>
             </div>
+            <!-- Painel Direito: Abas e Conteúdo -->
+            <div class="right-panel">
+                <div class="tab-controls">
+                    <div class="tab-btn active" data-tab="status-tab">
+                        <i class="fas fa-heart"></i> Status
+                    </div>
+                    <div class="tab-btn" data-tab="powers-tab">
+                        <i class="fas fa-fire"></i> Poderes e Rituais
+                    </div>
+                    <div class="tab-btn" data-tab="equipment-tab">
+                        <i class="fas fa-shield-alt"></i> Equipamento
+                    </div>
+                </div>
 
-            <div class="character-name">
-                <input type="text" id="char-name" placeholder="Nome do Personagem"
-                    value="<?php echo $personagem ? htmlspecialchars($personagem['nome']) : ''; ?>">
-                <br><br>
-                <!-- Seleção de NEX -->
-                <select name="nivel" id="nivel" class="nex-select" required>
-                    <option value="">Selecione um NEX</option>
-                    <option value="1">NEX – 5%</option>
-                    <option value="2">NEX – 10%</option>
-                    <option value="3">NEX – 15%</option>
-                    <option value="4">NEX – 20%</option>
-                    <option value="5">NEX – 25%</option>
-                    <option value="6">NEX – 30%</option>
-                    <option value="7">NEX – 35%</option>
-                    <option value="8">NEX – 40%</option>
-                    <option value="9">NEX – 45%</option>
-                    <option value="10">NEX – 50%</option>
-                    <option value="11">NEX – 55%</option>
-                    <option value="12">NEX – 60%</option>
-                    <option value="13">NEX – 65%</option>
-                    <option value="14">NEX – 70%</option>
-                    <option value="15">NEX – 75%</option>
-                    <option value="16">NEX – 80%</option>
-                    <option value="17">NEX – 85%</option>
-                    <option value="18">NEX – 90%</option>
-                    <option value="19">NEX – 95%</option>
-                    <option value="20">NEX – 99%</option>
-                </select>
+                <div class="tab-content">
+                    <!-- Aba Status -->
+                    <div id="status-tab" class="tab-pane active">
+                        <h2>Atributos e Perícias</h2>
 
-                <!-- Vida -->
-                <input type="number" name="vida" id="vida" placeholder="Vida" required>
-                <br><br>
-                <!-- Pontos de Esforço -->
-                <input type="number" name="pe" id="pe" placeholder="PE" required>
-                <br><br>
-                <!-- Sanidade -->
-                <input type="number" name="san" id="san" placeholder="Sanidade" required>
+                        <div class="attributes-grid">
+                            <div class="attribute">
+                                <label>FORÇA</label>
+                                <input type="number" name="forca" id="for" min="0" max="8" value="1">
+                                <div class="modifier" id="for-mod">+1</div>
+                            </div>
+                            <div class="attribute">
+                                <label>AGILIDADE</label>
+                                <input type="number" name="agilidade" id="agi" min="0" max="5" value="1">
+                                <div class="modifier" id="agi-mod">+1</div>
+                            </div>
+                            <div class="attribute">
+                                <label>INTELECTO</label>
+                                <input type="number" name="intelecto" id="int" min="0" max="5" value="1">
+                                <div class="modifier" id="int-mod">+1</div>
+                            </div>
+                            <div class="attribute">
+                                <label>VIGOR</label>
+                                <input type="number" name="vigor" id="vig" min="0" max="5" value="1">
+                                <div class="modifier" id="vig-mod">+1</div>
+                            </div>
+                            <div class="attribute">
+                                <label>PRESENÇA</label>
+                                <input type="number" name="presenca" id="pre" min="0" max="5" value="1">
+                                <div class="modifier" id="pre-mod">+1</div>
+                            </div>
+                        </div>
+
+                        <div class="skills-grid">
+                            <div class="skill-category">
+                                <h3>Físicas</h3>
+                                <div class="skill">
+                                    <span>Acrobacia (AGI)</span>
+                                    <input type="number" id="acrobacia" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Atletismo (FOR)</span>
+                                    <input type="number" id="atletismo" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Furtividade (AGI)</span>
+                                    <input type="number" id="furtividade" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Pilotagem (AGI)</span>
+                                    <input type="number" id="pilotagem" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Pontaria (AGI)</span>
+                                    <input type="number" id="pontaria" value="1">
+                                </div>
+                            </div>
+
+                            <div class="skill-category">
+                                <h3>Mentais</h3>
+                                <div class="skill">
+                                    <span>Atualidades (INT)</span>
+                                    <input type="number" id="atualidades" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Ciências (INT)</span>
+                                    <input type="number" id="ciencias" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Crime (INT)</span>
+                                    <input type="number" id="crime" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Investigação (INT)</span>
+                                    <input type="number" id="investigacao" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Medicina (INT)</span>
+                                    <input type="number" id="medicina" value="1">
+                                </div>
+                            </div>
+
+                            <div class="skill-category">
+                                <h3>Sociais</h3>
+                                <div class="skill">
+                                    <span>Diplomacia (PRE)</span>
+                                    <input type="number" id="diplomacia" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Enganação (PRE)</span>
+                                    <input type="number" id="enganacao" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Intimidação (PRE)</span>
+                                    <input type="number" id="intimidacao" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Percepção (PRE)</span>
+                                    <input type="number" id="percepcao" value="1">
+                                </div>
+                                <div class="skill">
+                                    <span>Vontade (PRE)</span>
+                                    <input type="number" id="vontade" value="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba Poderes e Rituais -->
+                    <div id="powers-tab" class="tab-pane">
+                        <h2>Poderes de Classe e Rituais</h2>
+
+                        <div class="abilities-list">
+                            <div class="ability">
+                                <h3>Ataque Especial</h3>
+                                <p>Gaste 2 PE para receber +5 em um ataque</p>
+                            </div>
+                            <div class="ability">
+                                <h3>Golpe Pesado</h3>
+                                <p>Seu ataque causa +1 dado de dano</p>
+                            </div>
+                            <div class="ability">
+                                <h3>Combate Defensivo</h3>
+                                <p>Ganhe +5 em Defesa</p>
+                            </div>
+                            <div class="ability">
+                                <h3>Escudo Mental</h3>
+                                <p>Protege sua mente contra efeitos paranormais</p>
+                            </div>
+                            <div class="ability">
+                                <h3>Amaldiçoar Arma</h3>
+                                <p>Ritual: Arma causa dano paranormal adicional</p>
+                            </div>
+                            <div class="ability">
+                                <h3>Definhar</h3>
+                                <p>Ritual: Enfraquece inimigos próximos</p>
+                            </div>
+                            <div class="ability">
+                                <h3>Perturbação</h3>
+                                <p>Ritual: Cria ilusões para confundir oponentes</p>
+                            </div>
+                            <div class="ability">
+                                <h3>Arma Atroz</h3>
+                                <p>Ritual: Cria uma arma feita de energia paranormal</p>
+                            </div>
+                        </div>
+
+                        <div class="add-item">
+                            <button class="btn-save">
+                                <i class="fas fa-plus"></i> Adicionar Novo Poder
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Aba Equipamento -->
+                    <div id="equipment-tab" class="tab-pane">
+                        <h2>Equipamentos e Itens</h2>
+
+                        <div class="equipment-grid">
+                            <div class="equipment-category">
+                                <h3>Armas</h3>
+                                <div id="weapons-list">
+                                    <!-- As armas serão carregadas via JavaScript -->
+                                </div>
+                                <div class="add-item">
+                                    <button class="btn-save" id="add-weapon">
+                                        <i class="fas fa-plus"></i> Adicionar Arma
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="equipment-category">
+                                <h3>Armaduras</h3>
+                                <div id="armors-list">
+                                    <!-- As proteções serão carregadas via JavaScript -->
+                                </div>
+                                <div class="add-item">
+                                    <button class="btn-save" id="add-armor">
+                                        <i class="fas fa-plus"></i> Adicionar Armadura
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="equipment-category">
+                                <h3>Itens Paranormais</h3>
+                                <div id="paranormal-list">
+                                    <!-- Os itens paranormais serão carregados via JavaScript -->
+                                </div>
+                                <div class="add-item">
+                                    <button class="btn-save" id="add-paranormal">
+                                        <i class="fas fa-plus"></i> Adicionar Item Paranormal
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="equipment-category">
+                                <h3>Itens Gerais</h3>
+                                <div id="general-list">
+                                    <!-- Os itens gerais serão carregados via JavaScript -->
+                                </div>
+                                <div class="add-item">
+                                    <button class="btn-save" id="add-general">
+                                        <i class="fas fa-plus"></i> Adicionar Item Geral
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="save-button">
+                    <button class="btn-save" id="save-btn">
+                        <i class="fas fa-save"></i> Salvar Alterações
+                    </button>
+                </div>
             </div>
         </div>
-        <!-- Painel Direito: Abas e Conteúdo -->
-        <div class="right-panel">
-            <div class="tab-controls">
-                <div class="tab-btn active" data-tab="status-tab">
-                    <i class="fas fa-heart"></i> Status
-                </div>
-                <div class="tab-btn" data-tab="powers-tab">
-                    <i class="fas fa-fire"></i> Poderes e Rituais
-                </div>
-                <div class="tab-btn" data-tab="equipment-tab">
-                    <i class="fas fa-shield-alt"></i> Equipamento
-                </div>
-            </div>
 
-            <div class="tab-content">
-                <!-- Aba Status -->
-                <div id="status-tab" class="tab-pane active">
-                    <h2>Atributos e Perícias</h2>
-
-                    <div class="attributes-grid">
-                        <div class="attribute">
-                            <label>FORÇA</label>
-                            <input type="number" id="for" min="0" max="5" value="1">
-                            <div class="modifier" id="for-mod">+1</div>
-                        </div>
-                        <div class="attribute">
-                            <label>AGILIDADE</label>
-                            <input type="number" id="agi" min="0" max="5" value="1">
-                            <div class="modifier" id="agi-mod">+1</div>
-                        </div>
-                        <div class="attribute">
-                            <label>INTELECTO</label>
-                            <input type="number" id="int" min="0" max="5" value="1">
-                            <div class="modifier" id="int-mod">+1</div>
-                        </div>
-                        <div class="attribute">
-                            <label>VIGOR</label>
-                            <input type="number" id="vig" min="0" max="5" value="1">
-                            <div class="modifier" id="vig-mod">+1</div>
-                        </div>
-                        <div class="attribute">
-                            <label>PRESENÇA</label>
-                            <input type="number" id="pre" min="0" max="5" value="1">
-                            <div class="modifier" id="pre-mod">+1</div>
-                        </div>
-                    </div>
-
-                    <div class="skills-grid">
-                        <div class="skill-category">
-                            <h3>Físicas</h3>
-                            <div class="skill">
-                                <span>Acrobacia (AGI)</span>
-                                <input type="number" id="acrobacia" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Atletismo (FOR)</span>
-                                <input type="number" id="atletismo" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Furtividade (AGI)</span>
-                                <input type="number" id="furtividade" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Pilotagem (AGI)</span>
-                                <input type="number" id="pilotagem" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Pontaria (AGI)</span>
-                                <input type="number" id="pontaria" value="1">
-                            </div>
-                        </div>
-
-                        <div class="skill-category">
-                            <h3>Mentais</h3>
-                            <div class="skill">
-                                <span>Atualidades (INT)</span>
-                                <input type="number" id="atualidades" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Ciências (INT)</span>
-                                <input type="number" id="ciencias" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Crime (INT)</span>
-                                <input type="number" id="crime" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Investigação (INT)</span>
-                                <input type="number" id="investigacao" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Medicina (INT)</span>
-                                <input type="number" id="medicina" value="1">
-                            </div>
-                        </div>
-
-                        <div class="skill-category">
-                            <h3>Sociais</h3>
-                            <div class="skill">
-                                <span>Diplomacia (PRE)</span>
-                                <input type="number" id="diplomacia" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Enganação (PRE)</span>
-                                <input type="number" id="enganacao" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Intimidação (PRE)</span>
-                                <input type="number" id="intimidacao" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Percepção (PRE)</span>
-                                <input type="number" id="percepcao" value="1">
-                            </div>
-                            <div class="skill">
-                                <span>Vontade (PRE)</span>
-                                <input type="number" id="vontade" value="1">
-                            </div>
-                        </div>
-                    </div>
+        <!-- Modal para seleção de equipamentos -->
+        <div class="modal" id="equipment-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-title">Selecionar Equipamento</h2>
+                    <button class="close-modal">&times;</button>
                 </div>
 
-                <!-- Aba Poderes e Rituais -->
-                <div id="powers-tab" class="tab-pane">
-                    <h2>Poderes de Classe e Rituais</h2>
-
-                    <div class="abilities-list">
-                        <div class="ability">
-                            <h3>Ataque Especial</h3>
-                            <p>Gaste 2 PE para receber +5 em um ataque</p>
-                        </div>
-                        <div class="ability">
-                            <h3>Golpe Pesado</h3>
-                            <p>Seu ataque causa +1 dado de dano</p>
-                        </div>
-                        <div class="ability">
-                            <h3>Combate Defensivo</h3>
-                            <p>Ganhe +5 em Defesa</p>
-                        </div>
-                        <div class="ability">
-                            <h3>Escudo Mental</h3>
-                            <p>Protege sua mente contra efeitos paranormais</p>
-                        </div>
-                        <div class="ability">
-                            <h3>Amaldiçoar Arma</h3>
-                            <p>Ritual: Arma causa dano paranormal adicional</p>
-                        </div>
-                        <div class="ability">
-                            <h3>Definhar</h3>
-                            <p>Ritual: Enfraquece inimigos próximos</p>
-                        </div>
-                        <div class="ability">
-                            <h3>Perturbação</h3>
-                            <p>Ritual: Cria ilusões para confundir oponentes</p>
-                        </div>
-                        <div class="ability">
-                            <h3>Arma Atroz</h3>
-                            <p>Ritual: Cria uma arma feita de energia paranormal</p>
-                        </div>
-                    </div>
-
-                    <div class="add-item">
-                        <button class="btn-save">
-                            <i class="fas fa-plus"></i> Adicionar Novo Poder
-                        </button>
-                    </div>
+                <div class="equipment-filters">
+                    <button class="filter-btn active" data-filter="all">Todos</button>
+                    <button class="filter-btn" data-filter="weapon">Armas</button>
+                    <button class="filter-btn" data-filter="armor">Proteções</button>
+                    <button class="filter-btn" data-filter="paranormal">Paranormais</button>
+                    <button class="filter-btn" data-filter="general">Gerais</button>
                 </div>
 
-                <!-- Aba Equipamento -->
-                <div id="equipment-tab" class="tab-pane">
-                    <h2>Equipamentos e Itens</h2>
-
-                    <div class="equipment-grid">
-                        <div class="equipment-category">
-                            <h3>Armas</h3>
-                            <div id="weapons-list">
-                                <!-- As armas serão carregadas via JavaScript -->
-                            </div>
-                            <div class="add-item">
-                                <button class="btn-save" id="add-weapon">
-                                    <i class="fas fa-plus"></i> Adicionar Arma
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="equipment-category">
-                            <h3>Armaduras</h3>
-                            <div id="armors-list">
-                                <!-- As proteções serão carregadas via JavaScript -->
-                            </div>
-                            <div class="add-item">
-                                <button class="btn-save" id="add-armor">
-                                    <i class="fas fa-plus"></i> Adicionar Armadura
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="equipment-category">
-                            <h3>Itens Paranormais</h3>
-                            <div id="paranormal-list">
-                                <!-- Os itens paranormais serão carregados via JavaScript -->
-                            </div>
-                            <div class="add-item">
-                                <button class="btn-save" id="add-paranormal">
-                                    <i class="fas fa-plus"></i> Adicionar Item Paranormal
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="equipment-category">
-                            <h3>Itens Gerais</h3>
-                            <div id="general-list">
-                                <!-- Os itens gerais serão carregados via JavaScript -->
-                            </div>
-                            <div class="add-item">
-                                <button class="btn-save" id="add-general">
-                                    <i class="fas fa-plus"></i> Adicionar Item Geral
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="equipment-list" id="equipment-options">
+                    <!-- As opções de equipamento serão preenchidas via JavaScript -->
                 </div>
-            </div>
 
-            <div class="save-button">
-                <button class="btn-save" id="save-btn">
-                    <i class="fas fa-save"></i> Salvar Alterações
-                </button>
+                <div class="equipment-details" id="equipment-details">
+                    <h3>Detalhes do Item</h3>
+                    <p>Selecione um item para ver os detalhes</p>
+                </div>
+
+                <div class="save-button">
+                    <button class="btn-save" id="select-equipment">
+                        <i class="fas fa-check"></i> Selecionar Item
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal para seleção de equipamentos -->
-    <div class="modal" id="equipment-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-title">Selecionar Equipamento</h2>
-                <button class="close-modal">&times;</button>
-            </div>
+        <!-- Modal para modificações -->
+        <div class="modal" id="modifications-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modifications-title">Modificações do Item</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
 
-            <div class="equipment-filters">
-                <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="weapon">Armas</button>
-                <button class="filter-btn" data-filter="armor">Proteções</button>
-                <button class="filter-btn" data-filter="paranormal">Paranormais</button>
-                <button class="filter-btn" data-filter="general">Gerais</button>
-            </div>
+                <div class="modifications-list" id="modifications-options">
+                    <!-- As opções de modificação serão preenchidas via JavaScript -->
+                </div>
 
-            <div class="equipment-list" id="equipment-options">
-                <!-- As opções de equipamento serão preenchidas via JavaScript -->
-            </div>
+                <div class="selected-modifications" id="selected-modifications">
+                    <h3>Modificações Selecionadas</h3>
+                    <ul id="selected-mods-list"></ul>
+                </div>
 
-            <div class="equipment-details" id="equipment-details">
-                <h3>Detalhes do Item</h3>
-                <p>Selecione um item para ver os detalhes</p>
-            </div>
-
-            <div class="save-button">
-                <button class="btn-save" id="select-equipment">
-                    <i class="fas fa-check"></i> Selecionar Item
-                </button>
+                <div class="save-button">
+                    <button type="submit" class="btn-save" id="save-modifications">
+                        <i class="fas fa-check"></i> Aplicar Modificações
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Modal para modificações -->
-    <div class="modal" id="modifications-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modifications-title">Modificações do Item</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-
-            <div class="modifications-list" id="modifications-options">
-                <!-- As opções de modificação serão preenchidas via JavaScript -->
-            </div>
-
-            <div class="selected-modifications" id="selected-modifications">
-                <h3>Modificações Selecionadas</h3>
-                <ul id="selected-mods-list"></ul>
-            </div>
-
-            <div class="save-button">
-                <button class="btn-save" id="save-modifications">
-                    <i class="fas fa-check"></i> Aplicar Modificações
-                </button>
-            </div>
-        </div>
-    </div>
-
+    </form>
     <script>
         // Dados iniciais (do PHP para JS)
         const equipmentData = {
@@ -815,7 +818,7 @@ $itens_paranormais_json = json_encode($itens_paranormais);
 
             // novos campos
             formData.append('sistema', document.getElementById('sistema').value || '');
-            
+
             formData.append('origem', document.getElementById('origem').value || '');
             formData.append('classe', document.getElementById('classe').value || '');
             formData.append('defesa', document.getElementById('defesa').value || 0);

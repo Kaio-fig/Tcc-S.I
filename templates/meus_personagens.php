@@ -8,6 +8,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit();
 }
 
+$sistema = '';
+if (isset($_GET['sistema'])) {
+    $sistema = $_GET['sistema']; // valor recebido da URL
+}
 
 // Correção do caminho da conexão
 require_once '../conection/db_connect.php';
@@ -412,9 +416,11 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
     function criarPersonagem(sistema) {
         // Redirecionar diretamente para a ficha do sistema escolhido
         if (sistema === 'Ordem Paranormal') {
-            window.location.href = `../templates/ficha_op.php?criar_novo=1&sistema=${encodeURIComponent(sistema)}`;
+            sistemaValor = 'ordem'
+            window.location.href = `../templates/ficha_op.php?criar_novo=1&sistema=${sistemaValor}`;
         } else if (sistema === 'Tormenta 20') {
-            window.location.href = `../templates/ficha_t20.php?criar_novo=1&sistema=${encodeURIComponent(sistema)}`;
+            sistemaValor = 't20'
+            window.location.href = `../templates/ficha_t20.php?criar_novo=1&sistema=${sistemaValor}`;
         }
     }
     
