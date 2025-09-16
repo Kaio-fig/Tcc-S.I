@@ -318,8 +318,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <!-- Aba Poderes e Rituais -->
                     <div id="powers-tab" class="tab-pane active">
                         <h2>Poderes de Classe e Rituais</h2>
-                        <label for="origem">Origem</label>
-                        <select name="origem_id" id="origem_id" class="form-control" required>
+                        <select name="origem_id" id="origem_id" class="nex-select" required>
                             <option value="">-- Selecione uma origem --</option>
                             <?php
                             $sql = "SELECT id, nome FROM origens ORDER BY nome ASC";
