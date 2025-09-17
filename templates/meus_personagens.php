@@ -1,6 +1,5 @@
 <?php
 // meus_personagens.php
-// Iniciar sessão e verificar login
 session_start();
 
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
@@ -8,57 +7,46 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit();
 }
 
-$sistema = '';
-if (isset($_GET['sistema'])) {
-    $sistema = $_GET['sistema']; // valor recebido da URL
-}
-
-// Correção do caminho da conexão
 require_once '../conection/db_connect.php';
 
-// Processar exclusão de personagem
 if (isset($_GET['excluir'])) {
     $personagem_id = intval($_GET['excluir']);
-    
-    // Verificar se o personagem pertence ao usuário
-    $stmt = $conn->prepare("SELECT user_id FROM personagens WHERE id = ?");
-    $stmt->bind_param("i", $personagem_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $personagem = $result->fetch_assoc();
-    
+    $stmt_check = $conn->prepare("SELECT user_id FROM personagens_op WHERE id = ?");
+    $stmt_check->bind_param("i", $personagem_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    $personagem = $result_check->fetch_assoc();
+
     if ($personagem && $personagem['user_id'] == $_SESSION['user_id']) {
-        $stmt = $conn->prepare("DELETE FROM personagens WHERE id = ?");
-        $stmt->bind_param("i", $personagem_id);
-        $stmt->execute();
-        
-        // Redirecionar para evitar reenvio do formulário
+        $stmt_delete = $conn->prepare("DELETE FROM personagens_op WHERE id = ?");
+        $stmt_delete->bind_param("i", $personagem_id);
+        $stmt_delete->execute();
         header('Location: meus_personagens.php?excluido=1');
         exit;
     }
 }
 
-// Buscar personagens do usuário
-$stmt = $conn->prepare("SELECT * FROM personagens WHERE user_id = ? ORDER BY nome");
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$result = $stmt->get_result();
-$personagens = $result->fetch_all(MYSQLI_ASSOC);
+$stmt_select = $conn->prepare("SELECT id, nome, imagem, nex FROM personagens_op WHERE user_id = ? ORDER BY nome");
+$stmt_select->bind_param("i", $_SESSION['user_id']);
+$stmt_select->execute();
+$result_select = $stmt_select->get_result();
+$personagens = $result_select->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meus Personagens - Arca do Aventureiro</title>
+    <title>Personagens de Ordem Paranormal - Arca do Aventureiro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Reset e Estilos Globais */
+        /* Estilos CSS (sem alterações, igual à versão anterior) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         :root {
@@ -67,7 +55,6 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
             --dark-color: #2c2c2c;
             --light-color: #f5f5f5;
             --success-color: #4caf50;
-            --warning-color: #ff9800;
             --danger-color: #f44336;
         }
 
@@ -104,6 +91,8 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
             transition: all 0.3s ease;
             margin: 5px;
             text-decoration: none;
+            border: none;
+            cursor: pointer;
         }
 
         .btn-primary {
@@ -137,7 +126,6 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
             transform: translateY(-2px);
         }
 
-        /* Grid de Personagens */
         .characters-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -151,6 +139,8 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
         }
 
         .character-card:hover {
@@ -180,6 +170,9 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
 
         .character-info {
             padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .character-info h3 {
@@ -190,6 +183,7 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
 
         .character-details {
             margin-bottom: 15px;
+            flex-grow: 1;
         }
 
         .character-details p {
@@ -203,7 +197,20 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
             margin-top: 15px;
         }
 
-        /* Modal de Sistemas */
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border-color: #d6e9c6;
+        }
+
+        /* --- ESTILOS PARA O MODAL --- */
         .modal {
             display: none;
             position: fixed;
@@ -236,7 +243,7 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
 
         .systems-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin: 30px 0;
         }
@@ -262,71 +269,43 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
 
         .system-card p {
             color: #555;
+            font-size: 0.9em;
         }
 
         .close-modal {
             background: var(--danger-color);
             color: white;
-            border: none;
             padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
             margin-top: 20px;
         }
 
-        /* Mensagens de alerta */
-        .alert {
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        .alert-success {
-            background-color: #dff0d8;
-            color: #3c763d;
-            border: 1px solid #d6e9c6;
-        }
-
-        .alert-danger {
-            background-color: #f2dede;
-            color: #a94442;
-            border: 1px solid #ebccd1;
-        }
-
-        /* Responsividade */
         @media (max-width: 768px) {
             .characters-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .character-actions {
                 flex-direction: column;
                 gap: 10px;
             }
-            
-            .systems-grid {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-dragon"></i> Meus Personagens</h1>
-            <p>Gerencie seus personagens de RPG</p>
+            <h1><i class="fas fa-book-dead"></i> Meus Personagens (Ordem Paranormal)</h1>
+            <p>Gerencie seus heróis e agentes do paranormal</p>
         </header>
 
         <?php if (isset($_GET['excluido']) && $_GET['excluido'] == 1): ?>
-            <div class="alert alert-success">
-                Personagem excluído com sucesso!
-            </div>
+            <div class="alert alert-success">Personagem excluído com sucesso!</div>
         <?php endif; ?>
-
         <?php if (isset($_GET['criado']) && $_GET['criado'] == 1): ?>
-            <div class="alert alert-success">
-                Personagem criado com sucesso!
-            </div>
+            <div class="alert alert-success">Personagem criado com sucesso!</div>
         <?php endif; ?>
 
         <div style="text-align: center; margin-bottom: 30px;">
@@ -343,22 +322,21 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
                 <?php foreach ($personagens as $personagem): ?>
                     <div class="character-card">
                         <div class="character-image">
-                            <?php if ($personagem['imagem'] && $personagem['imagem'] != 'default.jpg'): ?>
-                                <img src="../uploads/<?php echo $personagem['imagem']; ?>" alt="<?php echo htmlspecialchars($personagem['nome']); ?>">
+                            <?php if (!empty($personagem['imagem']) && $personagem['imagem'] != 'default.jpg' && file_exists("../uploads/" . $personagem['imagem'])): ?>
+                                <img src="../uploads/<?php echo htmlspecialchars($personagem['imagem']); ?>" alt="<?php echo htmlspecialchars($personagem['nome']); ?>">
                             <?php else: ?>
-                                <i class="fas fa-user-circle"></i>
+                                <i class="fas fa-user-secret"></i>
                             <?php endif; ?>
                         </div>
                         <div class="character-info">
                             <h3><?php echo htmlspecialchars($personagem['nome']); ?></h3>
                             <div class="character-details">
-                                <p><strong>Sistema:</strong> <?php echo htmlspecialchars($personagem['sistema']); ?></p>
-                                <p><strong>Nível:</strong> <?php echo $personagem['nivel']; ?> (NEX: <?php echo $personagem['nivel'] * 5; ?>%)</p>
+                                <p><strong>Sistema:</strong> Ordem Paranormal</p>
+                                <p><strong>NEX:</strong> <?php echo $personagem['nex']; ?>%</p>
                             </div>
                             <div class="character-actions">
-                                <!-- CORREÇÃO: Caminho para ficha_op.php -->
                                 <a href="../templates/ficha_op.php?personagem_id=<?php echo $personagem['id']; ?>" class="btn btn-primary">
-                                    <i class="fas fa-edit"></i> Editar
+                                    <i class="fas fa-edit"></i> Ver / Editar
                                 </a>
                                 <a href="meus_personagens.php?excluir=<?php echo $personagem['id']; ?>" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir este personagem?')">
                                     <i class="fas fa-trash"></i> Excluir
@@ -369,68 +347,63 @@ $personagens = $result->fetch_all(MYSQLI_ASSOC);
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <div style="text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
-                <i class="fas fa-users" style="font-size: 4rem; color: #9e9e9e; margin-bottom: 20px;"></i>
-                <h3>Nenhum personagem encontrado</h3>
-                <p>Você ainda não criou nenhum personagem. Clique no botão abaixo para começar!</p>
-                <button class="btn btn-primary" onclick="abrirModalSistemas()" style="margin-top: 20px;">
-                    <i class="fas fa-plus"></i> Criar Primeiro Personagem
-                </button>
+            <div style="text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                <i class="fas fa-folder-open" style="font-size: 4rem; color: #9e9e9e; margin-bottom: 20px;"></i>
+                <h3>Nenhum personagem de Ordem Paranormal encontrado</h3>
+                <p>Você ainda não criou nenhum agente. Clique no botão acima para começar sua jornada!</p>
             </div>
         <?php endif; ?>
     </div>
 
-    <!-- Modal de seleção de sistema -->
     <div class="modal" id="sistema-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Escolha o Sistema</h2>
-                <p>Selecione o sistema de RPG para seu novo personagem</p>
+                <h2>Escolha o Sistema de RPG</h2>
+                <p>Selecione o universo para seu novo personagem</p>
             </div>
-            
+
             <div class="systems-grid">
                 <div class="system-card" onclick="criarPersonagem('Ordem Paranormal')">
-                    <h3>Ordem Paranormal</h3>
-                    <p>Sistema de investigação paranormal e horror</p>
+                    <h3><i class="fas fa-book-dead"></i> Ordem Paranormal</h3>
+                    <p>Enfrente o oculto em um mundo de investigação e horror.</p>
                 </div>
-                
+
                 <div class="system-card" onclick="criarPersonagem('Tormenta 20')">
-                    <h3>Tormenta 20</h3>
-                    <p>Sistema de fantasia heroica brasileiro</p>
+                    <h3><i class="fas fa-dragon"></i> Tormenta 20</h3>
+                    <p>Viva grandes aventuras em um cenário de fantasia épica.</p>
                 </div>
             </div>
-            
-            <button class="close-modal" onclick="fecharModalSistemas()">Fechar</button>
+
+            <button class="btn close-modal" onclick="fecharModalSistemas()">Cancelar</button>
         </div>
     </div>
 
     <script>
-    function abrirModalSistemas() {
-        document.getElementById('sistema-modal').style.display = 'flex';
-    }
-    
-    function fecharModalSistemas() {
-        document.getElementById('sistema-modal').style.display = 'none';
-    }
-    
-    function criarPersonagem(sistema) {
-        // Redirecionar diretamente para a ficha do sistema escolhido
-        if (sistema === 'Ordem Paranormal') {
-            sistemaValor = 'ordem'
-            window.location.href = `../templates/ficha_op.php?criar_novo=1&sistema=${sistemaValor}`;
-        } else if (sistema === 'Tormenta 20') {
-            sistemaValor = 't20'
-            window.location.href = `../templates/ficha_t20.php?criar_novo=1&sistema=${sistemaValor}`;
-        }
-    }
-    
-    // Fechar modal ao clicar fora dele
-    window.onclick = function(event) {
         const modal = document.getElementById('sistema-modal');
-        if (event.target === modal) {
-            fecharModalSistemas();
+
+        function abrirModalSistemas() {
+            modal.style.display = 'flex';
         }
-    }
-</script>
+
+        function fecharModalSistemas() {
+            modal.style.display = 'none';
+        }
+
+        function criarPersonagem(sistema) {
+            if (sistema === 'Ordem Paranormal') {
+                window.location.href = `../templates/ficha_op.php?criar_novo=1`;
+            } else if (sistema === 'Tormenta 20') {
+                window.location.href = `../templates/ficha_t20.php?criar_novo=1`;
+            }
+        }
+
+        // Fecha o modal se o usuário clicar fora do conteúdo
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                fecharModalSistemas();
+            }
+        }
+    </script>
 </body>
+
 </html>
