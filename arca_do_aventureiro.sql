@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Máquina: localhost
--- Data de Criação: 17-Set-2025 às 17:54
+-- Data de Criação: 30-Set-2025 às 01:14
 -- Versão do servidor: 5.6.13
 -- versão do PHP: 5.4.17
 
@@ -48,6 +48,64 @@ INSERT INTO `classes` (`id`, `nome`, `pv_inicial`, `pv_por_nivel`, `pe_inicial`,
 (1, 'Combatente', 20, 4, 2, 2, 12, 3),
 (2, 'Especialista', 16, 3, 3, 3, 16, 4),
 (3, 'Ocultista', 12, 2, 4, 4, 20, 5);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `historias`
+--
+
+CREATE TABLE IF NOT EXISTS `historias` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `sistema_jogo` varchar(100) DEFAULT 'Desconhecido',
+  `sinopse` text,
+  `imagem_historia` varchar(255) DEFAULT 'default_historia.jpg',
+  `data_criacao` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `itens`
+--
+
+CREATE TABLE IF NOT EXISTS `itens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `sistema` varchar(50) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `tipo` varchar(100) DEFAULT 'Item Geral',
+  `descricao` text,
+  `imagem` varchar(255) DEFAULT 'default_item.jpg',
+  `categoria_op` int(11) DEFAULT NULL,
+  `espacos_op` int(11) DEFAULT NULL,
+  `preco_t20` varchar(50) DEFAULT NULL,
+  `peso_t20` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `mundos`
+--
+
+CREATE TABLE IF NOT EXISTS `mundos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `sistema_jogo` varchar(100) DEFAULT 'Desconhecido',
+  `descricao` text,
+  `imagem_mundo` varchar(255) DEFAULT 'default_mundo.jpg',
+  `data_criacao` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -401,7 +459,15 @@ CREATE TABLE IF NOT EXISTS `personagens_op` (
   KEY `user_id` (`user_id`),
   KEY `fk_origem` (`origem_id`),
   KEY `fk_classe` (`classe_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=3 ;
+
+--
+-- Extraindo dados da tabela `personagens_op`
+--
+
+INSERT INTO `personagens_op` (`id`, `user_id`, `nome`, `imagem`, `nex`, `origem_id`, `classe_id`, `patente`, `pontos_prestigio`, `vida_max`, `pe_max`, `sanidade_max`, `forca`, `agilidade`, `intelecto`, `vigor`, `presenca`, `defesa`, `inventario_espacos`, `trilha`, `poderes_classe`, `poderes_paranormais`, `rituais`, `habilidades_trilha`, `data_criacao`) VALUES
+(1, 1, 'Korg', 'char_68caf6df505da5.22339557.png', 75, NULL, NULL, NULL, 0, 0, 0, 0, 3, 2, 1, 4, 1, 11, 7, NULL, NULL, NULL, NULL, NULL, '2025-09-17 17:58:55'),
+(2, 1, 'Antonella', 'char_68caf8622f3119.19777633.png', 35, NULL, NULL, NULL, 0, 0, 0, 0, 0, 2, 3, 2, 4, 11, 7, NULL, NULL, NULL, NULL, NULL, '2025-09-17 18:05:22');
 
 -- --------------------------------------------------------
 
@@ -429,6 +495,24 @@ INSERT INTO `usuarios` (`id`, `nome_usuario`, `email`, `senha`) VALUES
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Limitadores para a tabela `historias`
+--
+ALTER TABLE `historias`
+  ADD CONSTRAINT `historias_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Limitadores para a tabela `itens`
+--
+ALTER TABLE `itens`
+  ADD CONSTRAINT `itens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Limitadores para a tabela `mundos`
+--
+ALTER TABLE `mundos`
+  ADD CONSTRAINT `mundos_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
 -- Limitadores para a tabela `op_personagem_itens`
