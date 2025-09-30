@@ -1,0 +1,185 @@
+        /* CSS Embutido para a Apresentação */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        :root {
+            --cor-primaria: #8a0303; /* Vermelho T20 */
+            --cor-secundaria: #6a1b9a; /* Roxo do projeto */
+            --cor-fundo: #f4f7fa;
+            --cor-surface: #ffffff;
+            --cor-texto-primario: #212529;
+            --cor-texto-secundario: #6c757d;
+            --cor-borda: #dee2e6;
+            --sombra: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto-primario);
+            padding: 2rem;
+        }
+
+        .ficha-container {
+            max-width: 1400px;
+            margin: auto;
+            display: grid;
+            /* Layout: Coluna principal flexível, coluna lateral fixa */
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .coluna-principal, .coluna-lateral {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .bloco {
+            background-color: var(--cor-surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--cor-borda);
+            box-shadow: var(--sombra);
+        }
+
+        h3 {
+            color: var(--cor-primaria);
+            font-weight: 700;
+            border-bottom: 1px solid var(--cor-borda);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- COLUNA LATERAL (DIREITA) --- */
+        .bloco-personagem {
+            text-align: center;
+            padding: 2rem;
+        }
+        .personagem-imagem {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 1.5rem auto;
+            background-color: var(--cor-fundo);
+            border-radius: 50%;
+            border: 4px solid var(--cor-borda);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .personagem-imagem img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .personagem-nome {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--cor-primaria);
+            line-height: 1.2;
+        }
+        .personagem-info {
+            font-size: 1rem;
+            color: var(--cor-texto-secundario);
+            margin-top: 0.5rem;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            text-align: center;
+        }
+        .status-box label {
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--cor-texto-secundario);
+        }
+        .status-box .valor {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--cor-texto-primario);
+        }
+
+        /* --- COLUNA PRINCIPAL (ESQUERDA) --- */
+        .abas-nav {
+            display: flex;
+            background-color: var(--cor-fundo);
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--cor-texto-secundario);
+            border-radius: 6px;
+            transition: all 0.2s ease-in-out;
+        }
+        .tab-button.active {
+            background-color: var(--cor-surface);
+            color: var(--cor-primaria);
+            box-shadow: var(--sombra);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .atributos-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        .atributo .valor { font-size: 2rem; font-weight: 700; }
+        .atributo .modificador { font-size: 1.25rem; color: var(--cor-primaria); font-weight: 500; }
+
+        .pericias-container {
+            columns: 2;
+            gap: 2rem;
+        }
+        .pericia-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .poder-item {
+            padding: 1rem;
+            border: 1px solid var(--cor-borda);
+            border-left: 4px solid var(--cor-primaria);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .poder-item h4 { color: var(--cor-primaria); margin-bottom: 0.5rem; }
+
+        .equipamento-lista {
+            list-style: none;
+            padding-left: 1.5rem;
+        }
+        .equipamento-lista li {
+            padding: 0.25rem 0;
+            border-bottom: 1px dashed var(--cor-borda);
+        }
+        .equipamento-lista li::before {
+            content: '•';
+            color: var(--cor-primaria);
+            font-weight: bold;
+            display: inline-block; 
+            width: 1em;
+            margin-left: -1em;
+        }
