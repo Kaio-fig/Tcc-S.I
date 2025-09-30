@@ -30,9 +30,9 @@ require_once '../conection/db_connect.php';
                     <ul class="nav-links">
                         <li><a href="../index.html">Início</a></li>
                         <li><a href="meus_personagens.php">Personagens</a></li>
-                        <li><a href="#">Mundos</a></li>
-                        <li><a href="#">Itens</a></li>
-                        <li><a href="#">Histórias</a></li>
+                        <li><a href="meus_mundos.php">Mundos</a></li>
+                        <li><a href="meus_itens.php">Itens</a></li>
+                        <li><a href="minhas_historias.php">Histórias</a></li>
                         <li><a href="../conection/logout.php" class="btn btn-secondary">Sair</a></li>
                     </ul>
                 </nav>
@@ -48,17 +48,17 @@ require_once '../conection/db_connect.php';
                     <p>Gerencie seus personagens</p>
                 </a>
                 
-                <a href="#" class="dashboard-card">
+                <a href="meus_mundos.php" class="dashboard-card">
                     <h3>Mundos</h3>
                     <p>Desenvolva novos mundos</p>
                 </a>
                 
-                <a href="#" class="dashboard-card">
+                <a href="meus_itens.php" class="dashboard-card">
                     <h3>Itens</h3>
                     <p>Explore itens e equipamentos</p>
                 </a>
 
-                <a href="#" class="dashboard-card">
+                <a href="minhas_historias.php" class="dashboard-card">
                     <h3>Historias</h3>
                     <p>Escreva todas suas ideias</p>
                 </a>
