@@ -178,6 +178,8 @@ h2 {
 
 .tab-content.active {
     display: block;
+    overflow-y: auto;
+    min-height: 200px;
 }
 
 .atributos-grid {
@@ -223,6 +225,10 @@ h2 {
     font-weight: bold;
 }
 
+.lista-poderes {
+    min-height: 50px; 
+}
+
 .lista-poderes .poder-item {
     background-color: #fff;
     border: 1px solid var(--border-color);
@@ -246,11 +252,14 @@ h2 {
 /* Ajuste para que o botão de ação não ocupe a largura toda por padrão */
 .btn-acao {
     width: auto;
-    padding: 12px 30px; /* Mais preenchimento lateral */
-    display: inline-flex; /* Para alinhar o ícone com o texto */
+    padding: 12px 30px;
+    /* Mais preenchimento lateral */
+    display: inline-flex;
+    /* Para alinhar o ícone com o texto */
     align-items: center;
     justify-content: center;
-    gap: 8px; /* Espaço entre o ícone e o texto */
+    gap: 8px;
+    /* Espaço entre o ícone e o texto */
 }
 
 /* Novo estilo para o botão secundário (Voltar) */
