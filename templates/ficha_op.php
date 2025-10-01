@@ -99,6 +99,15 @@ $pericias_agrupadas = [
     'Presença' => [['id' => 2, 'nome' => 'Adestramento', 'so_treinado' => true], ['id' => 3, 'nome' => 'Artes', 'so_treinado' => true], ['id' => 8, 'nome' => 'Diplomacia'], ['id' => 9, 'nome' => 'Enganação'], ['id' => 13, 'nome' => 'Intimidação'], ['id' => 19, 'nome' => 'Percepção'], ['id' => 24, 'nome' => 'Religião', 'so_treinado' => true], ['id' => 28, 'nome' => 'Vontade', 'so_treinado' => true]],
     'Vigor' => [['id' => 10, 'nome' => 'Fortitude']]
 ];
+
+//capacidade de carga por patente
+$patentes = [
+    'Recruta' => ['I' => 2, 'II' => 0, 'III' => 0, 'IV' => 0],
+    'Operador' => ['I' => 3, 'II' => 1, 'III' => 0, 'IV' => 0],
+    'Agente Especial' => ['I' => 3, 'II' => 2, 'III' => 1, 'IV' => 0],
+    'Oficial de Operações' => ['I' => 3, 'II' => 3, 'III' => 2, 'IV' => 1],
+    'Agente de Elite' => ['I' => 3, 'II' => 3, 'III' => 3, 'IV' => 2]
+];
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -240,6 +249,69 @@ $pericias_agrupadas = [
                         <button type="button" class="btn-acao" id="btn-adicionar-poder" style="margin-top: 20px;">Adicionar Poder de Classe</button>
 
                     </div>
+
+                    <div id="tab-equipamento" class="tab-content">
+                        <div class="info-equipamento">
+                            <div class="patente-container">
+                                <label for="patente-select">Patente</label>
+                                <select id="patente-select" name="patente">
+                                    <?php foreach (array_keys($patentes) as $patente): ?>
+                                        <option value="<?= $patente ?>"><?= $patente ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="espacos-container">
+                                <span>Espaços Totais</span>
+                                <strong id="espacos-total-display">--</strong>
+                            </div>
+                            <div class="limites-categoria">
+                                <span>Limite de Itens por Categoria</span>
+                                <div class="limites-grid">
+                                    <div class="limite-box">I<strong id="limite-cat-i"></strong></div>
+                                    <div class="limite-box">II<strong id="limite-cat-ii"></strong></div>
+                                    <div class="limite-box">III<strong id="limite-cat-iii"></strong></div>
+                                    <div class="limite-box">IV<strong id="limite-cat-iv"></strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2>Inventário</h2>
+                        <div class="lista-itens">
+                            <div class="item-row header">
+                                <div class="item-nome">Item</div>
+                                <div class="item-cat">Cat.</div>
+                                <div class="item-esp">Esp.</div>
+                            </div>
+
+                            <div class="item-row">
+                                <div class="item-nome">Mochila Militar</div>
+                                <div class="item-cat">I</div>
+                                <div class="item-esp">+2</div>
+                            </div>
+                            <div class="item-row">
+                                <div class="item-nome">Pé de Cabra</div>
+                                <div class="item-cat">I</div>
+                                <div class="item-esp">1</div>
+                            </div>
+                            <div class="item-row">
+                                <div class="item-nome">Vestimenta (+2 Fortitude)</div>
+                                <div class="item-cat">I</div>
+                                <div class="item-esp">1</div>
+                            </div>
+                            <div class="item-row">
+                                <div class="item-nome">Pistola (Calibre Grosso)</div>
+                                <div class="item-cat">II</div>
+                                <div class="item-esp">1</div>
+                            </div>
+                            <div class="item-row">
+                                <div class="item-nome">Lanterna</div>
+                                <div class="item-cat">0</div>
+                                <div class="item-esp">1</div>
+                            </div>
+
+                        </div>
+                        <button type="button" class="btn-acao" id="btn-adicionar-item" style="margin-top: 20px;" disabled>Adicionar Item</button>
+                    </div>
                 </div>
             </div>
             <div class="botoes-rodape">
@@ -261,11 +333,12 @@ $pericias_agrupadas = [
             const origens = <?= json_encode(isset($origens) ? $origens : []) ?>;
             const todasAsTrilhas = <?= json_encode(isset($trilhas) ? $trilhas : []) ?>;
             const todosOsPoderesDeTrilha = <?= json_encode(isset($poderes_trilha) ? $poderes_trilha : []) ?>;
+            const patentesData = <?= json_encode(isset($patentes) ? $patentes : []) ?>;
 
             // --- ELEMENTOS GLOBAIS ---
             const form = document.getElementById('ficha-form');
             if (!form) return;
-            const inputsParaMonitorar = form.querySelectorAll('input.atributo-input, select.atributo-input, #classe-select, #origem-select, #trilha-select');
+           const inputsParaMonitorar = form.querySelectorAll('input.atributo-input, select.atributo-input, #classe-select, #origem-select, #trilha-select, #patente-select');
 
             // --- LÓGICA DE UPLOAD E ABAS ---
             const btnImportar = document.getElementById('btn-importar-imagem');
@@ -368,15 +441,13 @@ $pericias_agrupadas = [
                 }
             }
 
-            // --- FUNÇÃO MASTER DE CÁLCULO ---
-            // --- FUNÇÃO MASTER DE CÁLCULO (ATUALIZADA) ---
-            // --- FUNÇÃO MASTER DE CÁLCULO (ATUALIZADA) ---
+            // --- FUNÇÃO MASTER DE CÁLCULO ----
             function calcularTudo() {
-                // Pega os valores atuais da ficha
                 const nex = parseInt(document.getElementById('nex').value) || 0;
                 const classeId = parseInt(document.getElementById('classe-select').value) || 0;
                 const origemId = parseInt(document.getElementById('origem-select').value) || 0;
                 const trilhaId = parseInt(document.getElementById('trilha-select').value) || 0;
+                const patenteSelecionada = document.getElementById('patente-select').value;
 
                 const atributos = {};
                 ['forca', 'agilidade', 'intelecto', 'vigor', 'presenca'].forEach(attr => {
@@ -398,28 +469,44 @@ $pericias_agrupadas = [
                 // --- CÁLCULO DOS STATUS ---
 
                 // CÁLCULO DE VIDA
+                // Fórmula: PV Inicial + (Vigor x Nível) + (PV por Nível x (Níveis acima do 1º))
                 let vidaMax = parseInt(classeAtual.pv_inicial) + (atributos.vigor * niveis) + (parseInt(classeAtual.pv_por_nivel) * niveisAposPrimeiro);
-                if (origemId == 9) {
+                if (origemId == 9) { // Desgarrado
                     vidaMax += niveis;
-                } // Desgarrado
-                if (trilhaId === 5) {
+                }
+                if (trilhaId === 5) { // Tropa de Choque (Casca Grossa)
                     vidaMax += niveis;
-                } // Tropa de Choque (Casca Grossa)
+                }
 
                 // CÁLCULO DE PE
+                // Fórmula: PE Inicial + Presença + (PE por Nível x (Níveis acima do 1º))
                 let peMax = parseInt(classeAtual.pe_inicial) + atributos.presenca + (parseInt(classeAtual.pe_por_nivel) * niveisAposPrimeiro);
 
                 // CÁLCULO DE SANIDADE
+                // Fórmula: SAN Inicial + (SAN por Nível x (Níveis acima do 1º))
                 let sanidadeMax = parseInt(classeAtual.san_inicial) + (parseInt(classeAtual.san_por_nivel) * niveisAposPrimeiro);
-                if (origemId == 24) {
+                if (origemId == 24) { // Vítima
                     sanidadeMax += niveis;
-                } // Vítima
+                }
 
                 // CÁLCULO DE DEFESA
                 let defesaTotal = 10 + atributos.agilidade;
-                if (origemId == 16) {
+                if (origemId == 16) { // Policial
                     defesaTotal += 2;
-                } // Policial
+                }
+
+                // CÁLCULOS DE INVENTÁRIO
+                document.getElementById('espacos-total-display').textContent = 5 * atributos.forca;
+
+                // Atualiza os limites de categoria com base na patente selecionada
+                const limites = patentesData[patenteSelecionada];
+                if (limites) {
+                    document.getElementById('limite-cat-i').textContent = limites['I'] !== 0 ? limites['I'] : '—';
+                    document.getElementById('limite-cat-ii').textContent = limites['II'] !== 0 ? limites['II'] : '—';
+                    document.getElementById('limite-cat-iii').textContent = limites['III'] !== 0 ? limites['III'] : '—';
+                    document.getElementById('limite-cat-iv').textContent = limites['IV'] !== 0 ? limites['IV'] : '—';
+                }
+
 
                 // Atualiza os displays na tela
                 document.getElementById('vida-display').textContent = vidaMax;
@@ -436,8 +523,7 @@ $pericias_agrupadas = [
                         // Calcula a DT base
                         let dtRituais = 10 + atributos.presenca + Math.floor(nex / 10);
 
-                        // >>> CORREÇÃO: Bônus da Trilha Graduado (Rituais Eficientes) <<<
-                        // Se a trilha for Graduado (ID 13) e o NEX for 65% ou maior
+                        // Bônus da Trilha Graduado (Rituais Eficientes)
                         if (trilhaId === 13 && nex >= 65) {
                             dtRituais += 5;
                         }

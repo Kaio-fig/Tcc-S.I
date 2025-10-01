@@ -81,7 +81,6 @@ h2 {
     gap: 30px;
 }
 
-/* ... (O restante do CSS para layout, colunas, status, etc., continua igual) ... */
 .coluna-esquerda {
     display: flex;
     flex-direction: column;
@@ -226,7 +225,7 @@ h2 {
 }
 
 .lista-poderes {
-    min-height: 50px; 
+    min-height: 50px;
 }
 
 .lista-poderes .poder-item {
@@ -236,6 +235,105 @@ h2 {
     margin-bottom: 10px;
     border-left: 4px solid var(--primary-color);
     border-radius: 4px;
+}
+
+/* --- ESTILOS PARA A ABA DE EQUIPAMENTO --- */
+.info-equipamento {
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr;
+    gap: 20px;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+.patente-container label, .espacos-container span, .limites-categoria span {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #6c757d;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 5px;
+}
+.espacos-container strong {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+.limites-grid {
+    display: flex;
+    gap: 10px;
+}
+.limite-box {
+    flex: 1;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    padding: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+.limite-box strong {
+    display: block;
+    font-size: 1.5rem;
+    color: var(--dark-color);
+}
+
+.stat-inventario {
+    text-align: center;
+}
+
+.stat-inventario span {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.stat-inventario strong {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    display: block;
+}
+
+.lista-itens {
+    margin-top: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.item-row {
+    display: grid;
+    grid-template-columns: 1fr 50px 50px;
+    /* Nome | Categoria | Espaços */
+    gap: 15px;
+    padding: 12px 15px;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.item-row:last-child {
+    border-bottom: none;
+}
+
+.item-row:nth-child(even) {
+    /* "Zebra striping" para facilitar a leitura */
+    background-color: #f9f9f9;
+}
+
+.item-row.header {
+    background-color: var(--dark-color);
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.item-cat,
+.item-esp {
+    text-align: center;
+    font-weight: bold;
 }
 
 /* --- ESTILOS PARA OS BOTÕES DO RODAPÉ DA FICHA --- */
