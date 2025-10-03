@@ -139,10 +139,6 @@ h2 {
     color: #777;
 }
 
-.coluna-direita {
-    /* Sem alterações */
-}
-
 .abas-nav {
     display: flex;
     gap: 5px;
