@@ -177,8 +177,8 @@ h2 {
 
 .tab-content.active {
     display: block;
-    overflow-y: auto;
-    min-height: 200px;
+    overflow: visible; /* IMPORTANTE: Garante que o conteúdo não seja cortado */
+    min-height: 300px; /* Garante uma altura mínima para a aba */
 }
 
 .atributos-grid {
@@ -226,6 +226,7 @@ h2 {
 
 .lista-poderes {
     min-height: 50px;
+    overflow: visible;
 }
 
 .lista-poderes .poder-item {
@@ -434,60 +435,53 @@ h2 {
     padding: 5px;
 }
 
-/* --- MODAIS --- */
+/* --- ESTILOS PARA O MODAL DE PODERES --- */
 .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
-    justify-content: center;
+    display: none; position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); z-index: 1000;
+    align-items: center; justify-content: center;
+}
+.modal-content {
+    background: white; border-radius: 8px; padding: 30px;
+    width: 90%; max-width: 700px;
+}
+.lista-modal {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 15px;
+    margin-top: 20px;
+}
+.poder-item-modal {
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
 }
+.poder-item-modal h4 { color: var(--primary-color); margin-bottom: 5px; }
+.poder-item-modal p { font-size: 0.9rem; color: #555; }
+.poder-item-modal button { padding: 8px 12px; cursor: pointer; }
 
-.modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
+/* Estilo especial para a opção Transcender */
+.poder-transcender-opcao {
+    background-color: #1a1a1a;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
+}
+.poder-transcender-opcao h4, .poder-transcender-opcao p {
+    color: #f0f0f0;
 }
 
-#modal-transcender .poder-card {
-    border: 2px solid var(--border-color);
-    padding: 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
+/* Estilo para o conteúdo do modal de Transcender */
+.modal-transcender-content {
+    background-color: #1a1a1a;
+    border: 1px solid #444;
+    color: #f0f0f0;
 }
-
-#modal-transcender .poder-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--color);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-#modal-transcender .poder-card h4 {
-    color: var(--color);
-}
-
-.poder-card.sangue {
-    --color: #B71C1C;
-}
-
-.poder-card.morte {
-    --color: #424242;
-}
-
-.poder-card.conhecimento {
-    --color: #F57F17;
-}
-
-.poder-card.energia {
-    --color: #0277BD;
+.modal-transcender-content h2 {
+    color: var(--primary-color);
+    text-shadow: 0 0 5px var(--primary-color);
 }

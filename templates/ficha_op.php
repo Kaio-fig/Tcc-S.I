@@ -86,10 +86,33 @@ if ($resultado_poderes) {
         $poderes_trilha[] = $linha;
     }
 }
-// Poderes de classe gerais (ainda podem ficar aqui ou ir para o banco também)
-$todos_os_poderes = [
-    ['id' => 101, 'nome' => 'Ataque Especial', 'desc' => 'Ao fazer um ataque, você pode gastar 1 PE para receber +5 no teste de ataque ou na rolagem de dano.', 'classe_id' => 1, 'nex_requerido' => 15],
+
+// Habilidades Iniciais que cada classe ganha em NEX 5%
+$poderes_iniciais_classe = [
+    // Combatente (ID 1)
+    1 => [
+        ['nome' => 'Ataque Especial', 'descricao' => 'Quando faz um ataque, você pode gastar 2 PE para receber +5 no teste de ataque ou na rolagem de dano. O bônus aumenta conforme o NEX.']
+    ],
+    // Especialista (ID 2)
+    2 => [
+        ['nome' => 'Eclético', 'descricao' => 'Quando faz um teste de uma perícia, você pode gastar 2 PE para receber os benefícios de ser treinado nela.'],
+        ['nome' => 'Perito', 'descricao' => 'Escolha duas perícias (exceto Luta e Pontaria). Ao fazer um teste de uma delas, pode gastar 2 PE para somar +1d6 no resultado. O bônus aumenta com o NEX.']
+    ],
+    // Ocultista (ID 3)
+    3 => [
+        ['nome' => 'Escolhido pelo Outro Lado', 'descricao' => 'Você foi marcado pelo Outro Lado e pode lançar rituais de 1º círculo. Você aprende a lançar rituais de círculos maiores conforme avança de NEX.']
+    ]
 ];
+
+// Busca TODOS os Poderes Gerais de Classe do banco de dados
+$poderes_de_classe = [];
+$sql_poderes_classe = "SELECT id, classe_id, nex_requerido, nome, descricao AS `desc` FROM poderes_classe";
+$resultado_poderes_classe = $conn->query($sql_poderes_classe);
+if ($resultado_poderes_classe) {
+    while ($linha = $resultado_poderes_classe->fetch_assoc()) {
+        $poderes_de_classe[] = $linha;
+    }
+}
 
 // Perícias agrupadas
 $pericias_agrupadas = [
@@ -123,6 +146,7 @@ $patentes = [
     <div class="container">
         <form id="ficha-form" method="POST" action="../conection/save_character.php" enctype="multipart/form-data">
             <input type="hidden" name="personagem_id" value="<?= $personagem['id'] ?>">
+            <!-- ABA IMAGEM E INFORMATIVOS -->
             <div class="ficha-grid">
                 <div class="coluna-esquerda">
                     <div class="bloco-personagem">
@@ -149,6 +173,7 @@ $patentes = [
                     </div>
                 </div>
 
+                <!-- ABA ATRIBUTOS E PERICIAS -->
                 <div class="coluna-direita">
                     <nav class="abas-nav">
                         <button type="button" class="tab-button active" data-tab="tab-atributos">Atributos & Perícias</button>
@@ -195,6 +220,7 @@ $patentes = [
                         </div>
                     </div>
 
+                    <!-- ABA PODERES E RITUAIS -->
                     <div id="tab-poderes" class="tab-content">
 
                         <div class="info-poderes">
@@ -248,8 +274,10 @@ $patentes = [
 
                         <button type="button" class="btn-acao" id="btn-adicionar-poder" style="margin-top: 20px;">Adicionar Poder de Classe</button>
 
+
                     </div>
 
+                    <!-- ABA EQUIPAMENTO -->
                     <div id="tab-equipamento" class="tab-content">
                         <div class="info-equipamento">
                             <div class="patente-container">
@@ -314,6 +342,8 @@ $patentes = [
                     </div>
                 </div>
             </div>
+
+            <!-- RODAPE -->
             <div class="botoes-rodape">
                 <a href="meus_personagens.php" class="btn-acao btn-secondary">
                     <i class="fas fa-arrow-left"></i> Voltar para Meus Personagens
@@ -324,6 +354,25 @@ $patentes = [
             </div>
         </form>
     </div>
+
+    <!-- MODAIS -->
+    <div id="modal-poderes-classe" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Adicionar Poder de Classe</h2>
+            <div id="lista-poderes-modal-content" class="lista-modal">
+            </div>
+            <button type="button" class="btn-acao" onclick="fecharModalPoderes()" style="margin-top: 20px;">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modal-transcender" class="modal-overlay">
+        <div class="modal-content modal-transcender-content">
+            <h2>Transcender</h2>
+            <p>O Outro Lado sussurra em sua mente. Você pode sacrificar parte de sua sanidade para obter um poder paranormal.</p>
+            <div id="lista-poderes-transcender">
+            </div>
+            <button type="button" class="btn-acao" onclick="fecharModalTranscender()" style="margin-top: 20px;">Fechar</button>
+        </div>
     </div>
 
     <script>
@@ -333,12 +382,17 @@ $patentes = [
             const origens = <?= json_encode(isset($origens) ? $origens : []) ?>;
             const todasAsTrilhas = <?= json_encode(isset($trilhas) ? $trilhas : []) ?>;
             const todosOsPoderesDeTrilha = <?= json_encode(isset($poderes_trilha) ? $poderes_trilha : []) ?>;
+            const poderesIniciaisClasse = <?= json_encode(isset($poderes_iniciais_classe) ? $poderes_iniciais_classe : []) ?>;
+            const todosOsPoderesDeClasse = <?= json_encode(isset($poderes_de_classe) ? $poderes_de_classe : []) ?>;
+            const todosOsPoderesParanormais = <?= json_encode(isset($poderes_paranormais) ? $poderes_paranormais : []) ?>;
             const patentesData = <?= json_encode(isset($patentes) ? $patentes : []) ?>;
 
             // --- ELEMENTOS GLOBAIS ---
             const form = document.getElementById('ficha-form');
             if (!form) return;
-           const inputsParaMonitorar = form.querySelectorAll('input.atributo-input, select.atributo-input, #classe-select, #origem-select, #trilha-select, #patente-select');
+            const inputsParaMonitorar = form.querySelectorAll('input.atributo-input, select.atributo-input, #classe-select, #origem-select, #trilha-select, #patente-select');
+            const modalPoderesClasse = document.getElementById('modal-poderes-classe');
+            const modalTranscender = document.getElementById('modal-transcender');
 
             // --- LÓGICA DE UPLOAD E ABAS ---
             const btnImportar = document.getElementById('btn-importar-imagem');
@@ -441,6 +495,100 @@ $patentes = [
                 }
             }
 
+            function atualizarPoderesIniciaisDeClasse() {
+                const classeId = parseInt(document.getElementById('classe-select').value) || 0;
+                const listaPoderesFicha = document.querySelector('#tab-poderes .lista-poderes');
+                if (!listaPoderesFicha) return;
+
+                // Limpa quaisquer poderes iniciais de classe exibidos anteriormente
+                listaPoderesFicha.querySelectorAll('.poder-inicial-item').forEach(item => item.remove());
+
+                // Pega os poderes da classe selecionada
+                const poderesIniciais = poderesIniciaisClasse[classeId];
+
+                if (poderesIniciais) {
+                    // Adiciona cada poder inicial à lista na ficha
+                    poderesIniciais.forEach(poder => {
+                        const poderDiv = document.createElement('div');
+                        poderDiv.className = 'poder-item poder-inicial-item'; // Nova classe para identificação
+                        poderDiv.innerHTML = `<h4>${poder.nome} (Habilidade de Classe)</h4><p>${poder.descricao}</p>`;
+
+                        // Adiciona logo após o poder de origem
+                        const poderOrigemEl = listaPoderesFicha.querySelector('.poder-item');
+                        if (poderOrigemEl) {
+                            poderOrigemEl.insertAdjacentElement('afterend', poderDiv);
+                        } else {
+                            listaPoderesFicha.appendChild(poderDiv);
+                        }
+                    });
+                }
+            }
+
+            function limparPoderesDeClasseAdicionados() {
+                const listaPoderesFicha = document.querySelector('#tab-poderes .lista-poderes');
+                if (listaPoderesFicha) {
+                    listaPoderesFicha.querySelectorAll('.poder-classe-adicionado').forEach(item => item.remove());
+                }
+            }
+            // --- LÓGICA DE MODAIS ---
+            // --- FUNÇÕES DE CONTROLE DO MODAL (TORNADAS GLOBAIS) ---
+            function abrirModalPoderesDeClasse() {
+                if (!modalPoderesClasse) return;
+                const nex = parseInt(document.getElementById('nex').value) || 0;
+                const classeId = parseInt(document.getElementById('classe-select').value) || 0;
+
+                const listaModal = document.getElementById('lista-poderes-modal-content');
+                listaModal.innerHTML = '';
+
+                const poderesDisponiveis = todosOsPoderesDeClasse.filter(poder => {
+                    const nexOk = poder.nex_requerido <= nex;
+                    const classeOk = poder.classe_id === null || poder.classe_id == classeId;
+                    return nexOk && classeOk;
+                });
+
+                if (poderesDisponiveis.length === 0) {
+                    listaModal.innerHTML = '<p>Nenhum poder de classe disponível para seu NEX e Classe atuais.</p>';
+                } else {
+                    poderesDisponiveis.forEach(poder => {
+                        const poderDiv = document.createElement('div');
+                        let botaoHTML;
+
+                        if (poder.nome === 'Transcender') {
+                            poderDiv.className = 'poder-item-modal poder-transcender-opcao';
+                            botaoHTML = `<button type="button" onclick="abrirModalTranscender()">Escolher</button>`;
+                        } else {
+                            poderDiv.className = 'poder-item-modal';
+                            botaoHTML = `<button type="button" onclick="adicionarPoderDeClasse(${poder.id})">Adicionar</button>`;
+                        }
+                        poderDiv.innerHTML = `<div><h4>${poder.nome}</h4><p>${poder.desc}</p></div>${botaoHTML}`;
+                        listaModal.appendChild(poderDiv);
+                    });
+                }
+                modalPoderesClasse.style.display = 'flex';
+            }
+
+            window.adicionarPoderDeClasse = function(poderId) {
+                const poderInfo = todosOsPoderesDeClasse.find(p => p.id == poderId);
+                if (!poderInfo) return;
+                const listaPoderesFicha = document.querySelector('#tab-poderes .lista-poderes');
+                const poderDiv = document.createElement('div');
+                poderDiv.className = 'poder-item poder-classe-adicionado'; // Classe para limpeza
+                poderDiv.innerHTML = `<h4>${poderInfo.nome} (Classe)</h4><p>${poderInfo.desc}</p>`;
+                listaPoderesFicha.appendChild(poderDiv);
+                fecharModalPoderes();
+            }
+
+            window.fecharModalPoderes = () => {
+                if (modalPoderesClasse) modalPoderesClasse.style.display = 'none';
+            }
+            window.abrirModalTranscender = () => {
+                fecharModalPoderes();
+                if (modalTranscender) modalTranscender.style.display = 'flex';
+            }
+            window.fecharModalTranscender = () => {
+                if (modalTranscender) modalTranscender.style.display = 'none';
+            }
+
             // --- FUNÇÃO MASTER DE CÁLCULO ----
             function calcularTudo() {
                 const nex = parseInt(document.getElementById('nex').value) || 0;
@@ -497,9 +645,9 @@ $patentes = [
 
                 // CÁLCULOS DE INVENTÁRIO
                 document.getElementById('espacos-total-display').textContent = 5 * atributos.forca;
-                    if (atributos.forca == 0) {
-                        document.getElementById('espacos-total-display').textContent = 2
-                    }
+                if (atributos.forca == 0) {
+                    document.getElementById('espacos-total-display').textContent = 2
+                }
 
                 // Atualiza os limites de categoria com base na patente selecionada
                 const limites = patentesData[patenteSelecionada];
@@ -541,6 +689,7 @@ $patentes = [
                 atualizarPoderOrigem();
                 atualizarTrilhasDisponiveis();
                 atualizarPoderesDaTrilha();
+                atualizarPoderesIniciaisDeClasse();
             }
 
             // --- EVENT LISTENERS E INICIALIZAÇÃO ---
@@ -548,6 +697,21 @@ $patentes = [
                 inputsParaMonitorar.forEach(input => {
                     input.addEventListener('change', calcularTudo);
                 });
+            }
+
+            const seletorDeClasse = document.getElementById('classe-select');
+            if (seletorDeClasse) {
+                seletorDeClasse.addEventListener('change', () => {
+                    // Quando a classe muda, PRIMEIRO limpa os poderes adicionados
+                    limparPoderesDeClasseAdicionados();
+                    // E DEPOIS recalcula tudo (o que vai adicionar os poderes iniciais da nova classe)
+                    calcularTudo();
+                });
+            }
+
+            const btnAdicionarPoder = document.getElementById('btn-adicionar-poder');
+            if (btnAdicionarPoder) {
+                btnAdicionarPoder.addEventListener('click', abrirModalPoderesDeClasse);
             }
 
             calcularTudo();
