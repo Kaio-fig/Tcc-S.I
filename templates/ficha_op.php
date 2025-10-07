@@ -114,6 +114,17 @@ if ($resultado_poderes_classe) {
     }
 }
 
+// Busca Poderes Paranormais
+$poderes_paranormais = [];
+$sql_poderes_paranormais = "SELECT * FROM poderes_paranormais";
+$resultado_poderes_paranormais = $conn->query($sql_poderes_paranormais);
+if ($resultado_poderes_paranormais) {
+    while ($linha = $resultado_poderes_paranormais->fetch_assoc()) {
+        $poderes_paranormais[] = $linha;
+    }
+}
+
+
 // Perícias agrupadas
 $pericias_agrupadas = [
     'Agilidade' => [['id' => 1, 'nome' => 'Acrobacia'], ['id' => 7, 'nome' => 'Crime', 'so_treinado' => true], ['id' => 11, 'nome' => 'Furtividade'], ['id' => 12, 'nome' => 'Iniciativa'], ['id' => 20, 'nome' => 'Pilotagem', 'so_treinado' => true], ['id' => 21, 'nome' => 'Pontaria'], ['id' => 23, 'nome' => 'Reflexos']],
@@ -356,11 +367,11 @@ $patentes = [
     </div>
 
     <!-- MODAIS -->
+
     <div id="modal-poderes-classe" class="modal-overlay">
         <div class="modal-content">
-            <h2>Adicionar Poder de Classe</h2>
-            <div id="lista-poderes-modal-content" class="lista-modal">
-            </div>
+            <h2>Adicionar Habilidade de Classe</h2>
+            <div id="lista-poderes-modal-content" class="lista-modal"></div>
             <button type="button" class="btn-acao" onclick="fecharModalPoderes()" style="margin-top: 20px;">Fechar</button>
         </div>
     </div>
@@ -368,9 +379,10 @@ $patentes = [
     <div id="modal-transcender" class="modal-overlay">
         <div class="modal-content modal-transcender-content">
             <h2>Transcender</h2>
-            <p>O Outro Lado sussurra em sua mente. Você pode sacrificar parte de sua sanidade para obter um poder paranormal.</p>
-            <div id="lista-poderes-transcender">
+            <p>Você abre mão do seu próximo aumento de Sanidade para obter um poder paranormal.</p>
+            <div id="lista-poderes-transcender" class="lista-modal-grid">
             </div>
+
             <button type="button" class="btn-acao" onclick="fecharModalTranscender()" style="margin-top: 20px;">Fechar</button>
         </div>
     </div>
@@ -393,6 +405,8 @@ $patentes = [
             const inputsParaMonitorar = form.querySelectorAll('input.atributo-input, select.atributo-input, #classe-select, #origem-select, #trilha-select, #patente-select');
             const modalPoderesClasse = document.getElementById('modal-poderes-classe');
             const modalTranscender = document.getElementById('modal-transcender');
+            let transcendCount = 0;
+            let classeIdAnterior = parseInt(document.getElementById('classe-select').value) || 0;
 
             // --- LÓGICA DE UPLOAD E ABAS ---
             const btnImportar = document.getElementById('btn-importar-imagem');
@@ -500,6 +514,18 @@ $patentes = [
                 const listaPoderesFicha = document.querySelector('#tab-poderes .lista-poderes');
                 if (!listaPoderesFicha) return;
 
+                if (classeId !== classeIdAnterior) {
+                    const listaPoderesFicha = document.querySelector('#tab-poderes .lista-poderes');
+                    if (listaPoderesFicha) {
+                        // Removes both manually added class powers and paranormal powers
+                        listaPoderesFicha.querySelectorAll('.poder-classe-adicionado, .poder-paranormal-item').forEach(item => item.remove());
+                    }
+                    // Resets the transcend counter for the new class
+                    transcendCount = 0;
+                    // Updates the state variable to the new class
+                    classeIdAnterior = classeId;
+                }
+
                 // Limpa quaisquer poderes iniciais de classe exibidos anteriormente
                 listaPoderesFicha.querySelectorAll('.poder-inicial-item').forEach(item => item.remove());
 
@@ -536,35 +562,56 @@ $patentes = [
                 if (!modalPoderesClasse) return;
                 const nex = parseInt(document.getElementById('nex').value) || 0;
                 const classeId = parseInt(document.getElementById('classe-select').value) || 0;
-
                 const listaModal = document.getElementById('lista-poderes-modal-content');
                 listaModal.innerHTML = '';
 
                 const poderesDisponiveis = todosOsPoderesDeClasse.filter(poder => {
-                    const nexOk = poder.nex_requerido <= nex;
-                    const classeOk = poder.classe_id === null || poder.classe_id == classeId;
-                    return nexOk && classeOk;
+                    return (poder.nex_requerido <= nex) && (poder.classe_id === null || poder.classe_id == classeId);
                 });
 
-                if (poderesDisponiveis.length === 0) {
-                    listaModal.innerHTML = '<p>Nenhum poder de classe disponível para seu NEX e Classe atuais.</p>';
-                } else {
-                    poderesDisponiveis.forEach(poder => {
-                        const poderDiv = document.createElement('div');
-                        let botaoHTML;
-
-                        if (poder.nome === 'Transcender') {
-                            poderDiv.className = 'poder-item-modal poder-transcender-opcao';
-                            botaoHTML = `<button type="button" onclick="abrirModalTranscender()">Escolher</button>`;
-                        } else {
-                            poderDiv.className = 'poder-item-modal';
-                            botaoHTML = `<button type="button" onclick="adicionarPoderDeClasse(${poder.id})">Adicionar</button>`;
-                        }
-                        poderDiv.innerHTML = `<div><h4>${poder.nome}</h4><p>${poder.desc}</p></div>${botaoHTML}`;
-                        listaModal.appendChild(poderDiv);
-                    });
-                }
+                poderesDisponiveis.forEach(poder => {
+                    const poderDiv = document.createElement('div');
+                    let botaoHTML;
+                    if (poder.nome === 'Transcender') {
+                        poderDiv.className = 'poder-item-modal poder-transcender-opcao';
+                        botaoHTML = `<button type="button" onclick="abrirModalTranscender()">Escolher</button>`;
+                    } else {
+                        poderDiv.className = 'poder-item-modal';
+                        botaoHTML = `<button type="button" onclick="adicionarPoderDeClasse(${poder.id})">Adicionar</button>`;
+                    }
+                    poderDiv.innerHTML = `<div><h4>${poder.nome}</h4><p>${poder.desc}</p></div>${botaoHTML}`;
+                    listaModal.appendChild(poderDiv);
+                });
                 modalPoderesClasse.style.display = 'flex';
+            }
+
+            window.abrirModalTranscender = function() {
+                if (!modalTranscender) return;
+                const listaTranscender = document.getElementById('lista-poderes-transcender');
+                listaTranscender.innerHTML = '';
+                todosOsPoderesParanormais.forEach(poder => {
+                    const poderCard = document.createElement('div');
+                    poderCard.className = `poder-paranormal-card ${poder.elemento}`;
+                    poderCard.onclick = () => selecionarPoderParanormal(poder.id);
+                    poderCard.innerHTML = `<h4>${poder.nome}</h4><p>${poder.descricao}</p>`;
+                    listaTranscender.appendChild(poderCard);
+                });
+                fecharModalPoderes();
+                modalTranscender.style.display = 'flex';
+            }
+
+            window.selecionarPoderParanormal = function(poderId) {
+                const poderInfo = todosOsPoderesParanormais.find(p => p.id == poderId);
+                if (!poderInfo) return;
+                const listaPoderesFicha = document.querySelector('#tab-poderes .lista-poderes');
+                const poderDiv = document.createElement('div');
+                poderDiv.className = 'poder-item poder-paranormal-item';
+                poderDiv.innerHTML = `<h4>${poderInfo.nome} (Paranormal)</h4><p>${poderInfo.descricao}</p>`;
+                listaPoderesFicha.appendChild(poderDiv);
+
+                transcendCount++;
+                fecharModalTranscender();
+                calcularTudo(); // Recalcula tudo para aplicar a penalidade
             }
 
             window.adicionarPoderDeClasse = function(poderId) {
@@ -581,16 +628,14 @@ $patentes = [
             window.fecharModalPoderes = () => {
                 if (modalPoderesClasse) modalPoderesClasse.style.display = 'none';
             }
-            window.abrirModalTranscender = () => {
-                fecharModalPoderes();
-                if (modalTranscender) modalTranscender.style.display = 'flex';
-            }
+
             window.fecharModalTranscender = () => {
                 if (modalTranscender) modalTranscender.style.display = 'none';
             }
 
             // --- FUNÇÃO MASTER DE CÁLCULO ----
             function calcularTudo() {
+
                 const nex = parseInt(document.getElementById('nex').value) || 0;
                 const classeId = parseInt(document.getElementById('classe-select').value) || 0;
                 const origemId = parseInt(document.getElementById('origem-select').value) || 0;
@@ -630,12 +675,13 @@ $patentes = [
                 // Fórmula: PE Inicial + Presença + (PE por Nível x (Níveis acima do 1º))
                 let peMax = parseInt(classeAtual.pe_inicial) + (atributos.presenca * niveis) + (parseInt(classeAtual.pe_por_nivel) * niveisAposPrimeiro);
 
-                // CÁLCULO DE SANIDADE
-                // Fórmula: SAN Inicial + (SAN por Nível x (Níveis acima do 1º))
-                let sanidadeMax = parseInt(classeAtual.san_inicial) + (parseInt(classeAtual.san_por_nivel) * niveisAposPrimeiro);
-                if (origemId == 24) { // Vítima
+                // CÁLCULO DE SANIDADE COM PENALIDADE DE TRANSCENDER
+                let sanidadeMax = parseInt(classeAtual.san_inicial) + (parseInt(classeAtual.san_por_nivel) * (niveisAposPrimeiro - transcendCount));
+                if (origemId == 24) {
                     sanidadeMax += niveis;
                 }
+
+                document.getElementById('sanidade-display').textContent = sanidadeMax;
 
                 // CÁLCULO DE DEFESA
                 let defesaTotal = 10 + atributos.agilidade;
@@ -693,10 +739,12 @@ $patentes = [
             }
 
             // --- EVENT LISTENERS E INICIALIZAÇÃO ---
+
             if (inputsParaMonitorar) {
                 inputsParaMonitorar.forEach(input => {
                     input.addEventListener('change', calcularTudo);
                 });
+
             }
 
             const seletorDeClasse = document.getElementById('classe-select');
@@ -713,7 +761,6 @@ $patentes = [
             if (btnAdicionarPoder) {
                 btnAdicionarPoder.addEventListener('click', abrirModalPoderesDeClasse);
             }
-
             calcularTudo();
         });
     </script>
