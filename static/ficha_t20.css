@@ -1,288 +1,453 @@
-        /* CSS Embutido para a Apresentação */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+/* --- GERAL E VARIÁVEIS DE COR --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
-        :root {
-            --cor-primaria: #8a0303;
-            /* Vermelho T20 */
-            --cor-secundaria: #6a1b9a;
-            /* Roxo do projeto */
-            --cor-fundo: #f4f7fa;
-            --cor-surface: #ffffff;
-            --cor-texto-primario: #212529;
-            --cor-texto-secundario: #6c757d;
-            --cor-borda: #dee2e6;
-            --sombra: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
+:root {
+    --cor-primaria: #8a0303;
+    /* Vermelho T20 */
+    --cor-secundaria: #6a1b9a;
+    /* Roxo do projeto */
+    --cor-fundo: #f4f7fa;
+    --cor-surface: #ffffff;
+    --cor-texto-primario: #212529;
+    --cor-texto-secundario: #6c757d;
+    --cor-borda: #dee2e6;
+    --sombra: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--cor-fundo);
-            color: var(--cor-texto-primario);
-            padding: 2rem;
-        }
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto-primario);
+    padding: 2rem;
+    font-size: 16px;
+    /* Tamanho base */
+}
 
-        .ficha-container {
-            max-width: 1400px;
-            margin: auto;
-            display: grid;
-            /* Layout: Coluna principal flexível, coluna lateral fixa */
-            grid-template-columns: 1fr 350px;
-            gap: 2rem;
-            align-items: start;
-        }
+/* --- LAYOUT PRINCIPAL --- */
+.ficha-container {
+    max-width: 1400px;
+    margin: auto;
+}
 
-        .coluna-principal,
-        .coluna-lateral {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
+/* Estilo para o cabeçalho */
+.cabecalho-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background-color: var(--cor-surface);
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    box-shadow: var(--sombra);
+    margin-bottom: 2rem;
+}
 
-        .bloco {
-            background-color: var(--cor-surface);
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 1px solid var(--cor-borda);
-            box-shadow: var(--sombra);
-        }
+.info-item label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--cor-texto-secundario);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
 
-        h3 {
-            color: var(--cor-primaria);
-            font-weight: 700;
-            border-bottom: 1px solid var(--cor-borda);
-            padding-bottom: 0.75rem;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            font-size: 1rem;
-            letter-spacing: 0.5px;
-        }
+.info-item input,
+.info-item select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+    background-color: #fff;
+}
 
-        /* --- COLUNA LATERAL (DIREITA) --- */
-        .bloco-personagem {
-            text-align: center;
-            padding: 2rem;
-        }
+.info-racial {
+    font-size: 0.8rem;
+    color: var(--cor-secundaria);
+    font-weight: 500;
+    margin-top: 0.25rem;
+    min-height: 1em;
+}
 
-        .personagem-imagem {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 1.5rem auto;
-            background-color: var(--cor-fundo);
-            border-radius: 50%;
-            border: 4px solid var(--cor-borda);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
+/* Layout principal das colunas */
+.conteudo-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
 
-        .personagem-imagem img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+.coluna-principal,
+.coluna-lateral {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
 
-        .personagem-nome {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--cor-primaria);
-            line-height: 1.2;
-        }
+/* --- BLOCOS DE CONTEÚDO --- */
+.bloco {
+    background-color: var(--cor-surface);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    box-shadow: var(--sombra);
+}
 
-        .personagem-info {
-            font-size: 1rem;
-            color: var(--cor-texto-secundario);
-            margin-top: 0.5rem;
-        }
+h3 {
+    color: var(--cor-primaria);
+    font-weight: 700;
+    border-bottom: 1px solid var(--cor-borda);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+}
 
-        .status-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            text-align: center;
-        }
+/* --- COLUNA LATERAL --- */
+.bloco-personagem {
+    text-align: center;
+}
 
-        .status-box label {
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            color: var(--cor-texto-secundario);
-        }
+.personagem-imagem {
+    width: 100%;
+    max-width: 250px;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto 1.5rem auto;
+    background-color: var(--cor-fundo);
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+}
 
-        .status-box .valor {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--cor-texto-primario);
-        }
+.personagem-imagem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-        /* --- COLUNA PRINCIPAL (ESQUERDA) --- */
-        .abas-nav {
-            display: flex;
-            background-color: var(--cor-fundo);
-            border-radius: 8px;
-            padding: 0.5rem;
-        }
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    text-align: center;
+}
 
-        .tab-button {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            border: none;
-            background-color: transparent;
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--cor-texto-secundario);
-            border-radius: 6px;
-            transition: all 0.2s ease-in-out;
-        }
+.status-box label {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--cor-texto-secundario);
+}
 
-        .tab-button.active {
-            background-color: var(--cor-surface);
-            color: var(--cor-primaria);
-            box-shadow: var(--sombra);
-        }
+.status-box .valor {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--cor-texto-primario);
+    line-height: 1.2;
+}
 
-        .tab-content {
-            display: none;
-        }
+.status-box .valor span {
+    display: inline-block;
+}
 
-        .tab-content.active {
-            display: block;
-        }
+/* --- COLUNA PRINCIPAL --- */
+.abas-nav {
+    display: flex;
+    background-color: var(--cor-fundo);
+    border-radius: 8px;
+    padding: 0.5rem;
+}
 
-        .atributos-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            text-align: center;
-        }
+.tab-button {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--cor-texto-secundario);
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
 
-        .atributo .valor {
-            font-size: 2rem;
-            font-weight: 700;
-        }
+.tab-button.active {
+    background-color: var(--cor-surface);
+    color: var(--cor-primaria);
+    box-shadow: var(--sombra);
+}
 
-        .atributo .modificador {
-            font-size: 1.25rem;
-            color: var(--cor-primaria);
-            font-weight: 500;
-        }
+.tab-content {
+    display: none;
+}
 
-        .pericias-container {
-            columns: 2;
-            gap: 2rem;
-        }
+.tab-content.active {
+    display: block;
+}
 
-        .pericia-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.4rem 0;
-            border-bottom: 1px solid #eee;
-        }
+/* Estilo para Atributos com Input */
+.atributos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    text-align: center;
+}
 
-        .poder-item {
-            padding: 1rem;
-            border: 1px solid var(--cor-borda);
-            border-left: 4px solid var(--cor-primaria);
-            border-radius: 4px;
-            margin-bottom: 1rem;
-        }
+.atributo label {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--cor-texto-secundario);
+    display: block;
+    margin-bottom: 0.25rem;
+}
 
-        .poder-item h4 {
-            color: var(--cor-primaria);
-            margin-bottom: 0.5rem;
-        }
+.atributo .atributo-valor {
+    width: 100%;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+    padding: 0.25rem 0;
+}
 
-        /* Estilos para o poder 'Ao Sabor do Destino' */
-        .poder-lista {
-            list-style-position: inside;
-            padding-left: 10px;
-            margin-top: 0.5rem;
-        }
+.atributo .atributo-valor::-webkit-outer-spin-button,
+.atributo .atributo-valor::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
-        .poder-nota {
-            margin-top: 0.5rem;
-            font-style: italic;
-            color: var(--cor-texto-secundario);
-        }
+.atributo .atributo-valor[type=number] {
+    -moz-appearance: textfield;
+}
 
-        .equipamento-lista {
-            list-style: none;
-            padding-left: 1.5rem;
-        }
+/* A exibição do modificador foi removida do HTML */
 
-        .equipamento-lista li {
-            padding: 0.25rem 0;
-            border-bottom: 1px dashed var(--cor-borda);
-        }
+/* --- SEÇÃO DE PERÍCIAS (REFEITA COM GRID) --- */
+.pericias-container {
+    display: grid;
+    /* Duas colunas principais para a lista de perícias */
+    grid-template-columns: 1fr 1fr;
+    gap: 0 2rem;
+    /* Espaço apenas entre as colunas, não entre as linhas */
+}
 
-        .equipamento-lista li::before {
-            content: '•';
-            color: var(--cor-primaria);
-            font-weight: bold;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
-        }
+/* Estilo para cada linha de perícia */
+.pericia-item {
+    display: grid;
+    /* Define as colunas internas: Nome | Total | 1/2Nvl | Mod | Treino | Outros */
+    grid-template-columns: 1fr auto 40px 40px 40px 50px;
+    gap: 0.75rem;
+    /* Espaço entre os elementos da linha */
+    align-items: center;
+    /* Alinha verticalmente os itens */
+    padding: 0.5rem 0.25rem;
+    /* Acolchoamento vertical e um pouco horizontal */
+    border-bottom: 1px solid #eee;
+}
 
-        /* --- ESTILOS PARA OS BOTÕES DO RODAPÉ --- */
-        .botoes-rodape {
-            display: flex;
-            justify-content: flex-end;
-            /* Alinha os botões à direita */
-            align-items: center;
-            gap: 1rem;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--cor-borda);
-        }
+/* Cabeçalho da tabela de perícias */
+.pericia-item.header {
+    font-weight: 700;
+    color: var(--cor-texto-secundario);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid var(--cor-borda);
+    /* Linha mais grossa para o header */
+    text-align: center;
+    /* Centraliza os títulos das colunas */
+}
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 700;
-            text-decoration: none;
-            border: 2px solid transparent;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-        }
+.pericia-item.header span:first-child {
+    text-align: left;
+    /* Alinha o título "Perícia" à esquerda */
+}
 
-        .btn-primary {
-            background-color: var(--cor-secundaria);
-            /* Usando o roxo para a ação principal */
-            color: white;
-            border-color: var(--cor-secundaria);
-        }
+/* Nome da Perícia */
+.pericia-nome {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    /* Evita quebra de linha */
+    text-align: left;
+}
 
-        .btn-primary:hover {
-            background-color: #5a1281;
-            /* Um roxo um pouco mais escuro */
-            border-color: #5a1281;
-        }
+.pericia-attr {
+    font-size: 0.75rem;
+    color: var(--cor-texto-secundario);
+    margin-left: 0.25rem;
+}
 
-        /* Estilo para o botão "falso" desabilitado */
-        .btn-primary:disabled {
-            background-color: #ccc;
-            border-color: #ccc;
-            color: #666;
-            cursor: not-allowed;
-        }
+.so-treinado-marker {
+    color: var(--cor-primaria);
+    /* Vermelho T20 */
+    font-weight: bold;
+    margin-left: 0.1rem;
+}
 
-        .btn-secondary {
-            background-color: transparent;
-            color: var(--cor-texto-secundario);
-            border-color: var(--cor-borda);
-        }
+/* Valores calculados e Input "Outros" */
+.pericia-total,
+.pericia-metade-nivel,
+.pericia-mod-attr {
+    font-weight: 700;
+    text-align: center;
+}
 
-        .btn-secondary:hover {
-            background-color: var(--cor-fundo);
-            color: var(--cor-texto-primario);
-            border-color: #c0c0c0;
-        }
+.pericia-total {
+    font-size: 1.1rem;
+    /* Destaca o total */
+}
+
+.pericia-outros {
+    width: 100%;
+    /* Ocupa a coluna definida no grid */
+    padding: 0.25rem;
+    text-align: center;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Esconde as setinhas do input number */
+.pericia-outros::-webkit-outer-spin-button,
+.pericia-outros::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.pericia-outros[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Checkbox de Treino */
+.pericia-treino {
+    justify-self: center;
+    /* Centraliza o checkbox na sua célula do grid */
+    width: 1rem;
+    /* Tamanho do checkbox */
+    height: 1rem;
+}
+
+/* Zebra striping para melhor legibilidade */
+.pericias-container .pericia-item:nth-child(odd):not(.header) {
+    background-color: #f9f9f9;
+}
+
+/* Estilos básicos para Poderes e Equipamento (placeholder) */
+.poder-item {
+    padding: 1rem;
+    border: 1px solid var(--cor-borda);
+    border-left: 4px solid var(--cor-primaria);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.poder-item h4 {
+    color: var(--cor-primaria);
+    margin-bottom: 0.5rem;
+}
+
+.equipamento-lista {
+    list-style: none;
+    padding: 0;
+}
+
+.equipamento-lista li {
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed var(--cor-borda);
+}
+
+/* Remover bullet padrão se ainda estiver aparecendo */
+.equipamento-lista li::before {
+    content: none;
+}
+
+
+/* --- BOTÕES --- */
+.botoes-rodape {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--cor-borda);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    /* Para botões com ícones */
+}
+
+.btn-primary {
+    background-color: var(--cor-secundaria);
+    color: white;
+    /* Roxo */
+    border-color: var(--cor-secundaria);
+}
+
+.btn-primary:hover {
+    background-color: #5a1281;
+    border-color: #5a1281;
+}
+
+.btn-primary:disabled {
+    background-color: #ccc;
+    border-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--cor-texto-secundario);
+    border-color: var(--cor-borda);
+}
+
+.btn-secondary:hover {
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto-primario);
+    border-color: #c0c0c0;
+}
+
+.btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto-secundario);
+    border: 1px solid var(--cor-borda);
+}
+
+.btn-small:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+#btn-importar-imagem-t20 {
+    width: 100%;
+    margin-top: 1rem;
+}
