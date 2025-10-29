@@ -63,7 +63,29 @@ if ($resultado_racas) {
     }
 }
 
-// (Futuramente carregaremos Classes, Origens, etc. aqui)
+$classes_t20 = [];
+$sql_classes = "SELECT id, nome, pv_inicial, pv_por_nivel, pm_por_nivel FROM t20_classes ORDER BY nome ASC";
+$resultado_classes = $conn->query($sql_classes);
+if ($resultado_classes) {
+    while ($linha = $resultado_classes->fetch_assoc()) {
+        $classes_t20[$linha['id']] = $linha; // Guarda usando o ID como chave
+    }
+}
+
+// *** NOVO: Carregar Origens T20 (Consulta Corrigida) ***
+$origens_t20 = [];
+// CORREÇÃO: Seleciona as novas colunas de poder
+$sql_origens = "SELECT id, nome, poder_1_nome, poder_1_desc, poder_2_nome, poder_2_desc, poder_3_nome, poder_3_desc FROM t20_origens ORDER BY nome ASC"; 
+$resultado_origens = $conn->query($sql_origens);
+// O resto do bloco de carregamento e depuração pode permanecer igual
+if (!$resultado_origens) {
+    echo "<!-- ERRO FATAL: Falha na consulta SQL das Origens: " . $conn->error . " -->";
+}else {
+    while ($linha = $resultado_origens->fetch_assoc()) {
+        $origens_t20[$linha['id']] = $linha;
+    }
+
+}
 
 // Função simples para calcular modificador (útil no PHP e JS)
 function calcular_modificador($atributo_valor)
@@ -113,16 +135,48 @@ function calcular_modificador($atributo_valor)
                 </div>
                 <div class="info-item">
                     <label for="classe_id">Classe</label>
-                    <select id="classe_id" name="classe_id" disabled>
-                        <option value="">(Carregar Classes)</option>
-                        <!-- Options de classes serão carregadas aqui -->
+                    <select id="classe_id" name="classe_id">
+                        <option value="">Selecione...</option>
+                        <?php foreach ($classes_t20 as $id_classe => $classe): ?>
+                            <option value="<?= $id_classe ?>" <?= ($personagem_t20['classe_id'] == $id_classe) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($classe['nome']) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="info-item">
                     <label for="origem_id">Origem</label>
-                    <select id="origem_id" name="origem_id" disabled>
-                        <option value="">(Carregar Origens)</option>
-                        <!-- Options de origens -->
+                    <select id="origem_id" name="origem_id">
+                        <option value="">Selecione...</option>
+
+                        <?php
+                        // --- DEBUG FORÇADO ---
+                        echo "<!-- DEBUG: Verificando \$origens_t20 ANTES do loop -->";
+                        if (isset($origens_t20) && is_array($origens_t20) && count($origens_t20) > 0) {
+                            echo "<!-- \$origens_t20 existe e tem " . count($origens_t20) . " itens. -->";
+                            // Tenta imprimir o nome da primeira origem como teste
+                            $first_key = key($origens_t20); // Pega a chave do primeiro elemento
+                            if (isset($origens_t20[$first_key]['nome'])) {
+                                echo "<!-- Nome da primeira origem: " . htmlspecialchars($origens_t20[$first_key]['nome']) . " -->";
+                            } else {
+                                echo "<!-- ERRO: Primeiro item não tem a chave 'nome'. -->";
+                            }
+                        } else {
+                            echo "<!-- ERRO: \$origens_t20 NÃO existe, NÃO é array ou está VAZIA aqui! -->";
+                            // Tenta forçar a impressão, mesmo que vazia
+                            echo "<!-- Conteúdo (dump): " . print_r($origens_t20, true) . " -->";
+                        }
+                        echo "<!-- FIM DEBUG -->";
+                        // --- FIM DEBUG FORÇADO ---
+                        ?>
+
+                        <?php foreach ($origens_t20 as $id_origem => $origem): ?>
+                            <?php if (is_array($origem) && isset($origem['nome'])): ?>
+                                <option value="<?= $id_origem ?>" <?= (isset($personagem_t20['origem_id']) && $personagem_t20['origem_id'] == $id_origem) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($origem['nome']) ?>
+                                </option>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="info-item">
@@ -262,9 +316,9 @@ function calcular_modificador($atributo_valor)
                                 <h4>Habilidades de Classe</h4>
                                 <!-- JS vai popular aqui -->
                             </div>
-                            <div id="poderes-gerais-lista">
-                                <h4>Poderes Gerais / Origem / Divindade</h4>
-                                <!-- JS vai popular aqui -->
+                            <div id="poder-origem-display-t20" class="poder-item">
+                                <h4>Poder de Origem</h4>
+                                <p>Selecione uma origem para ver seu poder.</p>
                             </div>
                             <!-- Botão para adicionar poder (futuro) -->
                         </div>
@@ -310,25 +364,36 @@ function calcular_modificador($atributo_valor)
             </footer>
         </form>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- DADOS DO PHP ---
             const racasData = <?= json_encode(isset($racas_t20) ? $racas_t20 : []) ?>;
-            // Futuramente: const classesData = ... ; const origensData = ... ;
+            const classesDataT20 = <?= json_encode(isset($classes_t20) ? $classes_t20 : []) ?>;
+            const origensDataT20 = <?= json_encode(isset($origens_t20) ? $origens_t20 : []) ?>;
 
             // --- ELEMENTOS DO DOM ---
+            const fichaContainer = document.getElementById('ficha-t20-container');
             const form = document.getElementById('ficha-t20-form');
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
             const racaSelect = document.getElementById('raca_id');
+            const classeSelect = document.getElementById('classe_id');
+            const origemSelect = document.getElementById('origem_id'); // Select da origem
             const ajustesInfoDiv = document.getElementById('ajustes-raciais-info');
             const nivelInput = document.getElementById('nivel');
             const atributosInputs = document.querySelectorAll('.atributo-valor');
             const periciasItems = document.querySelectorAll('.pericia-item:not(.header)');
+            // Spans para PV e PM
+            const pvAtualSpan = document.getElementById('pv_atual');
+            const pvMaxSpan = document.getElementById('pv_max');
+            const pmAtualSpan = document.getElementById('pm_atual');
+            const pmMaxSpan = document.getElementById('pm_max');
+            const defesaTotalSpan = document.getElementById('defesa_total');
+            // Div para Poder de Origem
+            const poderOrigemDisplayDiv = document.getElementById('poder-origem-display-t20');
 
 
-            // --- MAPA DE PERÍCIAS E ATRIBUTOS-CHAVE ---
+            // --- MAPA DE PERÍCIAS ---
             const periciasMap = {
                 acrobacia: 'destreza',
                 adestramento: 'carisma',
@@ -363,43 +428,87 @@ function calcular_modificador($atributo_valor)
 
             // --- FUNÇÕES ---
 
+            function atualizarClasseCSS() {
+                const classeIdSelecionada = classeSelect.value;
+                let classeCSS = "";
+                if (classeIdSelecionada && classesDataT20[classeIdSelecionada]) {
+                    classeCSS = "classe-" + classesDataT20[classeIdSelecionada].nome.toLowerCase().replace(/\s+/g, '-');
+                }
+                if (fichaContainer) {
+                    const classesToRemove = Array.from(fichaContainer.classList).filter(cls => cls.startsWith('classe-'));
+                    fichaContainer.classList.remove(...classesToRemove);
+                    if (classeCSS) {
+                        fichaContainer.classList.add(classeCSS);
+                    }
+                }
+            }
+
             function calcularTudoT20() {
                 const nivel = parseInt(nivelInput.value) || 1;
                 const metadeNivel = Math.floor(nivel / 2);
-                const modificadores = {};
+                const classeId = parseInt(classeSelect.value) || null;
+                const classeAtual = classeId ? classesDataT20[classeId] : null;
 
-                // 1. LÊ OS MODIFICADORES DIRETAMENTE DOS INPUTS
+                const modificadores = {};
                 atributosInputs.forEach(input => {
                     const modificadorLido = parseInt(input.value);
-                    if (isNaN(modificadorLido)) {
-                        modificadores[input.id] = 0; // Assume 0 como padrão se inválido
-                    } else {
-                        modificadores[input.id] = modificadorLido;
-                    }
+                    modificadores[input.id] = isNaN(modificadorLido) ? 0 : modificadorLido;
                 });
 
-                // 2. Calcula e exibe valores COMPLETOS das perícias
-                if (!periciasItems || periciasItems.length === 0) {
-                    return; // Interrompe se não encontrar perícias
+                // --- CÁLCULO PV e PM ---
+                let pvMax = 0;
+                let pmMax = 0;
+                const conValor = parseInt(document.getElementById('constituicao').value) || 0;
+
+                if (classeAtual) {
+                    pvMax = (parseInt(classeAtual.pv_inicial) + conValor) + ((nivel - 1) * (parseInt(classeAtual.pv_por_nivel) + conValor));
+                    pmMax = nivel * parseInt(classeAtual.pm_por_nivel);
                 }
 
-                periciasItems.forEach((item) => {
-                    // VERIFICAÇÃO INICIAL DO ITEM E DADOS ESSENCIAIS
-                    if (!item || !item.id || !item.dataset || !item.dataset.atributoChave) {
-                        return; // Pula iteração se dados essenciais faltarem
-                    }
+                const pvMaxTextoAnterior = pvMaxSpan ? pvMaxSpan.textContent : '--';
+                const pmMaxTextoAnterior = pmMaxSpan ? pmMaxSpan.textContent : '--';
+                const pvAtualTextoAnterior = pvAtualSpan ? pvAtualSpan.textContent : '--';
+                const pmAtualTextoAnterior = pmAtualSpan ? pmAtualSpan.textContent : '--';
 
+                const pvMaxTextoNovo = pvMax > 0 ? pvMax.toString() : '--';
+                const pmMaxTextoNovo = pmMax > 0 ? pmMax.toString() : '--';
+                if (pvMaxSpan) pvMaxSpan.textContent = pvMaxTextoNovo;
+                if (pmMaxSpan) pmMaxSpan.textContent = pmMaxTextoNovo;
+
+                if (pvAtualSpan && (pvAtualTextoAnterior === '--' || pvAtualTextoAnterior === '0' || pvAtualTextoAnterior === pvMaxTextoAnterior)) {
+                    pvAtualSpan.textContent = pvMaxTextoNovo;
+                } else if (pvAtualSpan) {
+                    if (pvMax > 0 && parseInt(pvAtualTextoAnterior) > pvMax) {
+                        pvAtualSpan.textContent = pvMaxTextoNovo;
+                    } else if (pvMax <= 0) {
+                        pvAtualSpan.textContent = '--';
+                    }
+                }
+                if (pmAtualSpan && (pmAtualTextoAnterior === '--' || pmAtualTextoAnterior === '0' || pmAtualTextoAnterior === pmMaxTextoAnterior)) {
+                    pmAtualSpan.textContent = pmMaxTextoNovo;
+                } else if (pmAtualSpan) {
+                    if (pmMax > 0 && parseInt(pmAtualTextoAnterior) > pmMax) {
+                        pmAtualSpan.textContent = pmMaxTextoNovo;
+                    } else if (pmMax <= 0) {
+                        pmAtualSpan.textContent = '--';
+                    }
+                }
+                if (pvMaxTextoNovo === '--' && pvAtualSpan) pvAtualSpan.textContent = '--';
+                if (pmMaxTextoNovo === '--' && pmAtualSpan) pmAtualSpan.textContent = '--';
+
+                // --- CÁLCULO PERÍCIAS ---
+                if (!periciasItems || periciasItems.length === 0) {
+                    return;
+                }
+                periciasItems.forEach((item) => {
+                    if (!item || !item.id || !item.dataset || !item.dataset.atributoChave) return;
                     const sufixoId = item.id.replace('item_', '');
                     const atributoChaveAbrev = item.dataset.atributoChave;
-
-                    // Seleciona elementos internos
                     const spanTotal = item.querySelector('.pericia-total');
                     const spanNivel = item.querySelector('.pericia-metade-nivel');
                     const spanModAttr = item.querySelector('.pericia-mod-attr');
                     const checkboxTreino = item.querySelector('.pericia-treino');
                     const inputOutros = item.querySelector('.pericia-outros');
-
-                    // Mapeia chave abreviada para completa
                     const chaveModificadorCompleta = {
                         'for': 'forca',
                         'des': 'destreza',
@@ -409,24 +518,20 @@ function calcular_modificador($atributo_valor)
                         'car': 'carisma'
                     } [atributoChaveAbrev];
 
-                    // Verifica se modificador existe
                     if (typeof modificadores[chaveModificadorCompleta] === 'undefined') {
                         if (spanTotal) spanTotal.textContent = '--';
                         if (spanNivel) spanNivel.textContent = '--';
                         if (spanModAttr) spanModAttr.textContent = '--';
-                        return; // Pula iteração
+                        return;
                     }
                     const modValor = modificadores[chaveModificadorCompleta];
 
-                    // Verifica se elementos visuais existem
                     if (!spanTotal || !spanNivel || !spanModAttr || !checkboxTreino || !inputOutros) {
                         if (spanTotal) spanTotal.textContent = 'ER';
                         if (spanNivel) spanNivel.textContent = 'ER';
                         if (spanModAttr) spanModAttr.textContent = 'ER';
-                        return; // Pula iteração
+                        return;
                     }
-
-                    // Calcula e atualiza
                     try {
                         let bonusTreino = 0;
                         if (checkboxTreino.checked) {
@@ -436,21 +541,19 @@ function calcular_modificador($atributo_valor)
                         }
                         const outrosValor = parseInt(inputOutros.value) || 0;
                         const totalPericia = metadeNivel + modValor + bonusTreino + outrosValor;
-
-                        // Atualiza textContent
                         spanTotal.textContent = (totalPericia >= 0 ? '+' : '') + totalPericia;
                         spanNivel.textContent = (metadeNivel >= 0 ? '+' : '') + metadeNivel;
                         spanModAttr.textContent = (modValor >= 0 ? '+' : '') + modValor;
-
                     } catch (e) {
-                        // Em caso de erro inesperado, marca a linha
                         if (spanTotal) spanTotal.textContent = 'ER';
                         if (spanNivel) spanNivel.textContent = 'ER';
                         if (spanModAttr) spanModAttr.textContent = 'ER';
                     }
                 });
 
-                // (Futuros cálculos: PV, PM, Defesa, etc.)
+                // --- CÁLCULO DEFESA (Placeholder) ---
+                let defesaTotal = 10 + (modificadores['destreza'] || 0);
+                if (defesaTotalSpan) defesaTotalSpan.textContent = defesaTotal;
             }
 
             function mostrarAjustesRaciais() {
@@ -458,7 +561,6 @@ function calcular_modificador($atributo_valor)
                 if (ajustesInfoDiv && racasData[racaIdSelecionada]) {
                     const ajustes = racasData[racaIdSelecionada].ajustes_atributos || "Nenhum";
                     let textoAjustes = ajustes;
-                    // Formatação para exibição
                     if (ajustes.includes("ATRIBUTOS+1,+1,+1")) {
                         textoAjustes = "+1 em Três Atributos Diferentes";
                         if (ajustes.includes("CAR-1")) textoAjustes += ", CAR-1";
@@ -466,14 +568,38 @@ function calcular_modificador($atributo_valor)
                     } else if (ajustes.includes("(Aggelus);")) {
                         textoAjustes = "Escolha: Aggelus (SAB+2, CAR+1) OU Sulfure (DES+2, INT+1)";
                     }
-                    ajustesInfoDiv.textContent = `Ajustes de Raça: ${textoAjustes}`;
+                    ajustesInfoDiv.textContent = `Ajustes Raciais: ${textoAjustes}`;
                 } else if (ajustesInfoDiv) {
                     ajustesInfoDiv.textContent = "";
                 }
             }
 
+            function atualizarPoderOrigemT20() {
+                const origemIdSelecionada = origemSelect.value;
+                if (!poderOrigemDisplayDiv) return; // Verifica se a div existe
+
+                const origemInfo = origensDataT20[origemIdSelecionada];
+                let htmlConteudo = '<h4>Poder de Origem</h4>';
+
+                if (origemInfo) {
+                    htmlConteudo += `<p>(${origemInfo.nome})</p>`; // Mostra o nome da origem
+                    // Constrói a descrição dos poderes
+                    let descricoes = "";
+                    if (origemInfo.poder_1_nome) descricoes += `<p><strong>${origemInfo.poder_1_nome}:</strong> ${origemInfo.poder_1_desc || ''}</p>`;
+                    if (origemInfo.poder_2_nome) descricoes += `<p><strong>${origemInfo.poder_2_nome}:</strong> ${origemInfo.poder_2_desc || ''}</p>`;
+                    if (origemInfo.poder_3_nome) descricoes += `<p><strong>${origemInfo.poder_3_nome}:</strong> ${origemInfo.poder_3_desc || ''}</p>`;
+
+                    if (descricoes === "") {
+                        descricoes = "<p>Esta origem não concede poderes específicos ou a descrição não está disponível.</p>";
+                    }
+                    htmlConteudo += descricoes;
+                } else {
+                    htmlConteudo += `<p>Selecione uma origem.</p>`;
+                }
+                poderOrigemDisplayDiv.innerHTML = htmlConteudo;
+            }
+
             // --- EVENT LISTENERS ---
-            // Abas
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     tabButtons.forEach(btn => btn.classList.remove('active'));
@@ -486,7 +612,6 @@ function calcular_modificador($atributo_valor)
                 });
             });
 
-            // Raça, Nível e Atributos disparam o cálculo
             if (racaSelect) {
                 racaSelect.addEventListener('change', mostrarAjustesRaciais);
             }
@@ -496,8 +621,18 @@ function calcular_modificador($atributo_valor)
             atributosInputs.forEach(input => {
                 input.addEventListener('input', calcularTudoT20);
             });
-
-            // Listeners para Treino (checkbox) e Outros (input) das Perícias
+            if (classeSelect) {
+                classeSelect.addEventListener('change', () => {
+                    atualizarClasseCSS();
+                    calcularTudoT20();
+                });
+            }
+            if (origemSelect) { // Listener para Origem
+                origemSelect.addEventListener('change', () => {
+                    atualizarPoderOrigemT20();
+                    // calcularTudoT20(); // Descomentar se origem afetar cálculos
+                });
+            }
             if (periciasItems) {
                 periciasItems.forEach(item => {
                     const checkboxTreino = item.querySelector('.pericia-treino');
@@ -511,12 +646,15 @@ function calcular_modificador($atributo_valor)
                 });
             }
 
-
             // --- INICIALIZAÇÃO ---
             mostrarAjustesRaciais();
-            calcularTudoT20(); // Chamada inicial DEPOIS que tudo está definido
+            atualizarClasseCSS();
+            atualizarPoderOrigemT20(); // Exibe poder da origem inicial
+            calcularTudoT20(); // Calcula tudo ao carregar
         });
     </script>
+
+
 
 </body>
 

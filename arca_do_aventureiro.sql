@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Máquina: localhost
--- Data de Criação: 23-Out-2025 às 15:03
+-- Data de Criação: 29-Out-2025 às 13:42
 -- Versão do servidor: 5.6.13
 -- versão do PHP: 5.4.17
 
@@ -653,9 +653,82 @@ CREATE TABLE IF NOT EXISTS `t20_classes` (
   `pv_inicial` int(11) NOT NULL,
   `pv_por_nivel` int(11) NOT NULL,
   `pm_por_nivel` int(11) NOT NULL,
-  `pericias_bonus` text,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+  `pericias_treinadas_fixas` text,
+  `pericias_escolha_lista` text,
+  `pericias_escolha_qtd` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nome` (`nome`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=4 ;
+
+--
+-- Extraindo dados da tabela `t20_classes`
+--
+
+INSERT INTO `t20_classes` (`id`, `nome`, `pv_inicial`, `pv_por_nivel`, `pm_por_nivel`, `pericias_treinadas_fixas`, `pericias_escolha_lista`, `pericias_escolha_qtd`) VALUES
+(1, 'Caçador', 16, 4, 4, 'Luta ou Pontaria, Sobrevivência', 'Adestramento, Atletismo, Cavalgar, Cura, Fortitude, Furtividade, Iniciativa, Investigação, Luta, Ofício, Percepção, Pontaria, Reflexos', 6),
+(2, 'Guerreiro', 20, 5, 3, 'Luta ou Pontaria, Fortitude', 'Adestramento, Atletismo, Cavalgar, Guerra, Iniciativa, Intimidação, Luta, Ofício, Percepção, Pontaria, Reflexos', 2),
+(3, 'Nobre', 16, 4, 4, 'Diplomacia ou Intimidação, Vontade', 'Adestramento, Atuação, Cavalgar, Conhecimento, Diplomacia, Enganação, Fortitude, Guerra, Iniciativa, Intimidação, Intuição, Investigação, Jogatina, Luta, Nobreza, Ofício, Percepção, Pontaria', 4);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `t20_origens`
+--
+
+CREATE TABLE IF NOT EXISTS `t20_origens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  `pericias_treinadas` text,
+  `poder_1_nome` varchar(255) DEFAULT NULL,
+  `poder_1_desc` text,
+  `poder_2_nome` varchar(255) DEFAULT NULL,
+  `poder_2_desc` text,
+  `poder_3_nome` varchar(255) DEFAULT NULL,
+  `poder_3_desc` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nome` (`nome`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=36 ;
+
+--
+-- Extraindo dados da tabela `t20_origens`
+--
+
+INSERT INTO `t20_origens` (`id`, `nome`, `pericias_treinadas`, `poder_1_nome`, `poder_1_desc`, `poder_2_nome`, `poder_2_desc`, `poder_3_nome`, `poder_3_desc`) VALUES
+(1, 'Acólito', 'Cura, Religião, Vontade', 'Membro da Igreja', 'Você consegue hospedagem confortável e informação em qualquer templo de sua divindade, para você e seus aliados.', 'Vontade de Ferro', 'Você recebe +1 PM para cada dois níveis de personagem e +2 em Vontade. Pré-requisito: Sab 1.', NULL, NULL),
+(2, 'Amigo dos Animais', 'Adestramento, Cavalgar', 'Amigo Especial', 'Você recebe +5 em testes de Adestramento com animais. Além disso, possui um animal de estimação que o auxilia e o acompanha em suas aventuras. Em termos de jogo, é um parceiro que fornece +2 em uma perícia a sua escolha (exceto Luta ou Pontaria e aprovada pelo mestre) e não conta em seu limite de parceiros.', NULL, NULL, NULL, NULL),
+(3, 'Amnésico', 'Uma perícia à escolha', 'Lembranças Graduais', 'Durante suas aventuras, em determinados momentos a critério do mestre, você pode fazer um teste de Sabedoria (CD 10) para reconhecer pessoas, criaturas ou lugares que tenha encontrado antes de perder a memória.', 'Poder Adicional (Definido pelo Mestre)', 'O mestre define um poder geral adicional que você possui, mas não se lembrava.', NULL, NULL),
+(4, 'Aristocrata', 'Diplomacia, Enganação, Nobreza', 'Comandar', 'Você pode gastar uma ação de movimento e 1 PM para gritar ordens para seus aliados em alcance médio. Eles recebem +1 em testes de perícia até o fim da cena. Pré-requisito: Car 1.', 'Sangue Azul', 'Você tem alguma influência política, suficiente para ser tratado com mais leniência pela guarda, conseguir uma audiência com o nobre local etc.', NULL, NULL),
+(5, 'Artesão', 'Ofício, Vontade', 'Frutos do Trabalho', 'No início de cada aventura, você recebe até 5 itens gerais que possa fabricar num valor total de até T$ 50. Esse valor aumenta para T$ 100 no patamar aventureiro, T$ 300 no heroico e T$ 500 no lenda.', 'Sortudo', 'Você pode gastar 3 PM para rolar novamente um teste recém realizado (apenas uma vez por teste).', NULL, NULL),
+(6, 'Artista', 'Atuação, Enganação', 'Atraente', 'Você recebe +2 em testes de Diplomacia, Enganação e Intuição, mas apenas se não estiver usando armadura pesada.', 'Dom Artístico', 'Você recebe +2 em testes de Atuação, e recebe o dobro de tibares em apresentações.', 'Escolha: Sortudo ou Torcida', 'Sortudo: Você pode gastar 3 PM para rolar novamente um teste recém realizado (apenas uma vez por teste).\nTorcida: Você pode gastar 1 PM e uma ação padrão para fazer um teste de Atuação (CD 15). Se passar, você e todos os aliados em alcance curto recebem +1 em testes de ataque e rolagens de dano por uma rodada.'),
+(7, 'Assistente de Laboratório', 'Ofício (alquimista), Misticismo', 'Esse Cheiro...', 'Você recebe +2 em testes de Misticismo e Ofício (alquimia).', 'Venefício', 'Você recebe +2 em testes de Ofício (alquimia) para fabricar venenos e aplica venenos como uma ação de movimento (em vez de ação padrão).', 'Poder da Tormenta (Escolha)', 'Você recebe um poder da Tormenta a sua escolha (funciona como o poder Transcender, exigindo escolha posterior).'),
+(8, 'Batedor', 'Furtividade, Percepção, Sobrevivência', 'À Prova de Tudo', 'Você recebe +1 ponto de vida por nível de personagem.', 'Estilo de Disparo', 'Você recebe o poder Estilo de Disparo (escolha um).', 'Sentidos Aguçados', 'Você recebe +2 em testes de Percepção e não fica desprevenido contra inimigos que não possa ver em alcance curto.'),
+(9, 'Capanga', 'Luta, Intimidação', 'Confissão', 'Você pode usar Intimidação para obter informação (veja Investigação). Esta ação leva uma hora e você não precisa fazer um teste — a vítima automaticamente revela a informação (se a tiver). Você só pode usar esta habilidade uma vez por cena contra o mesmo alvo.', 'Poder de Combate (Escolha)', 'Você recebe um poder de combate a sua escolha.', NULL, NULL),
+(10, 'Charlatão', 'Enganação, Jogatina', 'Alpinista Social', 'Você pode usar Enganação no lugar de Diplomacia ou Intimidação para mudar atitude de alvos. Pré-requisito: treinado em Enganação.', 'Aparência Inofensiva', 'A dificuldade para resistir aos seus testes de Enganação aumenta em +2.', 'Sortudo', 'Você pode gastar 3 PM para rolar novamente um teste recém realizado (apenas uma vez por teste).'),
+(11, 'Circense', 'Acrobacia, Atuação, Reflexos', 'Acrobático', 'Você recebe +2 em testes de Acrobacia. Além disso, quando sofre dano de queda, pode fazer um teste de Acrobacia (CD 15); se passar, reduz o dano da queda à metade.', 'Torcida', 'Você pode gastar 1 PM e uma ação padrão para fazer um teste de Atuação (CD 15). Se passar, você e todos os aliados em alcance curto recebem +1 em testes de ataque e rolagens de dano por uma rodada.', 'Truque de Mágica', 'Você aprende e pode lançar Ilusão. Se aprender novamente essa magia, seu custo diminui em –1 PM.'),
+(12, 'Criminoso', 'Enganação, Furtividade, Ladinagem', 'Punguista', 'Você recebe +2 em testes de Ladinagem e pode usar esta perícia para furtar PM em vez de itens.', 'Venefício', 'Você recebe +2 em testes de Ofício (alquimia) para fabricar venenos e aplica venenos como uma ação de movimento (em vez de ação padrão).', NULL, NULL),
+(13, 'Curandeiro', 'Cura, Vontade', 'Medicina', 'Você recebe +2 em testes de Cura. Além disso, pode gastar uma ação de movimento e 1 PM para curar 1d6 pontos de vida de um aliado adjacente.', 'Médico de Campo', 'Você pode usar a perícia Cura em alcance curto (em vez de apenas em alcance pessoal ou adjacente).', 'Venefício', 'Você recebe +2 em testes de Ofício (alquimia) para fabricar venenos e aplica venenos como uma ação de movimento (em vez de ação padrão).'),
+(14, 'Eremita', 'Misticismo, Religião, Sobrevivência', 'Busca Interior', 'Você pode gastar uma hora meditando para recuperar 1 PM. Você pode usar esta habilidade um número de vezes por dia igual ao seu bônus de Sabedoria (mínimo 1).', 'Lobo Solitário', 'Você recebe +1 em testes de perícia e Defesa se estiver sem nenhum aliado em alcance curto. Você não sofre penalidade por usar Cura em si mesmo.', NULL, NULL),
+(15, 'Escravo', 'Atletismo, Fortitude, Furtividade', 'Desejo de Liberdade', 'Você recebe +1 PM para cada dois níveis de personagem e +2 em Vontade.', 'Vitalidade', 'Você recebe +2 pontos de vida para cada nível de personagem.', NULL, NULL),
+(16, 'Estudioso', 'Conhecimento, Guerra, Misticismo', 'Aparência Inofensiva', 'A dificuldade para resistir aos seus testes de Enganação aumenta em +2.', 'Palpite Fundamentado', 'Você pode gastar uma ação completa analisando um item, local ou criatura para descobrir uma de suas características, como RD, valores de atributos, se é mágico etc., a critério do mestre.', NULL, NULL),
+(17, 'Fazendeiro', 'Adestramento, Cavalgar, Ofício (fazendeiro)', 'Água no Feijão', 'Você gasta apenas metade da ração diária normal para se alimentar. Além disso, sabe cozinhar: pode preparar alimentos para um número de pessoas igual ao seu bônus de Sabedoria +1 por 1 Tibar por pessoa. Um personagem que coma uma refeição recupera 1 PV por nível.', 'Ginete', 'Você recebe +2 em testes de Cavalgar. Além disso, não sofre penalidade em testes de ataque por lutar montado.', NULL, NULL),
+(18, 'Forasteiro', 'Cavalgar, Pilotagem, Sobrevivência', 'Cultura Exótica', 'Você recebe +2 em testes de Conhecimento e Misticismo.', 'Lobo Solitário', 'Você recebe +1 em testes de perícia e Defesa se estiver sem nenhum aliado em alcance curto. Você não sofre penalidade por usar Cura em si mesmo.', NULL, NULL),
+(19, 'Gladiador', 'Atuação, Luta', 'Atraente', 'Você recebe +2 em testes de Diplomacia, Enganação e Intuição, mas apenas se não estiver usando armadura pesada.', 'Pão e Circo', 'Você pode gastar uma hora e T$ 10 para entreter uma plateia mundana. Faça um teste de Atuação (CD 15). Se passar, você recebe T$ 10 mais T$ 1 por ponto que exceder a CD.', 'Torcida OU Poder de Combate', 'Torcida: Gastar 1 PM, ação padrão, teste Atuação (CD 15); sucesso: +1 ataque/dano para aliados em alcance curto por 1 rodada.\nPoder de Combate: Você recebe um poder de combate a sua escolha.'),
+(20, 'Guarda', 'Investigação, Luta, Percepção', 'Detetive', 'Você recebe +2 em testes de Investigação.', 'Investigador', 'Você pode usar Investigação para procurar pistas. Esta ação leva um minuto e exige um teste de Investigação (CD 15). Se passar, você encontra uma pista sobre o mistério que estiver investigando.', 'Poder de Combate (Escolha)', 'Você recebe um poder de combate a sua escolha.'),
+(21, 'Herdeiro', 'Misticismo, Nobreza, Ofício', 'Comandar', 'Você pode gastar uma ação de movimento e 1 PM para gritar ordens para seus aliados em alcance médio. Eles recebem +1 em testes de perícia até o fim da cena. Pré-requisito: Car 1.', 'Herança', 'Você começa o jogo com T$ 1.000 extras.', NULL, NULL),
+(22, 'Herói Camponês', 'Adestramento, Ofício', 'Coração Heroico', 'Você recebe +1 em testes de resistência.', 'Sortudo', 'Você pode gastar 3 PM para rolar novamente um teste recém realizado (apenas uma vez por teste).', 'Escolha: Surto Heroico ou Torcida', 'Surto Heroico: Uma vez por dia, pode gastar 5 PM para realizar uma ação padrão ou de movimento adicional.\nTorcida: Gastar 1 PM, ação padrão, teste Atuação (CD 15); sucesso: +1 ataque/dano para aliados em alcance curto por 1 rodada.'),
+(23, 'Marujo', 'Atletismo, Jogatina, Pilotagem', 'Acrobático', 'Você recebe +2 em testes de Acrobacia. Além disso, quando sofre dano de queda, pode fazer um teste de Acrobacia (CD 15); se passar, reduz o dano da queda à metade.', 'Passagem de Navio', 'Você consegue transporte marítimo gratuito para você e seus aliados.', NULL, NULL),
+(24, 'Mateiro', 'Atletismo, Furtividade, Sobrevivência', 'Lobo Solitário', 'Você recebe +1 em testes de perícia e Defesa se estiver sem nenhum aliado em alcance curto. Você não sofre penalidade por usar Cura em si mesmo.', 'Sentidos Aguçados', 'Você recebe +2 em testes de Percepção e não fica desprevenido contra inimigos que não possa ver em alcance curto.', 'Vendedor de Carcaças', 'Você pode gastar 1 hora esfolando um animal que tenha caçado para obter couro e carne, que valem T$ 10.'),
+(25, 'Membro de Guilda', 'Diplomacia, Enganação, Misticismo, Ofício', 'Foco em Perícia', 'Escolha uma perícia. Você recebe +2 nesta perícia.', 'Rede de Contatos', 'Você pode usar Diplomacia para obter informação (veja Investigação). Esta ação leva um dia.', NULL, NULL),
+(26, 'Mercador', 'Diplomacia, Intuição, Ofício', 'Negociação', 'Você recebe +2 em testes de Diplomacia para barganhar.', 'Proficiência', 'Você recebe proficiência em uma arma exótica à sua escolha.', 'Sortudo', 'Você pode gastar 3 PM para rolar novamente um teste recém realizado (apenas uma vez por teste).'),
+(27, 'Minerador', 'Atletismo, Fortitude, Ofício (minerador)', 'Ataque Poderoso', 'Você pode sofrer –2 em testes de ataque corpo a corpo para receber +5 nas rolagens de dano.', 'Escavador', 'Você não sofre penalidade em deslocamento por terreno difícil causado por pedras ou terra.', 'Sentidos Aguçados', 'Você recebe +2 em testes de Percepção e não fica desprevenido contra inimigos que não possa ver em alcance curto.'),
+(28, 'Nômade', 'Cavalgar, Pilotagem, Sobrevivência', 'Lobo Solitário', 'Você recebe +1 em testes de perícia e Defesa se estiver sem nenhum aliado em alcance curto. Você não sofre penalidade por usar Cura em si mesmo.', 'Mochileiro', 'Seu limite de carga aumenta em +5 espaços.', 'Sentidos Aguçados', 'Você recebe +2 em testes de Percepção e não fica desprevenido contra inimigos que não possa ver em alcance curto.'),
+(29, 'Pivete', 'Furtividade, Iniciativa, Ladinagem', 'Acrobático', 'Você recebe +2 em testes de Acrobacia. Além disso, quando sofre dano de queda, pode fazer um teste de Acrobacia (CD 15); se passar, reduz o dano da queda à metade.', 'Aparência Inofensiva', 'A dificuldade para resistir aos seus testes de Enganação aumenta em +2.', 'Quebra-Galho', 'Você pode usar Ladinagem no lugar de Ofício para consertar itens mundanos.'),
+(30, 'Refugiado', 'Fortitude, Reflexos, Vontade', 'Estoico', 'Você recebe +2 em testes de Fortitude e Vontade.', 'Vontade de Ferro', 'Você recebe +1 PM para cada dois níveis de personagem e +2 em Vontade. Pré-requisito: Sab 1.', NULL, NULL),
+(31, 'Seguidor', 'Adestramento, Ofício', 'Antigo Mestre', 'Uma vez por dia, você pode fazer um teste de Sabedoria (CD 15). Se passar, recebe +2 em um teste de perícia à sua escolha até o fim do dia.', 'Proficiência', 'Você recebe proficiência em uma arma exótica à sua escolha.', 'Surto Heroico', 'Uma vez por dia, pode gastar 5 PM para realizar uma ação padrão ou de movimento adicional.'),
+(32, 'Selvagem', 'Percepção, Reflexos, Sobrevivência', 'Lobo Solitário', 'Você recebe +1 em testes de perícia e Defesa se estiver sem nenhum aliado em alcance curto. Você não sofre penalidade por usar Cura em si mesmo.', 'Vida Rústica', 'Você recebe +2 em testes de Percepção e Sobrevivência.', 'Vitalidade', 'Você recebe +2 pontos de vida para cada nível de personagem.'),
+(33, 'Soldado', 'Fortitude, Guerra, Luta, Pontaria', 'Influência Militar', 'Você recebe +2 em testes de Intimidação.', 'Poder de Combate (Escolha)', 'Você recebe um poder de combate a sua escolha.', NULL, NULL),
+(34, 'Taverneiro', 'Diplomacia, Jogatina, Ofício (cozinheiro)', 'Gororoba', 'Você pode preparar alimentos para um número de pessoas igual ao seu bônus de Carisma +1 por 1 Tibar por pessoa. Um personagem que coma uma refeição recupera 1 PV por nível.', 'Proficiência', 'Você recebe proficiência em uma arma exótica à sua escolha.', 'Vitalidade', 'Você recebe +2 pontos de vida para cada nível de personagem.'),
+(35, 'Trabalhador', 'Atletismo, Fortitude', 'Atlético', 'Você recebe +2 em testes de Atletismo.', 'Esforçado', 'Você recebe +1 PM para cada dois níveis de personagem.', NULL, NULL);
 
 -- --------------------------------------------------------
 
