@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Máquina: localhost
--- Data de Criação: 30-Out-2025 às 14:50
+-- Data de Criação: 30-Out-2025 às 17:12
 -- Versão do servidor: 5.6.13
 -- versão do PHP: 5.4.17
 
@@ -363,6 +363,23 @@ CREATE TABLE IF NOT EXISTS `pericias` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura da tabela `personagem_t20_inventario`
+--
+
+CREATE TABLE IF NOT EXISTS `personagem_t20_inventario` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `personagem_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `quantidade` int(11) NOT NULL DEFAULT '1',
+  `equipado` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_personagem_inventario` (`personagem_id`),
+  KEY `fk_item_inventario_t20` (`item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura da tabela `personagem_t20_poderes`
 --
 
@@ -450,6 +467,8 @@ CREATE TABLE IF NOT EXISTS `personagens_t20` (
   `pv_atual` int(11) DEFAULT '0',
   `pm_max` int(11) DEFAULT '0',
   `pm_atual` int(11) DEFAULT '0',
+  `tibares` int(11) NOT NULL DEFAULT '0',
+  `carga_maxima` int(11) NOT NULL DEFAULT '0',
   `forca` int(11) NOT NULL DEFAULT '10',
   `destreza` int(11) NOT NULL DEFAULT '10',
   `constituicao` int(11) NOT NULL DEFAULT '10',
@@ -873,6 +892,51 @@ INSERT INTO `t20_habilidades_classe_auto` (`id`, `classe_id`, `nivel_obtido`, `n
 (27, 3, 14, 'Palavras Afiadas (8d6)', 'O dano de Palavras Afiadas aumenta para 8d6.'),
 (28, 3, 18, 'Palavras Afiadas (10d6)', 'O dano de Palavras Afiadas aumenta para 10d6.'),
 (29, 3, 20, 'Realeza', 'Sua Presença Aristocrática aumenta seu bônus de comando para +2 (total +3) e seu custo para 3 PM. Além disso, você pode gastar 5 PM para que todos os aliados afetados por seu comando recebam uma ação de movimento ou padrão adicional (à escolha deles).');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `t20_itens`
+--
+
+CREATE TABLE IF NOT EXISTS `t20_itens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(191) NOT NULL,
+  `tipo` varchar(50) NOT NULL,
+  `preco` varchar(50) DEFAULT NULL,
+  `espacos` int(11) NOT NULL DEFAULT '1',
+  `bonus_carga` int(11) NOT NULL DEFAULT '0',
+  `dano` varchar(50) DEFAULT NULL,
+  `critico` varchar(50) DEFAULT NULL,
+  `alcance` varchar(50) DEFAULT NULL,
+  `tipo_dano` varchar(50) DEFAULT NULL,
+  `bonus_defesa` int(11) DEFAULT NULL,
+  `penalidade_armadura` int(11) DEFAULT NULL,
+  `descricao` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nome_item_unique` (`nome`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=16 ;
+
+--
+-- Extraindo dados da tabela `t20_itens`
+--
+
+INSERT INTO `t20_itens` (`id`, `nome`, `tipo`, `preco`, `espacos`, `bonus_carga`, `dano`, `critico`, `alcance`, `tipo_dano`, `bonus_defesa`, `penalidade_armadura`, `descricao`) VALUES
+(1, 'Espada Curta', 'Arma', 'T$ 10', 1, 0, '1d6', '19', NULL, 'Perfuração/Corte', NULL, NULL, 'Uma arma leve e ágil.'),
+(2, 'Espada Longa', 'Arma', 'T$ 15', 2, 0, '1d8', '19', NULL, 'Corte', NULL, NULL, 'Uma arma marcial versátil.'),
+(3, 'Machado de Batalha', 'Arma', 'T$ 20', 2, 0, '1d10', 'x3', NULL, 'Corte', NULL, NULL, 'Uma arma marcial de duas mãos.'),
+(4, 'Arco Curto', 'Arma', 'T$ 25', 2, 0, '1d6', 'x3', 'Médio', 'Perfuração', NULL, NULL, 'Um arco simples para disparos rápidos.'),
+(5, 'Besta Leve', 'Arma', 'T$ 35', 2, 0, '1d8', '19', 'Médio', 'Perfuração', NULL, NULL, 'Uma arma de disparo que não exige Força.'),
+(6, 'Armadura de Couro', 'Armadura', 'T$ 20', 2, 0, NULL, NULL, NULL, NULL, 2, -1, 'Armadura leve feita de couro fervido.'),
+(7, 'Brunea', 'Armadura', 'T$ 50', 3, 0, NULL, NULL, NULL, NULL, 3, -2, 'Armadura leve de couro com anéis de metal.'),
+(8, 'Cota de Malha', 'Armadura', 'T$ 150', 4, 0, NULL, NULL, NULL, NULL, 5, -3, 'Armadura pesada feita de anéis de metal entrelaçados.'),
+(9, 'Escudo Leve', 'Escudo', 'T$ 5', 1, 0, '1d4', 'x2', NULL, 'Impacto', 1, -1, 'Um escudo leve de madeira.'),
+(10, 'Escudo Pesado', 'Escudo', 'T$ 15', 2, 0, '1d6', 'x2', NULL, 'Impacto', 2, -2, 'Um escudo pesado de madeira e metal.'),
+(11, 'Mochila', 'Item Geral', 'T$ 2', 0, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'Aumenta seu limite de carga (espaços) em +5. (Bônus não cumulativo)'),
+(12, 'Corda', 'Item Geral', 'T$ 1', 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, '15m de corda de cânhamo.'),
+(13, 'Poção de Vida', 'Item Geral', 'T$ 50', 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Beber esta poção cura 2d4+2 PV.'),
+(14, 'Kit de Ladrão', 'Item Geral', 'T$ 50', 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Concede +2 em testes de Ladinagem.'),
+(15, 'Saco de Dormir', 'Item Geral', 'T$ 1', 1, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Permite dormir confortavelmente.');
 
 -- --------------------------------------------------------
 
@@ -1328,6 +1392,13 @@ ALTER TABLE `op_personagem_itens`
 --
 ALTER TABLE `pericias`
   ADD CONSTRAINT `fk_pericia_personagem` FOREIGN KEY (`personagem_id`) REFERENCES `personagens_op` (`id`) ON DELETE CASCADE;
+
+--
+-- Limitadores para a tabela `personagem_t20_inventario`
+--
+ALTER TABLE `personagem_t20_inventario`
+  ADD CONSTRAINT `fk_item_inventario_t20` FOREIGN KEY (`item_id`) REFERENCES `t20_itens` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_personagem_inventario_t20` FOREIGN KEY (`personagem_id`) REFERENCES `personagens_t20` (`id`) ON DELETE CASCADE;
 
 --
 -- Limitadores para a tabela `personagem_t20_poderes`

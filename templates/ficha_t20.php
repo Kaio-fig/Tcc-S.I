@@ -153,6 +153,36 @@ if (!$is_new_t20) { // Só carrega se o personagem já existir
     $stmt_ps->close();
 }
 
+$itens_t20 = [];
+$sql_itens = "SELECT id, nome, tipo, preco, espacos, bonus_carga, dano, critico, alcance, tipo_dano, bonus_defesa, penalidade_armadura, descricao FROM t20_itens ORDER BY nome ASC";
+$resultado_itens = $conn->query($sql_itens);
+if ($resultado_itens) {
+    while ($linha = $resultado_itens->fetch_assoc()) {
+        $itens_t20[$linha['id']] = $linha; // Guarda por ID para fácil acesso
+    }
+}
+
+$inventario_personagem_t20 = [];
+if (!$is_new_t20) { // Só carrega se o personagem já existir
+    $sql_inv_salvo = "SELECT item_id, quantidade, equipado FROM personagem_t20_inventario WHERE personagem_id = ?";
+    $stmt_inv = $conn->prepare($sql_inv_salvo);
+    $stmt_inv->bind_param("i", $id_t20); // Usa o ID do personagem T20
+    $stmt_inv->execute();
+    $res_inv = $stmt_inv->get_result();
+    if ($res_inv) {
+        while ($linha = $res_inv->fetch_assoc()) {
+            // Adiciona a informação completa do item ao inventário
+            if (isset($itens_t20[$linha['item_id']])) {
+                $item_completo = $itens_t20[$linha['item_id']];
+                $item_completo['quantidade'] = $linha['quantidade'];
+                $item_completo['equipado'] = $linha['equipado'];
+                $inventario_personagem_t20[] = $item_completo;
+            }
+        }
+    }
+    $stmt_inv->close();
+}
+
 // Função simples para calcular modificador (útil no PHP e JS)
 function calcular_modificador($atributo_valor)
 {
@@ -403,7 +433,6 @@ function calcular_modificador($atributo_valor)
                         </div>
                     </div>
 
-                    <!-- ABA EQUIPAMENTO -->
                     <div id="tab-equipamento" class="tab-content">
                         <div class="bloco">
                             <h3>Ataques</h3>
@@ -420,20 +449,34 @@ function calcular_modificador($atributo_valor)
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Ataques serão adicionados pelo JS -->
+                                    <!-- Ataques (baseados em itens equipados) irão aqui -->
                                 </tbody>
                             </table>
-                            <button type="button" class="btn btn-small">Adicionar Ataque</button>
+                            <button type="button" class="btn btn-small" id="btn-abrir-modal-ataque" disabled>(Adicionar Ataque)</button>
                         </div>
+
                         <div class="bloco">
-                            <h3>Equipamento (<span id="peso_atual">0</span> / <span id="carga_maxima">--</span> Kg)</h3>
-                            <ul class="equipamento-lista" id="lista-inventario">
-                                <!-- Itens serão adicionados pelo JS -->
-                            </ul>
-                            <button type="button" class="btn btn-small">Adicionar Item</button>
-                            <p style="text-align: right; margin-top: 1rem; font-weight: bold;"><span id="tibares_atuais">0</span> Tibares (T$)</p>
+                            <!-- Cabeçalho do Inventário: Carga e Dinheiro -->
+                            <div class="inventario-header">
+                                <h3>Equipamento</h3>
+                                <div class="inventario-stats">
+                                    <span>Carga (Espaços): <strong id="carga_usada">0</strong> / <strong id="carga_maxima">0</strong></span>
+                                    <span><input type="number" id="tibares_atuais" name="tibares" value="<?= htmlspecialchars($personagem_t20['tibares']) ?>" min="0"> T$</span>
+                                </div>
+                            </div>
+                            <div class="inventario-lista" id="lista-inventario">
+                                <div class="inventario-list-header">
+                                    <span class="col-equipado">Equipado</span>
+                                    <span class="col-nome">Item</span>
+                                    <span class="col-qtd">Qtd</span>
+                                    <span class="col-espacos">Espaços</span>
+                                    <span class="col-acoes">Ações</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-small" id="btn-abrir-modal-item">Adicionar Item</button>
                         </div>
                     </div>
+
                 </main>
             </div>
 
@@ -480,6 +523,35 @@ function calcular_modificador($atributo_valor)
             <button type="button" class="btn btn-secondary" id="btn-fechar-modal-poderes" style="margin-top: 20px;">Fechar</button>
         </div>
     </div>
+
+    <!-- *** NOVO: MODAL PARA ADICIONAR ITENS T20 *** -->
+    <div id="modal-adicionar-item-t20" class="modal-overlay">
+        <div class="modal-content modal-itens">
+            <h2>Adicionar Item ao Inventário</h2>
+
+            <nav class="modal-abas-nav">
+                <button type="button" class="modal-tab-button active" data-tab-modal="modal-tab-armas">Armas</button>
+                <button type="button" class="modal-tab-button" data-tab-modal="modal-tab-armaduras">Armaduras</button>
+                <button type="button" class="modal-tab-button" data-tab-modal="modal-tab-escudos">Escudos</button>
+                <button type="button" class="modal-tab-button" data-tab-modal="modal-tab-geral">Item Geral</button>
+            </nav>
+
+            <div class="modal-filtros-poderes">
+                <input type="text" id="filtro-item-nome-t20" placeholder="Buscar por nome...">
+            </div>
+
+            <div class="modal-lista-wrapper">
+                <!-- Abas (conteúdo populado pelo JS) -->
+                <div id="modal-tab-armas" class="modal-tab-content active"></div>
+                <div id="modal-tab-armaduras" class="modal-tab-content"></div>
+                <div id="modal-tab-escudos" class="modal-tab-content"></div>
+                <div id="modal-tab-geral" class="modal-tab-content"></div>
+            </div>
+
+            <button type="button" class="btn btn-secondary" id="btn-fechar-modal-item" style="margin-top: 20px;">Fechar</button>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- DADOS DO PHP ---
@@ -489,11 +561,12 @@ function calcular_modificador($atributo_valor)
             const divindadesDataT20 = <?= json_encode(isset($divindades_t20) ? $divindades_t20 : []) ?>;
             const poderesDivinosDataT20 = <?= json_encode(isset($poderes_divinos_t20) ? $poderes_divinos_t20 : []) ?>;
             const divindadePoderesLinks = <?= json_encode(isset($divindade_poderes_links) ? $divindade_poderes_links : []) ?>;
-            // Dados dos Poderes (Novos)
             const habilidadesClasseAutoData = <?= json_encode(isset($habilidades_classe_auto_t20) ? $habilidades_classe_auto_t20 : []) ?>;
             const poderesClasseData = <?= json_encode(isset($poderes_classe_t20) ? $poderes_classe_t20 : []) ?>;
             const poderesGeraisData = <?= json_encode(isset($poderes_gerais_t20) ? $poderes_gerais_t20 : []) ?>;
             const poderesPersonagemData = <?= json_encode(isset($poderes_personagem_t20) ? $poderes_personagem_t20 : []) ?>;
+            const todosOsItensT20 = <?= json_encode(isset($itens_t20) ? $itens_t20 : []) ?>;
+            const inventarioInicialPersonagemT20 = <?= json_encode(isset($inventario_personagem_t20) ? $inventario_personagem_t20 : []) ?>;
 
             // --- ELEMENTOS DO DOM ---
             const fichaContainer = document.getElementById('ficha-t20-container');
@@ -520,7 +593,6 @@ function calcular_modificador($atributo_valor)
             const poderesDivindadeDisplayDiv = document.getElementById('poderes-divindade-display');
             const habilidadesClasseAutoDisplayDiv = document.getElementById('habilidades-classe-lista');
             const poderesEscolhidosDisplayDiv = document.getElementById('poderes-escolhidos-lista');
-
             // --- ELEMENTOS DO MODAL DE PODERES ---
             const modalAdicionarPoder = document.getElementById('modal-adicionar-poder-t20');
             const btnAbrirModalPoderes = document.getElementById('btn-abrir-modal-poderes');
@@ -528,11 +600,22 @@ function calcular_modificador($atributo_valor)
             const modalTabs = document.querySelectorAll('.modal-tab-button');
             const modalTabContents = document.querySelectorAll('.modal-tab-content');
             const filtroPoderNome = document.getElementById('filtro-poder-nome-t20');
+            // Elementos do Inventário e Modal de Itens
+            const modalAdicionarItem = document.getElementById('modal-adicionar-item-t20');
+            const btnAbrirModalItem = document.getElementById('btn-abrir-modal-item');
+            const btnFecharModalItem = document.getElementById('btn-fechar-modal-item');
+            const modalItemTabs = document.querySelectorAll('#modal-adicionar-item-t20 .modal-tab-button');
+            const modalItemTabContents = document.querySelectorAll('#modal-adicionar-item-t20 .modal-tab-content');
+            const filtroItemNome = document.getElementById('filtro-item-nome-t20');
+            const cargaUsadaSpan = document.getElementById('carga_usada');
+            const cargaMaximaSpan = document.getElementById('carga_maxima');
+            const inventarioListaDiv = document.getElementById('lista-inventario');
 
             // --- ESTADO GLOBAL DA FICHA ---
             // (Poderes de Raca, Origem, Divindade são exibidos, mas não rastreados aqui)
             // Este array rastreia apenas poderes que o usuário ESCOLHE (Classe, Gerais)
             let poderesEscolhidos = [...(poderesPersonagemData || [])]; // Array de objetos {poder_id: X, tipo_poder: 'classe'/'geral'}
+            let inventarioAtual = [...inventarioInicialPersonagemT20];
 
             // --- MAPAS ---
             const periciasMap = {
@@ -595,8 +678,23 @@ function calcular_modificador($atributo_valor)
                     inputType.value = poder.tipo_poder;
                     form.appendChild(inputType);
                 });
-                // IMPORTANTE: Habilitar o botão de salvar
-                // form.querySelector('.btn-primary').disabled = false; // Removido por enquanto
+                inventarioAtual.forEach(item => {
+                    const inputId = document.createElement('input');
+                    inputId.type = 'hidden';
+                    inputId.name = 'inv_item_id[]';
+                    inputId.value = item.id;
+                    form.appendChild(inputId);
+                    const inputQtd = document.createElement('input');
+                    inputQtd.type = 'hidden';
+                    inputQtd.name = 'inv_quantidade[]';
+                    inputQtd.value = item.quantidade || 1;
+                    form.appendChild(inputQtd);
+                    const inputEquip = document.createElement('input');
+                    inputEquip.type = 'hidden';
+                    inputEquip.name = 'inv_equipado[]';
+                    inputEquip.value = item.equipado ? '1' : '0';
+                    form.appendChild(inputEquip);
+                });
             });
 
             // --- FUNÇÕES DE ATUALIZAÇÃO DA INTERFACE ---
@@ -630,8 +728,6 @@ function calcular_modificador($atributo_valor)
                 // Objetos de dados
                 const classeAtual = classeId ? classesDataT20[classeId] : null;
                 const racaInfo = racaId ? racasData[racaId] : null;
-                const origemInfo = origemId ? origensDataT20[origemId] : null;
-                const divindadeInfo = divindadeId ? divindadesDataT20[divindadeId] : null;
 
                 // Modificadores de Atributo
                 const modificadores = {};
@@ -641,43 +737,29 @@ function calcular_modificador($atributo_valor)
                 });
 
                 // --- 2. GERAR LISTAS DE HABILIDADES ATIVAS ---
-                // (Para facilitar as verificações)
-
-                // Lista de nomes de poderes ESCOLHIDOS (Classe ou Geral)
-                const nomesPoderesEscolhidos = new Set(poderesEscolhidos.map(pRef => {
-                    if (pRef.tipo_poder === 'classe') {
-                        const poder = poderesClasseData.find(p => p.id == pRef.poder_id);
-                        return poder ? poder.nome : null;
-                    } else if (pRef.tipo_poder === 'geral') {
-                        const poder = poderesGeraisData.find(p => p.id == pRef.poder_id);
-                        return poder ? poder.nome : null;
-                    }
-                    return null;
-                }).filter(Boolean)); // Filtra nulos
-
-                // Lista de nomes de HABILIDADES DE RAÇA
                 const nomesHabilidadesRaca = new Set();
                 if (racaInfo) {
                     if (racaInfo.habilidade_1_nome) nomesHabilidadesRaca.add(racaInfo.habilidade_1_nome);
                     if (racaInfo.habilidade_2_nome) nomesHabilidadesRaca.add(racaInfo.habilidade_2_nome);
                     if (racaInfo.habilidade_3_nome) nomesHabilidadesRaca.add(racaInfo.habilidade_3_nome);
-                    // Lida com habilidades combinadas (ex: "Duro como Pedra & Tradição...")
                     nomesHabilidadesRaca.forEach(nome => {
-                        if (nome.includes(' & ')) {
+                        if (nome && nome.includes(' & ')) {
                             nome.split(' & ').forEach(subNome => nomesHabilidadesRaca.add(subNome.trim()));
                         }
                     });
                 }
-
-                // Lista de nomes de PODERES DE ORIGEM
                 const nomesPoderesOrigem = new Set();
-                if (origemInfo) {
+                if (origensDataT20[origemId]) {
+                    const origemInfo = origensDataT20[origemId];
                     if (origemInfo.poder_1_nome) nomesPoderesOrigem.add(origemInfo.poder_1_nome);
                     if (origemInfo.poder_2_nome) nomesPoderesOrigem.add(origemInfo.poder_2_nome);
                     if (origemInfo.poder_3_nome) nomesPoderesOrigem.add(origemInfo.poder_3_nome);
                 }
-
-                // Lista de nomes de PODERES DIVINOS
+                const nomesPoderesEscolhidos = new Set(poderesEscolhidos.map(pRef => {
+                    if (pRef.tipo_poder === 'classe') return (poderesClasseData.find(p => p.id == pRef.poder_id) || {}).nome;
+                    else if (pRef.tipo_poder === 'geral') return (poderesGeraisData.find(p => p.id == pRef.poder_id) || {}).nome;
+                    return null;
+                }).filter(Boolean));
                 const nomesPoderesDivinos = new Set();
                 if (divindadeId) {
                     divindadePoderesLinks
@@ -694,41 +776,32 @@ function calcular_modificador($atributo_valor)
                 const conMod = modificadores['constituicao'] || 0;
 
                 if (classeAtual) {
-                    // Cálculo Base (Classe + Mod CON)
                     pvMax = (parseInt(classeAtual.pv_inicial) + conMod) + ((nivel - 1) * (parseInt(classeAtual.pv_por_nivel) + conMod));
                     pmMax = nivel * parseInt(classeAtual.pm_por_nivel);
-
-                    // Bônus Classe (Espólio - Nobre)
                     if (classeAtual.nome === 'Nobre') {
-                        pmMax += Math.floor(nivel / 2); // +1 PM por nível par
+                        pmMax += Math.floor(nivel / 2);
                     }
                 }
-
-                // Bônus Raça (Duro como Pedra - Anão)
+                // Bônus Raça
                 if (nomesHabilidadesRaca.has('Duro como Pedra')) {
                     pvMax += 3 + (nivel - 1);
                 }
-                // Bônus Raça (Sangue Mágico - Elfo)
                 if (nomesHabilidadesRaca.has('Sangue Mágico')) {
                     pmMax += nivel;
                 }
-
-                // Bônus Origem (Vitalidade - Escravo, Selvagem, Taverneiro)
+                // Bônus Origem
                 if (nomesPoderesOrigem.has('Vitalidade')) {
-                    pvMax += (nivel * 2); // +2 PV por nível
+                    pvMax += (nivel * 2);
                 }
-                // Bônus Origem (Esforçado - Trabalhador)
                 if (nomesPoderesOrigem.has('Esforçado')) {
                     pmMax += Math.floor(nivel / 2);
                 }
-                // Bônus Origem (Vontade de Ferro - Acólito, Refugiado)
                 if (nomesPoderesOrigem.has('Vontade de Ferro')) {
                     pmMax += Math.floor(nivel / 2);
                 }
-
-                // Bônus Poderes Escolhidos (Gerais)
+                // Bônus Poderes Escolhidos
                 if (nomesPoderesEscolhidos.has('Vitalidade')) {
-                    pvMax += nivel; // +1 PV por nível
+                    pvMax += nivel;
                 }
                 if (nomesPoderesEscolhidos.has('À Prova de Tudo')) {
                     pvMax += nivel;
@@ -736,13 +809,12 @@ function calcular_modificador($atributo_valor)
                 if (nomesPoderesEscolhidos.has('Vontade de Ferro')) {
                     pmMax += Math.floor(nivel / 2);
                 }
-
-                // Bônus Divindade (Bênção do Mana - Wynna)
+                // Bônus Divindade
                 if (nomesPoderesDivinos.has('Bênção do Mana')) {
-                    pmMax += Math.floor((nivel + 1) / 2); // +1 PM por nível ímpar
+                    pmMax += Math.floor((nivel + 1) / 2);
                 }
 
-                // Atualização dos Spans de PV e PM (Lógica 'Atual acompanha Máximo')
+                // Atualização dos Spans PV/PM (Lógica 'Atual acompanha Máximo')
                 const pvMaxTextoAnterior = pvMaxSpan ? pvMaxSpan.textContent : '--';
                 const pmMaxTextoAnterior = pmMaxSpan ? pmMaxSpan.textContent : '--';
                 const pvAtualTextoAnterior = pvAtualSpan ? pvAtualSpan.textContent : '--';
@@ -772,41 +844,96 @@ function calcular_modificador($atributo_valor)
                 if (pvMaxTextoNovo === '--' && pvAtualSpan) pvAtualSpan.textContent = '--';
                 if (pmMaxTextoNovo === '--' && pmAtualSpan) pmAtualSpan.textContent = '--';
 
-                // --- 4. CÁLCULO DEFESA ---
-                let defesaTotal = 10 + (modificadores['destreza'] || 0);
 
-                // Bônus de Raça
-                if (nomesHabilidadesRaca.has('Couro Rígido')) { // Minotauro
-                    defesaTotal += 1;
+                // --- 4. CÁLCULO INVENTÁRIO (CARGA) E DEFESA ---
+                let cargaUsada = 0;
+                let bonusCarga = 0;
+                let defesaItens = 0;
+                let penalidadeArmadura = 0;
+                let isArmaduraLeve = false;
+                let isArmaduraPesada = false;
+                let escudoEquipado = false;
+
+                if (typeof inventarioAtual !== 'undefined' && Array.isArray(inventarioAtual)) {
+                    inventarioAtual.forEach(item => {
+                        const qtd = parseInt(item.quantidade) || 1;
+                        const esp = parseInt(item.espacos) || 0;
+                        cargaUsada += esp * qtd; // Soma espaços usados
+
+                        if (item.equipado) {
+                            if (item.bonus_carga) {
+                                bonusCarga += parseInt(item.bonus_carga) || 0; // Ex: Mochila
+                            }
+                            if (item.tipo === 'Armadura' || item.tipo === 'Escudo') {
+                                defesaItens += parseInt(item.bonus_defesa) || 0;
+                                penalidadeArmadura += parseInt(item.penalidade_armadura) || 0;
+                            }
+                            if (item.tipo === 'Escudo') {
+                                escudoEquipado = true;
+                            }
+                            if (item.tipo === 'Armadura') {
+                                // Simplificação: Armadura com penalidade -3 ou mais é pesada.
+                                // (Idealmente, o DB teria um flag 'is_pesada')
+                                if ((parseInt(item.penalidade_armadura) || 0) <= -3) {
+                                    isArmaduraPesada = true;
+                                } else {
+                                    isArmaduraLeve = true; // Couro, Brunea
+                                }
+                            }
+                        }
+                    });
                 }
-                if (nomesHabilidadesRaca.has('Reptiliano')) { // Trog
-                    // (Adicionar verificação de armadura aqui futuramente, quando inventário estiver pronto)
+
+                // Carga Máxima (Regra T20: 10 + ModFor * 2)
+                const modForca = modificadores['forca'] || 0;
+                let cargaMaxima = 10 + (modForca * 2);
+                cargaMaxima += bonusCarga; // Adiciona bônus (ex: +5 da Mochila)
+
+                // Bônus de Poderes na Carga
+                if (nomesPoderesEscolhidos.has('Costas Largas')) cargaMaxima += 5;
+                if (nomesPoderesOrigem.has('Mochileiro')) cargaMaxima += 5;
+
+                // Atualiza Spans de Carga
+                if (cargaUsadaSpan) cargaUsadaSpan.textContent = cargaUsada;
+                if (cargaMaximaSpan) cargaMaximaSpan.textContent = cargaMaxima;
+
+
+                // CÁLCULO DEFESA (Final)
+                let defesaTotal = 10 + (modificadores['destreza'] || 0) + defesaItens;
+
+                // Bônus Raça
+                if (nomesHabilidadesRaca.has('Couro Rígido')) {
                     defesaTotal += 1;
-                }
-                if (nomesHabilidadesRaca.has('Chassi')) { // Golem
+                } // Minotauro
+                if (nomesHabilidadesRaca.has('Reptiliano') && !isArmaduraPesada) {
+                    defesaTotal += 1;
+                } // Trog
+                if (nomesHabilidadesRaca.has('Chassi')) {
                     defesaTotal += 2;
-                    // (Adicionar penalidade de -2 aqui futuramente, se a armadura for 'vestida')
-                }
+                } // Golem
 
-                // Bônus de Poderes Escolhidos (Gerais)
+                // Bônus Poderes
                 if (nomesPoderesEscolhidos.has('Esquiva')) {
                     defesaTotal += 2;
                 }
-                if (nomesPoderesEscolhidos.has('Estilo de Uma Arma')) {
-                    // (Adicionar verificação se está com uma mão livre)
+                if (nomesPoderesEscolhidos.has('Estilo de Uma Arma') && !escudoEquipado) {
+                    // (Assumindo que não usar escudo = mão livre)
                     defesaTotal += 2;
                 }
-                if (nomesPoderesEscolhidos.has('Encouraçado')) {
-                    // (Adicionar verificação de armadura pesada)
+                if (nomesPoderesEscolhidos.has('Estilo de Arma e Escudo') && escudoEquipado) {
+                    // O bônus de +2 do poder já está somado no item (ex: Escudo Pesado +2)
+                    // Se for um +2 ADICIONAL, adicione aqui. Assumindo que não é:
+                    defesaTotal += 0; // Apenas para registro
+                }
+                if (nomesPoderesEscolhidos.has('Encouraçado') && isArmaduraPesada) {
                     defesaTotal += 2;
                 }
-                // (Outros bônus de Defesa, como de Itens/Inventário, virão aqui)
 
-                // Atualiza o display de Defesa
+                // Atualiza Span de Defesa
                 if (defesaTotalSpan) defesaTotalSpan.textContent = defesaTotal;
 
 
-                // --- CÁLCULO PERÍCIAS ---
+                // --- 5. CÁLCULO PERÍCIAS (Com Penalidade de Armadura) ---
                 if (periciasItems) {
                     periciasItems.forEach((item) => {
                         if (!item || !item.id || !item.dataset || !item.dataset.atributoChave) return;
@@ -818,6 +945,7 @@ function calcular_modificador($atributo_valor)
                         const checkboxTreino = item.querySelector('.pericia-treino');
                         const inputOutros = item.querySelector('.pericia-outros');
                         const chaveModificadorCompleta = mapAtributoChave[atributoChaveAbrev];
+
                         if (typeof modificadores[chaveModificadorCompleta] === 'undefined') {
                             if (spanTotal) spanTotal.textContent = '--';
                             if (spanNivel) spanNivel.textContent = '--';
@@ -825,6 +953,7 @@ function calcular_modificador($atributo_valor)
                             return;
                         }
                         const modValor = modificadores[chaveModificadorCompleta];
+
                         if (!spanTotal || !spanNivel || !spanModAttr || !checkboxTreino || !inputOutros) {
                             if (spanTotal) spanTotal.textContent = 'ER';
                             if (spanNivel) spanNivel.textContent = 'ER';
@@ -839,7 +968,17 @@ function calcular_modificador($atributo_valor)
                                 else bonusTreino = 2;
                             }
                             const outrosValor = parseInt(inputOutros.value) || 0;
-                            const totalPericia = metadeNivel + modValor + bonusTreino + outrosValor;
+
+                            // Aplica penalidade de armadura (que é negativa, ex: -3)
+                            let penalidadeAplicada = 0;
+                            if (atributoChaveAbrev === 'for' || atributoChaveAbrev === 'des') {
+                                // (Técnica T20: Penalidade só se aplica se NÃO for treinado?)
+                                // (Simplificação: Aplicando sempre em FOR/DES)
+                                penalidadeAplicada = penalidadeArmadura;
+                            }
+
+                            const totalPericia = metadeNivel + modValor + bonusTreino + outrosValor + penalidadeAplicada;
+
                             spanTotal.textContent = (totalPericia >= 0 ? '+' : '') + totalPericia;
                             spanNivel.textContent = (metadeNivel >= 0 ? '+' : '') + metadeNivel;
                             spanModAttr.textContent = (modValor >= 0 ? '+' : '') + modValor;
@@ -852,7 +991,8 @@ function calcular_modificador($atributo_valor)
                 }
 
                 // --- 6. ATUALIZA OUTRAS PARTES DA UI ---
-                atualizarHabilidadesClasseAuto(classeId, nivel); // Atualiza automáticas
+                atualizarHabilidadesClasseAuto(classeId, nivel);
+                renderizarInventario(); // CHAMA A RENDERIZAÇÃO DO INVENTÁRIO
             }
 
             function mostrarAjustesRaciais() {
@@ -1093,7 +1233,131 @@ function calcular_modificador($atributo_valor)
                 calcularTudoT20();
                 popularModalPoderes();
             }
-            // *** FIM: LÓGICA DO MODAL DE PODERES ***
+
+            // Modal Inventario
+            function renderizarInventario() {
+                if (!inventarioListaDiv) return;
+
+                // Limpa a lista (mantendo o cabeçalho)
+                while (inventarioListaDiv.children.length > 1) {
+                    inventarioListaDiv.removeChild(inventarioListaDiv.lastChild);
+                }
+
+                if (inventarioAtual.length === 0) {
+                    inventarioListaDiv.insertAdjacentHTML('beforeend', '<div class="item-inventario-vazio"><p>Inventário vazio.</p></div>');
+                }
+
+                inventarioAtual.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item-inventario';
+                    // Define o 'checked' para o checkbox de equipado
+                    const isEquipado = item.equipado ? 'checked' : '';
+
+                    itemDiv.innerHTML = `
+                    <input type="checkbox" class="item-equipado-check" onchange="alternarEquipado(${index})" ${isEquipado}>
+                    <span class="item-nome">${item.nome}</span>
+                    <input type="number" class="item-quantidade" value="${item.quantidade || 1}" min="1" onchange="mudarQuantidade(${index}, this.value)">
+                    <span class="item-espacos">${(item.espacos || 0) * (item.quantidade || 1)}</span>
+                    <button type="button" class="btn-remover-item" onclick="removerItemInventario(${index})">X</button>
+                `;
+                    inventarioListaDiv.appendChild(itemDiv);
+                });
+            }
+
+            // Popula o modal de itens com base nos filtros
+            function popularModalItens() {
+                const filtro = filtroItemNome.value.toLowerCase();
+                const tipoFiltro = document.querySelector('#modal-adicionar-item-t20 .modal-tab-button.active').dataset.tabModal;
+
+                const containers = {
+                    'modal-tab-armas': document.getElementById('modal-tab-armas'),
+                    'modal-tab-armaduras': document.getElementById('modal-tab-armaduras'),
+                    'modal-tab-escudos': document.getElementById('modal-tab-escudos'),
+                    'modal-tab-geral': document.getElementById('modal-tab-geral')
+                };
+
+                // Limpa containers
+                for (const key in containers) {
+                    if (containers[key]) containers[key].innerHTML = '';
+                }
+
+                // Mapeia tipo do botão para tipo do item no banco
+                const mapTipo = {
+                    'modal-tab-armas': 'Arma',
+                    'modal-tab-armaduras': 'Armadura',
+                    'modal-tab-escudos': 'Escudo',
+                    'modal-tab-geral': 'Item Geral'
+                };
+                const tipoItemAtual = mapTipo[tipoFiltro];
+
+                // Filtra e exibe os itens
+                const todosItensArray = Object.values(todosOsItensT20); // Converte objeto em array
+                const itensFiltrados = todosItensArray.filter(item =>
+                    item.tipo === tipoItemAtual && item.nome.toLowerCase().includes(filtro)
+                );
+
+                const containerAtual = containers[tipoFiltro];
+                if (containerAtual) {
+                    if (itensFiltrados.length === 0) {
+                        containerAtual.innerHTML = '<p>Nenhum item encontrado.</p>';
+                        return;
+                    }
+                    itensFiltrados.forEach(item => {
+                        containerAtual.innerHTML += `
+                        <div class="item-modal">
+                            <div class="item-modal-info">
+                                <h4>${item.nome} (Espaços: ${item.espacos})</h4>
+                                <p>${item.descricao || ''}</p>
+                                ${item.bonus_defesa ? `<p class="item-detalhe"><strong>Defesa:</strong> +${item.bonus_defesa}</p>` : ''}
+                                ${item.dano ? `<p class="item-detalhe"><strong>Dano:</strong> ${item.dano} | <strong>Crít:</strong> ${item.critico}</p>` : ''}
+                            </div>
+                            <button type="button" class="btn-adicionar" onclick="adicionarItemInventario(${item.id})">Adicionar</button>
+                        </div>
+                    `;
+                    });
+                }
+            }
+
+            // Funções chamadas pelos botões (globais)
+            window.adicionarItemInventario = function(itemId) {
+                const itemInfo = todosOsItensT20[itemId];
+                if (!itemInfo) return;
+
+                // Verifica se o item já existe (não empilhável por padrão, exceto poção/corda?)
+                // Simplificação: Apenas adiciona como novo item
+                const itemParaAdicionar = JSON.parse(JSON.stringify(itemInfo)); // Cria cópia
+                itemParaAdicionar.quantidade = 1;
+                itemParaAdicionar.equipado = 0;
+                inventarioAtual.push(itemParaAdicionar);
+
+                calcularTudoT20(); // Recalcula carga e defesa
+            }
+
+            window.removerItemInventario = function(index) {
+                inventarioAtual.splice(index, 1);
+                calcularTudoT20(); // Recalcula
+            }
+
+            window.mudarQuantidade = function(index, novaQuantidade) {
+                if (inventarioAtual[index]) {
+                    inventarioAtual[index].quantidade = parseInt(novaQuantidade) || 1;
+                    calcularTudoT20(); // Recalcula
+                }
+            }
+
+            window.alternarEquipado = function(index) {
+                if (inventarioAtual[index]) {
+                    inventarioAtual[index].equipado = !inventarioAtual[index].equipado; // Inverte o valor
+                    // Lógica de desequipar outros itens (ex: só pode 1 armadura)
+                    if (inventarioAtual[index].tipo === 'Armadura' && inventarioAtual[index].equipado) {
+                        inventarioAtual.forEach((item, i) => {
+                            if (i !== index && item.tipo === 'Armadura') item.equipado = 0;
+                        });
+                    }
+                    // (Adicionar lógica similar para Escudo se necessário)
+                    calcularTudoT20(); // Recalcula
+                }
+            }
 
             // --- EVENT LISTENERS ---
             tabButtons.forEach(button => {
@@ -1181,13 +1445,42 @@ function calcular_modificador($atributo_valor)
                 });
             }
 
+            // --- LISTENERS DO MODAL DE ITENS ---
+            if (btnAbrirModalItem) {
+                btnAbrirModalItem.addEventListener('click', () => {
+                    popularModalItens();
+                    if (modalAdicionarItem) modalAdicionarItem.style.display = 'flex';
+                });
+            }
+            if (btnFecharModalItem) {
+                btnFecharModalItem.addEventListener('click', () => {
+                    if (modalAdicionarItem) modalAdicionarItem.style.display = 'none';
+                });
+            }
+            if (filtroItemNome) {
+                filtroItemNome.addEventListener('input', popularModalItens);
+            }
+            if (modalItemTabs) {
+                modalItemTabs.forEach(button => {
+                    button.addEventListener('click', () => {
+                        modalItemTabs.forEach(btn => btn.classList.remove('active'));
+                        modalItemTabContents.forEach(content => content.classList.remove('active'));
+                        button.classList.add('active');
+                        const targetContent = document.getElementById(button.dataset.tabModal);
+                        if (targetContent) targetContent.classList.add('active');
+                        popularModalItens(); // Re-popula ao trocar de aba
+                    });
+                });
+            }
+
             // --- INICIALIZAÇÃO ---
             mostrarAjustesRaciais();
             atualizarClasseCSS();
             atualizarPoderOrigemT20();
             atualizarHabilidadesRaciais();
             atualizarPoderesDivindade();
-            renderizarPoderesEscolhidos(); // Mostra os poderes salvos
+            renderizarPoderesEscolhidos();
+            renderizarInventario();
             calcularTudoT20();
         });
     </script>

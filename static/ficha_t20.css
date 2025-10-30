@@ -5,7 +5,7 @@
     --cor-primaria: #8a0303;
     /* Vermelho T20 */
     --cor-secundaria: #c20707;
-    /* Roxo do projeto */
+    /* Vermelho T20 (Mais claro) */
     --cor-fundo: #f4f7fa;
     --cor-surface: #ffffff;
     --cor-texto-primario: #212529;
@@ -233,28 +233,20 @@ h3 {
     -moz-appearance: textfield;
 }
 
-/* A exibição do modificador foi removida do HTML */
-
 /* --- SEÇÃO DE PERÍCIAS (REFEITA COM GRID) --- */
 .pericias-container {
     display: grid;
-    /* Duas colunas principais para a lista de perícias */
     grid-template-columns: 1fr 1fr;
     gap: 0 2rem;
-    /* Espaço apenas entre as colunas, não entre as linhas */
 }
 
 /* Estilo para cada linha de perícia */
 .pericia-item {
     display: grid;
-    /* Define as colunas internas: Nome | Total | 1/2Nvl | Mod | Treino | Outros */
     grid-template-columns: 1fr auto 40px 40px 40px 50px;
     gap: 0.75rem;
-    /* Espaço entre os elementos da linha */
     align-items: center;
-    /* Alinha verticalmente os itens */
     padding: 0.5rem 0.25rem;
-    /* Acolchoamento vertical e um pouco horizontal */
     border-bottom: 1px solid #eee;
 }
 
@@ -267,21 +259,17 @@ h3 {
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
     border-bottom: 2px solid var(--cor-borda);
-    /* Linha mais grossa para o header */
     text-align: center;
-    /* Centraliza os títulos das colunas */
 }
 
 .pericia-item.header span:first-child {
     text-align: left;
-    /* Alinha o título "Perícia" à esquerda */
 }
 
 /* Nome da Perícia */
 .pericia-nome {
     font-size: 0.95rem;
     white-space: nowrap;
-    /* Evita quebra de linha */
     text-align: left;
 }
 
@@ -293,7 +281,6 @@ h3 {
 
 .so-treinado-marker {
     color: var(--cor-primaria);
-    /* Vermelho T20 */
     font-weight: bold;
     margin-left: 0.1rem;
 }
@@ -308,12 +295,10 @@ h3 {
 
 .pericia-total {
     font-size: 1.1rem;
-    /* Destaca o total */
 }
 
 .pericia-outros {
     width: 100%;
-    /* Ocupa a coluna definida no grid */
     padding: 0.25rem;
     text-align: center;
     border: 1px solid var(--cor-borda);
@@ -321,7 +306,6 @@ h3 {
     font-size: 0.9rem;
 }
 
-/* Esconde as setinhas do input number */
 .pericia-outros::-webkit-outer-spin-button,
 .pericia-outros::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -335,13 +319,10 @@ h3 {
 /* Checkbox de Treino */
 .pericia-treino {
     justify-self: center;
-    /* Centraliza o checkbox na sua célula do grid */
     width: 1rem;
-    /* Tamanho do checkbox */
     height: 1rem;
 }
 
-/* Zebra striping para melhor legibilidade */
 .pericias-container .pericia-item:nth-child(odd):not(.header) {
     background-color: #f9f9f9;
 }
@@ -359,22 +340,6 @@ h3 {
     color: var(--cor-primaria);
     margin-bottom: 0.5rem;
 }
-
-.equipamento-lista {
-    list-style: none;
-    padding: 0;
-}
-
-.equipamento-lista li {
-    padding: 0.25rem 0;
-    border-bottom: 1px dashed var(--cor-borda);
-}
-
-/* Remover bullet padrão se ainda estiver aparecendo */
-.equipamento-lista li::before {
-    content: none;
-}
-
 
 /* --- BOTÕES --- */
 .botoes-rodape {
@@ -399,19 +364,19 @@ h3 {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    /* Para botões com ícones */
 }
 
 .btn-primary {
     background-color: var(--cor-secundaria);
+    /* Vermelho claro */
     color: white;
-    /* Roxo */
     border-color: var(--cor-secundaria);
 }
 
 .btn-primary:hover {
-    background-color: #5a1281;
-    border-color: #5a1281;
+    background-color: var(--cor-primaria);
+    /* Vermelho escuro */
+    border-color: var(--cor-primaria);
 }
 
 .btn-primary:disabled {
@@ -453,8 +418,6 @@ h3 {
 }
 
 /* --- ESTILOS PARA O MODAL DE PODERES T20 --- */
-
-/* Overlay do Modal (genérico, pode ser combinado com o de OP) */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -475,17 +438,14 @@ h3 {
     padding: 1.5rem 2rem;
     width: 90%;
     max-width: 800px;
-    /* Modal de poderes é grande */
     display: flex;
     flex-direction: column;
     max-height: 90vh;
-    /* Limita a altura */
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
 .modal-content h2 {
     color: var(--cor-primaria);
-    /* Vermelho T20 */
     text-align: center;
     margin-top: 0;
 }
@@ -529,7 +489,6 @@ h3 {
 /* Wrapper da lista de poderes */
 .modal-lista-wrapper {
     overflow-y: auto;
-    /* Scroll apenas na lista */
     min-height: 300px;
     max-height: 50vh;
     border: 1px solid var(--cor-borda);
@@ -547,7 +506,6 @@ h3 {
 }
 
 .modal-tab-content>p {
-    /* Mensagem "Nenhum poder..." */
     padding: 2rem;
     text-align: center;
     color: var(--cor-texto-secundario);
@@ -555,12 +513,11 @@ h3 {
 }
 
 
-/* Item individual no modal */
+/* Item individual no modal (PODER) */
 .poder-item-modal {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    /* Alinha no topo */
     padding: 1rem 0.5rem;
     border-bottom: 1px solid var(--cor-borda);
 }
@@ -599,14 +556,14 @@ h3 {
     border-radius: 4px;
     cursor: pointer;
     background-color: var(--cor-secundaria);
-    /* Roxo */
+    /* Vermelho claro */
     color: white;
     transition: background-color 0.2s;
 }
 
 .btn-adicionar-poder:hover {
-    background-color: #5a1281;
-    /* Roxo escuro */
+    background-color: var(--cor-primaria);
+    /* Vermelho escuro */
 }
 
 .btn-adicionar-poder:disabled {
@@ -618,9 +575,7 @@ h3 {
 /* Botão de Remover Poder na Ficha Principal */
 .poder-escolhido {
     position: relative;
-    /* Necessário para o botão */
     padding-right: 35px;
-    /* Espaço para o botão 'X' */
 }
 
 .btn-remover-poder {
@@ -641,6 +596,217 @@ h3 {
 
 .btn-remover-poder:hover {
     background-color: var(--cor-primaria);
-    /* Vermelho T20 */
     color: white;
 }
+
+
+/* ================================================================
+--- NOVAS REGRAS / CORREÇÕES (Screenshots 1, 3 e 4) ---
+================================================================
+*/
+
+/* --- Correção #1: Remover linha do h3 de Equipamento (Screenshot 1) --- */
+.inventario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.inventario-header h3 {
+    /* Remove os estilos do h3 geral */
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.inventario-stats {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.inventario-stats input[type="number"] {
+    width: 100px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+}
+
+
+/* --- Correção #2: Estilizar Modal de Itens (Screenshot 3) --- */
+/* (O seu JS cria .item-modal, vamos estilizá-lo como .poder-item-modal) */
+
+.item-modal {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1rem 0.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.item-modal:last-child {
+    border-bottom: none;
+}
+
+.item-modal-info {
+    flex: 1;
+    padding-right: 1rem;
+}
+
+.item-modal-info h4 {
+    color: var(--cor-primaria);
+    margin-bottom: 0.25rem;
+}
+
+.item-modal-info p {
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+    line-height: 1.4;
+}
+
+.item-detalhe {
+    font-size: 0.85rem !important;
+    font-weight: 700;
+    color: var(--cor-texto-primario) !important;
+    margin-top: 0.25rem;
+}
+
+/* (O seu JS cria .btn-adicionar, vamos estilizá-lo como .btn-adicionar-poder) */
+.btn-adicionar {
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: var(--cor-secundaria);
+    /* Vermelho claro */
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.btn-adicionar:hover {
+    background-color: var(--cor-primaria);
+    /* Vermelho escuro */
+}
+
+
+/* --- Correção #3: Alinhar Lista de Inventário (Screenshot 4) --- */
+
+/* (O seu JS procura por #lista-inventario) */
+#lista-inventario {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem; /* Espaço antes do botão "Adicionar Item" */
+}
+
+.item-inventario-vazio {
+    padding: 1rem;
+    text-align: center;
+    color: var(--cor-texto-secundario);
+    font-style: italic;
+    background-color: var(--cor-fundo);
+    border-radius: 4px;
+}
+
+/* O Cabeçalho (que você vai adicionar no HTML) */
+.inventario-list-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--cor-texto-secundario);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--cor-borda);
+    padding-bottom: 0.5rem;
+}
+
+/* O Item (Seu JS cria .item-inventario) */
+.item-inventario {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+}
+
+/* Definição das colunas (para Header e Item) */
+
+.inv-header-equipado,
+.item-equipado-check {
+    width: 80px;
+    flex-shrink: 0;
+}
+.item-equipado-check {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-left: 20px; /* Centraliza o checkbox */
+    margin-right: 40px;
+}
+
+.inv-header-nome,
+.item-nome {
+    flex: 1; /* O nome ocupa o espaço restante */
+    min-width: 150px;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.inv-header-qtd,
+.item-quantidade {
+    width: 80px;
+    flex-shrink: 0;
+    text-align: center;
+}
+.item-quantidade {
+    padding: 0.25rem;
+    font-size: 1rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+}
+
+.inv-header-espacos,
+.item-espacos {
+    width: 80px;
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+    font-weight: 700;
+}
+
+.inv-header-remover,
+.btn-remover-item {
+    width: 40px;
+    flex-shrink: 0;
+    text-align: right;
+}
+.btn-remover-item {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background-color: #eee;
+    color: #555;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    /* Remove 'position' se houver */
+}
+.btn-remover-item:hover {
+    background-color: var(--cor-primaria);
+    color: white;
+}
+
