@@ -4,7 +4,7 @@
 :root {
     --cor-primaria: #8a0303;
     /* Vermelho T20 */
-    --cor-secundaria: #6a1b9a;
+    --cor-secundaria: #c20707;
     /* Roxo do projeto */
     --cor-fundo: #f4f7fa;
     --cor-surface: #ffffff;
@@ -450,4 +450,197 @@ h3 {
 #btn-importar-imagem-t20 {
     width: 100%;
     margin-top: 1rem;
+}
+
+/* --- ESTILOS PARA O MODAL DE PODERES T20 --- */
+
+/* Overlay do Modal (genérico, pode ser combinado com o de OP) */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: var(--cor-surface);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    width: 90%;
+    max-width: 800px;
+    /* Modal de poderes é grande */
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    /* Limita a altura */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+    color: var(--cor-primaria);
+    /* Vermelho T20 */
+    text-align: center;
+    margin-top: 0;
+}
+
+/* Abas dentro do Modal */
+.modal-abas-nav {
+    display: flex;
+    background-color: var(--cor-fundo);
+    border-radius: 6px;
+    padding: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.modal-tab-button {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: transparent;
+    font-weight: 700;
+    color: var(--cor-texto-secundario);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.modal-tab-button.active {
+    background-color: var(--cor-surface);
+    color: var(--cor-primaria);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.modal-filtros-poderes input[type="text"] {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+/* Wrapper da lista de poderes */
+.modal-lista-wrapper {
+    overflow-y: auto;
+    /* Scroll apenas na lista */
+    min-height: 300px;
+    max-height: 50vh;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+    background-color: var(--cor-fundo);
+}
+
+.modal-tab-content {
+    display: none;
+    padding: 0.5rem 1rem;
+}
+
+.modal-tab-content.active {
+    display: block;
+}
+
+.modal-tab-content>p {
+    /* Mensagem "Nenhum poder..." */
+    padding: 2rem;
+    text-align: center;
+    color: var(--cor-texto-secundario);
+    font-style: italic;
+}
+
+
+/* Item individual no modal */
+.poder-item-modal {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    /* Alinha no topo */
+    padding: 1rem 0.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.poder-item-modal:last-child {
+    border-bottom: none;
+}
+
+.poder-item-modal-info {
+    flex: 1;
+    padding-right: 1rem;
+}
+
+.poder-item-modal-info h4 {
+    color: var(--cor-primaria);
+    margin-bottom: 0.25rem;
+}
+
+.poder-item-modal-info p {
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+    line-height: 1.4;
+}
+
+.pre-requisito {
+    font-size: 0.8rem !important;
+    font-style: italic;
+    color: #555 !important;
+    margin-top: 0.25rem;
+}
+
+.btn-adicionar-poder {
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: var(--cor-secundaria);
+    /* Roxo */
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.btn-adicionar-poder:hover {
+    background-color: #5a1281;
+    /* Roxo escuro */
+}
+
+.btn-adicionar-poder:disabled {
+    background-color: #ccc;
+    color: #777;
+    cursor: not-allowed;
+}
+
+/* Botão de Remover Poder na Ficha Principal */
+.poder-escolhido {
+    position: relative;
+    /* Necessário para o botão */
+    padding-right: 35px;
+    /* Espaço para o botão 'X' */
+}
+
+.btn-remover-poder {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background-color: #eee;
+    color: #555;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-remover-poder:hover {
+    background-color: var(--cor-primaria);
+    /* Vermelho T20 */
+    color: white;
 }

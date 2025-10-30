@@ -297,8 +297,8 @@ $personagens = $result_select->fetch_all(MYSQLI_ASSOC);
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-book-dead"></i> Meus Personagens (Ordem Paranormal)</h1>
-            <p>Gerencie seus heróis e agentes do paranormal</p>
+            <h1><i class="fas fa-book-dead"></i> Meus Personagens</h1>
+            <p>Gerencie seus Personagens</p>
         </header>
 
         <?php if (isset($_GET['excluido']) && $_GET['excluido'] == 1): ?>

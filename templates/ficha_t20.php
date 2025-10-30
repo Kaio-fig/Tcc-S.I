@@ -55,11 +55,11 @@ if ($is_new_t20) {
 // --- CARREGAR DADOS DE REGRAS T20 ---
 // Raças
 $racas_t20 = [];
-$sql_racas = "SELECT id, nome, ajustes_atributos FROM t20_racas ORDER BY nome ASC";
+$sql_racas = "SELECT id, nome, ajustes_atributos, habilidade_1_nome, habilidade_1_desc, habilidade_2_nome, habilidade_2_desc, habilidade_3_nome, habilidade_3_desc FROM t20_racas ORDER BY nome ASC";
 $resultado_racas = $conn->query($sql_racas);
 if ($resultado_racas) {
     while ($linha = $resultado_racas->fetch_assoc()) {
-        $racas_t20[$linha['id']] = $linha; // Guarda usando o ID como chave
+        $racas_t20[$linha['id']] = $linha;
     }
 }
 
@@ -68,23 +68,89 @@ $sql_classes = "SELECT id, nome, pv_inicial, pv_por_nivel, pm_por_nivel FROM t20
 $resultado_classes = $conn->query($sql_classes);
 if ($resultado_classes) {
     while ($linha = $resultado_classes->fetch_assoc()) {
-        $classes_t20[$linha['id']] = $linha; // Guarda usando o ID como chave
+        $classes_t20[$linha['id']] = $linha;
     }
 }
 
-// *** NOVO: Carregar Origens T20 (Consulta Corrigida) ***
 $origens_t20 = [];
-// CORREÇÃO: Seleciona as novas colunas de poder
-$sql_origens = "SELECT id, nome, poder_1_nome, poder_1_desc, poder_2_nome, poder_2_desc, poder_3_nome, poder_3_desc FROM t20_origens ORDER BY nome ASC"; 
+$sql_origens = "SELECT id, nome, poder_1_nome, poder_1_desc, poder_2_nome, poder_2_desc, poder_3_nome, poder_3_desc FROM t20_origens ORDER BY nome ASC";
 $resultado_origens = $conn->query($sql_origens);
-// O resto do bloco de carregamento e depuração pode permanecer igual
 if (!$resultado_origens) {
     echo "<!-- ERRO FATAL: Falha na consulta SQL das Origens: " . $conn->error . " -->";
-}else {
+} else {
     while ($linha = $resultado_origens->fetch_assoc()) {
         $origens_t20[$linha['id']] = $linha;
     }
+}
 
+$divindades_t20 = [];
+$sql_divindades = "SELECT id, nome, energia FROM t20_divindades ORDER BY nome ASC";
+$resultado_divindades = $conn->query($sql_divindades);
+if ($resultado_divindades) {
+    while ($linha = $resultado_divindades->fetch_assoc()) {
+        $divindades_t20[$linha['id']] = $linha;
+    }
+}
+
+$poderes_divinos_t20 = [];
+$sql_poderes_divinos = "SELECT id, nome, descricao FROM t20_poderes_divinos";
+$resultado_poderes_divinos = $conn->query($sql_poderes_divinos);
+if ($resultado_poderes_divinos) {
+    while ($linha = $resultado_poderes_divinos->fetch_assoc()) {
+        $poderes_divinos_t20[$linha['id']] = $linha;
+    }
+}
+
+// Carrega a tabela de LIGAÇÃO (quais deuses têm quais poderes)
+$divindade_poderes_links = [];
+$sql_links = "SELECT divindade_id, poder_divino_id FROM t20_divindade_poderes";
+$resultado_links = $conn->query($sql_links);
+if ($resultado_links) {
+    while ($linha = $resultado_links->fetch_assoc()) {
+        $divindade_poderes_links[] = $linha;
+    }
+}
+
+$habilidades_classe_auto_t20 = [];
+$sql_habilidades_auto = "SELECT id, classe_id, nivel_obtido, nome, descricao FROM t20_habilidades_classe_auto ORDER BY classe_id, nivel_obtido ASC";
+$resultado_habilidades_auto = $conn->query($sql_habilidades_auto);
+if ($resultado_habilidades_auto) {
+    while ($linha = $resultado_habilidades_auto->fetch_assoc()) {
+        $habilidades_classe_auto_t20[] = $linha; // Guarda como uma lista
+    }
+}
+
+$poderes_classe_t20 = [];
+$sql_poderes_classe = "SELECT id, classe_id, nome, descricao, pre_requisito FROM t20_poderes_classe ORDER BY nome ASC";
+$resultado_poderes_classe = $conn->query($sql_poderes_classe);
+if ($resultado_poderes_classe) {
+    while ($linha = $resultado_poderes_classe->fetch_assoc()) {
+        $poderes_classe_t20[] = $linha;
+    }
+}
+
+$poderes_gerais_t20 = [];
+$sql_poderes_gerais = "SELECT id, nome, descricao, categoria, pre_requisito FROM t20_poderes_gerais ORDER BY categoria, nome ASC";
+$resultado_poderes_gerais = $conn->query($sql_poderes_gerais);
+if ($resultado_poderes_gerais) {
+    while ($linha = $resultado_poderes_gerais->fetch_assoc()) {
+        $poderes_gerais_t20[] = $linha;
+    }
+}
+
+$poderes_personagem_t20 = [];
+if (!$is_new_t20) { // Só carrega se o personagem já existir
+    $sql_poderes_salvos = "SELECT poder_id, tipo_poder FROM personagem_t20_poderes WHERE personagem_id = ?";
+    $stmt_ps = $conn->prepare($sql_poderes_salvos);
+    $stmt_ps->bind_param("i", $id_t20); // Usa o ID do personagem T20
+    $stmt_ps->execute();
+    $res_ps = $stmt_ps->get_result();
+    if ($res_ps) {
+        while ($linha = $res_ps->fetch_assoc()) {
+            $poderes_personagem_t20[] = $linha; // Guarda {poder_id: X, tipo_poder: 'classe'}
+        }
+    }
+    $stmt_ps->close();
 }
 
 // Função simples para calcular modificador (útil no PHP e JS)
@@ -181,9 +247,13 @@ function calcular_modificador($atributo_valor)
                 </div>
                 <div class="info-item">
                     <label for="divindade_id">Divindade</label>
-                    <select id="divindade_id" name="divindade_id" disabled>
-                        <option value="">(Carregar Divindades)</option>
-                        <!-- Options de divindades -->
+                    <select id="divindade_id" name="divindade_id">
+                        <option value="">(Nenhuma)</option> <!-- Opção para não ter divindade -->
+                        <?php foreach ($divindades_t20 as $id_divindade => $divindade): ?>
+                            <option value="<?= $id_divindade ?>" <?= (isset($personagem_t20['divindade_id']) && $personagem_t20['divindade_id'] == $id_divindade) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($divindade['nome']) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
             </header>
@@ -312,15 +382,24 @@ function calcular_modificador($atributo_valor)
                                 <h4>Habilidades de Raça</h4>
                                 <!-- JS vai popular aqui -->
                             </div>
-                            <div id="habilidades-classe-lista">
-                                <h4>Habilidades de Classe</h4>
-                                <!-- JS vai popular aqui -->
+                            <div id="poderes-divindade-display" style="margin-top: 1.5rem;">
+                                <h4>Poderes Concedidos</h4>
+                                <p>Selecione uma divindade para ver seus poderes.</p>
                             </div>
                             <div id="poder-origem-display-t20" class="poder-item">
                                 <h4>Poder de Origem</h4>
                                 <p>Selecione uma origem para ver seu poder.</p>
                             </div>
-                            <!-- Botão para adicionar poder (futuro) -->
+                            <div id="habilidades-classe-lista">
+                                <h4>Habilidades de Classe</h4>
+                                <!-- JS vai popular aqui -->
+                            </div>
+                            <div id="poderes-escolhidos-lista" style="margin-top: 1.5rem;">
+                                <h4>Poderes Adquiridos</h4>
+                                <!-- Lista de poderes que o JS irá preencher -->
+                                <p>(Nenhum poder adquirido ainda)</p>
+                            </div>
+                            <button type="button" class="btn btn-small" id="btn-abrir-modal-poderes" style="margin-top: 1rem;">Adicionar Poder</button>
                         </div>
                     </div>
 
@@ -364,12 +443,57 @@ function calcular_modificador($atributo_valor)
             </footer>
         </form>
     </div>
+    <!--Modais-->
+    <div id="modal-adicionar-poder-t20" class="modal-overlay">
+        <div class="modal-content modal-poderes">
+            <h2>Adicionar Poder</h2>
+
+            <!-- Abas de navegação dentro do modal -->
+            <nav class="modal-abas-nav">
+                <button type="button" class="modal-tab-button active" data-tab-modal="modal-tab-classe">Classe</button>
+                <button type="button" class="modal-tab-button" data-tab-modal="modal-tab-combate">Combate</button>
+                <button type="button" class="modal-tab-button" data-tab-modal="modal-tab-destino">Destino</button>
+                <button type="button" class="modal-tab-button" data-tab-modal="modal-tab-magia">Magia</button>
+            </nav>
+
+            <div class="modal-filtros-poderes">
+                <input type="text" id="filtro-poder-nome-t20" placeholder="Buscar por nome...">
+            </div>
+
+            <!-- Conteúdo das abas do modal -->
+            <div class="modal-lista-wrapper">
+                <!-- Aba Poderes de Classe -->
+                <div id="modal-tab-classe" class="modal-tab-content active">
+                    <p>Selecione uma classe para ver os poderes disponíveis.</p>
+                </div>
+                <!-- Aba Poderes de Combate -->
+                <div id="modal-tab-combate" class="modal-tab-content">
+                </div>
+                <!-- Aba Poderes de Destino -->
+                <div id="modal-tab-destino" class="modal-tab-content">
+                </div>
+                <!-- Aba Poderes de Magia -->
+                <div id="modal-tab-magia" class="modal-tab-content">
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-secondary" id="btn-fechar-modal-poderes" style="margin-top: 20px;">Fechar</button>
+        </div>
+    </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- DADOS DO PHP ---
             const racasData = <?= json_encode(isset($racas_t20) ? $racas_t20 : []) ?>;
             const classesDataT20 = <?= json_encode(isset($classes_t20) ? $classes_t20 : []) ?>;
             const origensDataT20 = <?= json_encode(isset($origens_t20) ? $origens_t20 : []) ?>;
+            const divindadesDataT20 = <?= json_encode(isset($divindades_t20) ? $divindades_t20 : []) ?>;
+            const poderesDivinosDataT20 = <?= json_encode(isset($poderes_divinos_t20) ? $poderes_divinos_t20 : []) ?>;
+            const divindadePoderesLinks = <?= json_encode(isset($divindade_poderes_links) ? $divindade_poderes_links : []) ?>;
+            // Dados dos Poderes (Novos)
+            const habilidadesClasseAutoData = <?= json_encode(isset($habilidades_classe_auto_t20) ? $habilidades_classe_auto_t20 : []) ?>;
+            const poderesClasseData = <?= json_encode(isset($poderes_classe_t20) ? $poderes_classe_t20 : []) ?>;
+            const poderesGeraisData = <?= json_encode(isset($poderes_gerais_t20) ? $poderes_gerais_t20 : []) ?>;
+            const poderesPersonagemData = <?= json_encode(isset($poderes_personagem_t20) ? $poderes_personagem_t20 : []) ?>;
 
             // --- ELEMENTOS DO DOM ---
             const fichaContainer = document.getElementById('ficha-t20-container');
@@ -378,22 +502,39 @@ function calcular_modificador($atributo_valor)
             const tabContents = document.querySelectorAll('.tab-content');
             const racaSelect = document.getElementById('raca_id');
             const classeSelect = document.getElementById('classe_id');
-            const origemSelect = document.getElementById('origem_id'); // Select da origem
-            const ajustesInfoDiv = document.getElementById('ajustes-raciais-info');
+            const origemSelect = document.getElementById('origem_id');
+            const divindadeSelect = document.getElementById('divindade_id');
             const nivelInput = document.getElementById('nivel');
             const atributosInputs = document.querySelectorAll('.atributo-valor');
             const periciasItems = document.querySelectorAll('.pericia-item:not(.header)');
-            // Spans para PV e PM
+            // Spans de Status
             const pvAtualSpan = document.getElementById('pv_atual');
             const pvMaxSpan = document.getElementById('pv_max');
             const pmAtualSpan = document.getElementById('pm_atual');
             const pmMaxSpan = document.getElementById('pm_max');
             const defesaTotalSpan = document.getElementById('defesa_total');
-            // Div para Poder de Origem
+            // Divs de Poderes
+            const ajustesInfoDiv = document.getElementById('ajustes-raciais-info');
             const poderOrigemDisplayDiv = document.getElementById('poder-origem-display-t20');
+            const habilidadesRaciaisDisplayDiv = document.getElementById('habilidades-raciais-lista');
+            const poderesDivindadeDisplayDiv = document.getElementById('poderes-divindade-display');
+            const habilidadesClasseAutoDisplayDiv = document.getElementById('habilidades-classe-lista');
+            const poderesEscolhidosDisplayDiv = document.getElementById('poderes-escolhidos-lista');
 
+            // --- ELEMENTOS DO MODAL DE PODERES ---
+            const modalAdicionarPoder = document.getElementById('modal-adicionar-poder-t20');
+            const btnAbrirModalPoderes = document.getElementById('btn-abrir-modal-poderes');
+            const btnFecharModalPoderes = document.getElementById('btn-fechar-modal-poderes');
+            const modalTabs = document.querySelectorAll('.modal-tab-button');
+            const modalTabContents = document.querySelectorAll('.modal-tab-content');
+            const filtroPoderNome = document.getElementById('filtro-poder-nome-t20');
 
-            // --- MAPA DE PERÍCIAS ---
+            // --- ESTADO GLOBAL DA FICHA ---
+            // (Poderes de Raca, Origem, Divindade são exibidos, mas não rastreados aqui)
+            // Este array rastreia apenas poderes que o usuário ESCOLHE (Classe, Gerais)
+            let poderesEscolhidos = [...(poderesPersonagemData || [])]; // Array de objetos {poder_id: X, tipo_poder: 'classe'/'geral'}
+
+            // --- MAPAS ---
             const periciasMap = {
                 acrobacia: 'destreza',
                 adestramento: 'carisma',
@@ -425,8 +566,40 @@ function calcular_modificador($atributo_valor)
                 sobrevivencia: 'sabedoria',
                 vontade: 'sabedoria'
             };
+            const mapAtributoChave = {
+                'for': 'forca',
+                'des': 'destreza',
+                'con': 'constituicao',
+                'int': 'inteligencia',
+                'sab': 'sabedoria',
+                'car': 'carisma'
+            };
 
-            // --- FUNÇÕES ---
+            // --- LÓGICA DE ENVIO DO FORMULÁRIO ---
+            form.addEventListener('submit', (event) => {
+                // Limpa inputs antigos
+                form.querySelectorAll('input[name="poderes_escolhidos_id[]"], input[name="poderes_escolhidos_tipo[]"]').forEach(input => input.remove());
+                // (Adicionar lógica de inventário aqui futuramente)
+
+                // Adiciona inputs hidden para cada poder escolhido
+                poderesEscolhidos.forEach(poder => {
+                    const inputId = document.createElement('input');
+                    inputId.type = 'hidden';
+                    inputId.name = 'poderes_escolhidos_id[]';
+                    inputId.value = poder.poder_id;
+                    form.appendChild(inputId);
+
+                    const inputType = document.createElement('input');
+                    inputType.type = 'hidden';
+                    inputType.name = 'poderes_escolhidos_tipo[]';
+                    inputType.value = poder.tipo_poder;
+                    form.appendChild(inputType);
+                });
+                // IMPORTANTE: Habilitar o botão de salvar
+                // form.querySelector('.btn-primary').disabled = false; // Removido por enquanto
+            });
+
+            // --- FUNÇÕES DE ATUALIZAÇÃO DA INTERFACE ---
 
             function atualizarClasseCSS() {
                 const classeIdSelecionada = classeSelect.value;
@@ -444,37 +617,140 @@ function calcular_modificador($atributo_valor)
             }
 
             function calcularTudoT20() {
+                // --- 1. LEITURA DE DADOS ---
                 const nivel = parseInt(nivelInput.value) || 1;
                 const metadeNivel = Math.floor(nivel / 2);
-                const classeId = parseInt(classeSelect.value) || null;
-                const classeAtual = classeId ? classesDataT20[classeId] : null;
 
+                // IDs selecionados
+                const racaId = parseInt(racaSelect.value) || null;
+                const classeId = parseInt(classeSelect.value) || null;
+                const origemId = parseInt(origemSelect.value) || null;
+                const divindadeId = parseInt(divindadeSelect.value) || null;
+
+                // Objetos de dados
+                const classeAtual = classeId ? classesDataT20[classeId] : null;
+                const racaInfo = racaId ? racasData[racaId] : null;
+                const origemInfo = origemId ? origensDataT20[origemId] : null;
+                const divindadeInfo = divindadeId ? divindadesDataT20[divindadeId] : null;
+
+                // Modificadores de Atributo
                 const modificadores = {};
                 atributosInputs.forEach(input => {
                     const modificadorLido = parseInt(input.value);
                     modificadores[input.id] = isNaN(modificadorLido) ? 0 : modificadorLido;
                 });
 
-                // --- CÁLCULO PV e PM ---
-                let pvMax = 0;
-                let pmMax = 0;
-                const conValor = parseInt(document.getElementById('constituicao').value) || 0;
+                // --- 2. GERAR LISTAS DE HABILIDADES ATIVAS ---
+                // (Para facilitar as verificações)
 
-                if (classeAtual) {
-                    pvMax = (parseInt(classeAtual.pv_inicial) + conValor) + ((nivel - 1) * (parseInt(classeAtual.pv_por_nivel) + conValor));
-                    pmMax = nivel * parseInt(classeAtual.pm_por_nivel);
+                // Lista de nomes de poderes ESCOLHIDOS (Classe ou Geral)
+                const nomesPoderesEscolhidos = new Set(poderesEscolhidos.map(pRef => {
+                    if (pRef.tipo_poder === 'classe') {
+                        const poder = poderesClasseData.find(p => p.id == pRef.poder_id);
+                        return poder ? poder.nome : null;
+                    } else if (pRef.tipo_poder === 'geral') {
+                        const poder = poderesGeraisData.find(p => p.id == pRef.poder_id);
+                        return poder ? poder.nome : null;
+                    }
+                    return null;
+                }).filter(Boolean)); // Filtra nulos
+
+                // Lista de nomes de HABILIDADES DE RAÇA
+                const nomesHabilidadesRaca = new Set();
+                if (racaInfo) {
+                    if (racaInfo.habilidade_1_nome) nomesHabilidadesRaca.add(racaInfo.habilidade_1_nome);
+                    if (racaInfo.habilidade_2_nome) nomesHabilidadesRaca.add(racaInfo.habilidade_2_nome);
+                    if (racaInfo.habilidade_3_nome) nomesHabilidadesRaca.add(racaInfo.habilidade_3_nome);
+                    // Lida com habilidades combinadas (ex: "Duro como Pedra & Tradição...")
+                    nomesHabilidadesRaca.forEach(nome => {
+                        if (nome.includes(' & ')) {
+                            nome.split(' & ').forEach(subNome => nomesHabilidadesRaca.add(subNome.trim()));
+                        }
+                    });
                 }
 
+                // Lista de nomes de PODERES DE ORIGEM
+                const nomesPoderesOrigem = new Set();
+                if (origemInfo) {
+                    if (origemInfo.poder_1_nome) nomesPoderesOrigem.add(origemInfo.poder_1_nome);
+                    if (origemInfo.poder_2_nome) nomesPoderesOrigem.add(origemInfo.poder_2_nome);
+                    if (origemInfo.poder_3_nome) nomesPoderesOrigem.add(origemInfo.poder_3_nome);
+                }
+
+                // Lista de nomes de PODERES DIVINOS
+                const nomesPoderesDivinos = new Set();
+                if (divindadeId) {
+                    divindadePoderesLinks
+                        .filter(link => link.divindade_id == divindadeId)
+                        .forEach(link => {
+                            const poder = poderesDivinosDataT20[link.poder_divino_id];
+                            if (poder) nomesPoderesDivinos.add(poder.nome);
+                        });
+                }
+
+                // --- 3. CÁLCULO PV e PM ---
+                let pvMax = 0;
+                let pmMax = 0;
+                const conMod = modificadores['constituicao'] || 0;
+
+                if (classeAtual) {
+                    // Cálculo Base (Classe + Mod CON)
+                    pvMax = (parseInt(classeAtual.pv_inicial) + conMod) + ((nivel - 1) * (parseInt(classeAtual.pv_por_nivel) + conMod));
+                    pmMax = nivel * parseInt(classeAtual.pm_por_nivel);
+
+                    // Bônus Classe (Espólio - Nobre)
+                    if (classeAtual.nome === 'Nobre') {
+                        pmMax += Math.floor(nivel / 2); // +1 PM por nível par
+                    }
+                }
+
+                // Bônus Raça (Duro como Pedra - Anão)
+                if (nomesHabilidadesRaca.has('Duro como Pedra')) {
+                    pvMax += 3 + (nivel - 1);
+                }
+                // Bônus Raça (Sangue Mágico - Elfo)
+                if (nomesHabilidadesRaca.has('Sangue Mágico')) {
+                    pmMax += nivel;
+                }
+
+                // Bônus Origem (Vitalidade - Escravo, Selvagem, Taverneiro)
+                if (nomesPoderesOrigem.has('Vitalidade')) {
+                    pvMax += (nivel * 2); // +2 PV por nível
+                }
+                // Bônus Origem (Esforçado - Trabalhador)
+                if (nomesPoderesOrigem.has('Esforçado')) {
+                    pmMax += Math.floor(nivel / 2);
+                }
+                // Bônus Origem (Vontade de Ferro - Acólito, Refugiado)
+                if (nomesPoderesOrigem.has('Vontade de Ferro')) {
+                    pmMax += Math.floor(nivel / 2);
+                }
+
+                // Bônus Poderes Escolhidos (Gerais)
+                if (nomesPoderesEscolhidos.has('Vitalidade')) {
+                    pvMax += nivel; // +1 PV por nível
+                }
+                if (nomesPoderesEscolhidos.has('À Prova de Tudo')) {
+                    pvMax += nivel;
+                }
+                if (nomesPoderesEscolhidos.has('Vontade de Ferro')) {
+                    pmMax += Math.floor(nivel / 2);
+                }
+
+                // Bônus Divindade (Bênção do Mana - Wynna)
+                if (nomesPoderesDivinos.has('Bênção do Mana')) {
+                    pmMax += Math.floor((nivel + 1) / 2); // +1 PM por nível ímpar
+                }
+
+                // Atualização dos Spans de PV e PM (Lógica 'Atual acompanha Máximo')
                 const pvMaxTextoAnterior = pvMaxSpan ? pvMaxSpan.textContent : '--';
                 const pmMaxTextoAnterior = pmMaxSpan ? pmMaxSpan.textContent : '--';
                 const pvAtualTextoAnterior = pvAtualSpan ? pvAtualSpan.textContent : '--';
                 const pmAtualTextoAnterior = pmAtualSpan ? pmAtualSpan.textContent : '--';
-
                 const pvMaxTextoNovo = pvMax > 0 ? pvMax.toString() : '--';
                 const pmMaxTextoNovo = pmMax > 0 ? pmMax.toString() : '--';
                 if (pvMaxSpan) pvMaxSpan.textContent = pvMaxTextoNovo;
                 if (pmMaxSpan) pmMaxSpan.textContent = pmMaxTextoNovo;
-
                 if (pvAtualSpan && (pvAtualTextoAnterior === '--' || pvAtualTextoAnterior === '0' || pvAtualTextoAnterior === pvMaxTextoAnterior)) {
                     pvAtualSpan.textContent = pvMaxTextoNovo;
                 } else if (pvAtualSpan) {
@@ -496,64 +772,87 @@ function calcular_modificador($atributo_valor)
                 if (pvMaxTextoNovo === '--' && pvAtualSpan) pvAtualSpan.textContent = '--';
                 if (pmMaxTextoNovo === '--' && pmAtualSpan) pmAtualSpan.textContent = '--';
 
-                // --- CÁLCULO PERÍCIAS ---
-                if (!periciasItems || periciasItems.length === 0) {
-                    return;
-                }
-                periciasItems.forEach((item) => {
-                    if (!item || !item.id || !item.dataset || !item.dataset.atributoChave) return;
-                    const sufixoId = item.id.replace('item_', '');
-                    const atributoChaveAbrev = item.dataset.atributoChave;
-                    const spanTotal = item.querySelector('.pericia-total');
-                    const spanNivel = item.querySelector('.pericia-metade-nivel');
-                    const spanModAttr = item.querySelector('.pericia-mod-attr');
-                    const checkboxTreino = item.querySelector('.pericia-treino');
-                    const inputOutros = item.querySelector('.pericia-outros');
-                    const chaveModificadorCompleta = {
-                        'for': 'forca',
-                        'des': 'destreza',
-                        'con': 'constituicao',
-                        'int': 'inteligencia',
-                        'sab': 'sabedoria',
-                        'car': 'carisma'
-                    } [atributoChaveAbrev];
-
-                    if (typeof modificadores[chaveModificadorCompleta] === 'undefined') {
-                        if (spanTotal) spanTotal.textContent = '--';
-                        if (spanNivel) spanNivel.textContent = '--';
-                        if (spanModAttr) spanModAttr.textContent = '--';
-                        return;
-                    }
-                    const modValor = modificadores[chaveModificadorCompleta];
-
-                    if (!spanTotal || !spanNivel || !spanModAttr || !checkboxTreino || !inputOutros) {
-                        if (spanTotal) spanTotal.textContent = 'ER';
-                        if (spanNivel) spanNivel.textContent = 'ER';
-                        if (spanModAttr) spanModAttr.textContent = 'ER';
-                        return;
-                    }
-                    try {
-                        let bonusTreino = 0;
-                        if (checkboxTreino.checked) {
-                            if (nivel >= 15) bonusTreino = 6;
-                            else if (nivel >= 7) bonusTreino = 4;
-                            else bonusTreino = 2;
-                        }
-                        const outrosValor = parseInt(inputOutros.value) || 0;
-                        const totalPericia = metadeNivel + modValor + bonusTreino + outrosValor;
-                        spanTotal.textContent = (totalPericia >= 0 ? '+' : '') + totalPericia;
-                        spanNivel.textContent = (metadeNivel >= 0 ? '+' : '') + metadeNivel;
-                        spanModAttr.textContent = (modValor >= 0 ? '+' : '') + modValor;
-                    } catch (e) {
-                        if (spanTotal) spanTotal.textContent = 'ER';
-                        if (spanNivel) spanNivel.textContent = 'ER';
-                        if (spanModAttr) spanModAttr.textContent = 'ER';
-                    }
-                });
-
-                // --- CÁLCULO DEFESA (Placeholder) ---
+                // --- 4. CÁLCULO DEFESA ---
                 let defesaTotal = 10 + (modificadores['destreza'] || 0);
+
+                // Bônus de Raça
+                if (nomesHabilidadesRaca.has('Couro Rígido')) { // Minotauro
+                    defesaTotal += 1;
+                }
+                if (nomesHabilidadesRaca.has('Reptiliano')) { // Trog
+                    // (Adicionar verificação de armadura aqui futuramente, quando inventário estiver pronto)
+                    defesaTotal += 1;
+                }
+                if (nomesHabilidadesRaca.has('Chassi')) { // Golem
+                    defesaTotal += 2;
+                    // (Adicionar penalidade de -2 aqui futuramente, se a armadura for 'vestida')
+                }
+
+                // Bônus de Poderes Escolhidos (Gerais)
+                if (nomesPoderesEscolhidos.has('Esquiva')) {
+                    defesaTotal += 2;
+                }
+                if (nomesPoderesEscolhidos.has('Estilo de Uma Arma')) {
+                    // (Adicionar verificação se está com uma mão livre)
+                    defesaTotal += 2;
+                }
+                if (nomesPoderesEscolhidos.has('Encouraçado')) {
+                    // (Adicionar verificação de armadura pesada)
+                    defesaTotal += 2;
+                }
+                // (Outros bônus de Defesa, como de Itens/Inventário, virão aqui)
+
+                // Atualiza o display de Defesa
                 if (defesaTotalSpan) defesaTotalSpan.textContent = defesaTotal;
+
+
+                // --- CÁLCULO PERÍCIAS ---
+                if (periciasItems) {
+                    periciasItems.forEach((item) => {
+                        if (!item || !item.id || !item.dataset || !item.dataset.atributoChave) return;
+                        const sufixoId = item.id.replace('item_', '');
+                        const atributoChaveAbrev = item.dataset.atributoChave;
+                        const spanTotal = item.querySelector('.pericia-total');
+                        const spanNivel = item.querySelector('.pericia-metade-nivel');
+                        const spanModAttr = item.querySelector('.pericia-mod-attr');
+                        const checkboxTreino = item.querySelector('.pericia-treino');
+                        const inputOutros = item.querySelector('.pericia-outros');
+                        const chaveModificadorCompleta = mapAtributoChave[atributoChaveAbrev];
+                        if (typeof modificadores[chaveModificadorCompleta] === 'undefined') {
+                            if (spanTotal) spanTotal.textContent = '--';
+                            if (spanNivel) spanNivel.textContent = '--';
+                            if (spanModAttr) spanModAttr.textContent = '--';
+                            return;
+                        }
+                        const modValor = modificadores[chaveModificadorCompleta];
+                        if (!spanTotal || !spanNivel || !spanModAttr || !checkboxTreino || !inputOutros) {
+                            if (spanTotal) spanTotal.textContent = 'ER';
+                            if (spanNivel) spanNivel.textContent = 'ER';
+                            if (spanModAttr) spanModAttr.textContent = 'ER';
+                            return;
+                        }
+                        try {
+                            let bonusTreino = 0;
+                            if (checkboxTreino.checked) {
+                                if (nivel >= 15) bonusTreino = 6;
+                                else if (nivel >= 7) bonusTreino = 4;
+                                else bonusTreino = 2;
+                            }
+                            const outrosValor = parseInt(inputOutros.value) || 0;
+                            const totalPericia = metadeNivel + modValor + bonusTreino + outrosValor;
+                            spanTotal.textContent = (totalPericia >= 0 ? '+' : '') + totalPericia;
+                            spanNivel.textContent = (metadeNivel >= 0 ? '+' : '') + metadeNivel;
+                            spanModAttr.textContent = (modValor >= 0 ? '+' : '') + modValor;
+                        } catch (e) {
+                            if (spanTotal) spanTotal.textContent = 'ER';
+                            if (spanNivel) spanNivel.textContent = 'ER';
+                            if (spanModAttr) spanModAttr.textContent = 'ER';
+                        }
+                    });
+                }
+
+                // --- 6. ATUALIZA OUTRAS PARTES DA UI ---
+                atualizarHabilidadesClasseAuto(classeId, nivel); // Atualiza automáticas
             }
 
             function mostrarAjustesRaciais() {
@@ -574,23 +873,46 @@ function calcular_modificador($atributo_valor)
                 }
             }
 
+            function atualizarHabilidadesRaciais() {
+                const racaIdSelecionada = racaSelect.value;
+                if (!habilidadesRaciaisDisplayDiv) return;
+                const h4 = habilidadesRaciaisDisplayDiv.querySelector('h4');
+                habilidadesRaciaisDisplayDiv.innerHTML = '';
+                if (h4) habilidadesRaciaisDisplayDiv.appendChild(h4);
+                const racaInfo = racasData[racaIdSelecionada];
+                if (racaInfo) {
+                    let htmlHabilidades = "";
+                    if (racaInfo.habilidade_1_nome) {
+                        htmlHabilidades += `<div class="poder-item"><h4>${racaInfo.habilidade_1_nome} (Raça)</h4><p>${racaInfo.habilidade_1_desc || ''}</p></div>`;
+                    }
+                    if (racaInfo.habilidade_2_nome) {
+                        htmlHabilidades += `<div class="poder-item"><h4>${racaInfo.habilidade_2_nome} (Raça)</h4><p>${racaInfo.habilidade_2_desc || ''}</p></div>`;
+                    }
+                    if (racaInfo.habilidade_3_nome) {
+                        htmlHabilidades += `<div class="poder-item"><h4>${racaInfo.habilidade_3_nome} (Raça)</h4><p>${racaInfo.habilidade_3_desc || ''}</p></div>`;
+                    }
+                    if (htmlHabilidades === "") {
+                        htmlHabilidades = "<p>Esta raça não concede habilidades específicas.</p>";
+                    }
+                    habilidadesRaciaisDisplayDiv.insertAdjacentHTML('beforeend', htmlHabilidades);
+                } else {
+                    habilidadesRaciaisDisplayDiv.insertAdjacentHTML('beforeend', '<p>Selecione uma raça para ver suas habilidades.</p>');
+                }
+            }
+
             function atualizarPoderOrigemT20() {
                 const origemIdSelecionada = origemSelect.value;
-                if (!poderOrigemDisplayDiv) return; // Verifica se a div existe
-
+                if (!poderOrigemDisplayDiv) return;
                 const origemInfo = origensDataT20[origemIdSelecionada];
                 let htmlConteudo = '<h4>Poder de Origem</h4>';
-
                 if (origemInfo) {
-                    htmlConteudo += `<p>(${origemInfo.nome})</p>`; // Mostra o nome da origem
-                    // Constrói a descrição dos poderes
+                    htmlConteudo += `<p>(${origemInfo.nome})</p>`;
                     let descricoes = "";
                     if (origemInfo.poder_1_nome) descricoes += `<p><strong>${origemInfo.poder_1_nome}:</strong> ${origemInfo.poder_1_desc || ''}</p>`;
                     if (origemInfo.poder_2_nome) descricoes += `<p><strong>${origemInfo.poder_2_nome}:</strong> ${origemInfo.poder_2_desc || ''}</p>`;
                     if (origemInfo.poder_3_nome) descricoes += `<p><strong>${origemInfo.poder_3_nome}:</strong> ${origemInfo.poder_3_desc || ''}</p>`;
-
                     if (descricoes === "") {
-                        descricoes = "<p>Esta origem não concede poderes específicos ou a descrição não está disponível.</p>";
+                        descricoes = "<p>Descrição não disponível.</p>";
                     }
                     htmlConteudo += descricoes;
                 } else {
@@ -598,6 +920,180 @@ function calcular_modificador($atributo_valor)
                 }
                 poderOrigemDisplayDiv.innerHTML = htmlConteudo;
             }
+
+            function atualizarPoderesDivindade() {
+                const divindadeIdSelecionada = divindadeSelect.value;
+                if (!poderesDivindadeDisplayDiv) return;
+                const h4 = poderesDivindadeDisplayDiv.querySelector('h4');
+                poderesDivindadeDisplayDiv.innerHTML = '';
+                if (h4) poderesDivindadeDisplayDiv.appendChild(h4);
+                if (divindadeIdSelecionada && divindadesDataT20[divindadeIdSelecionada]) {
+                    let htmlPoderes = "";
+                    const idsPoderes = divindadePoderesLinks.filter(link => link.divindade_id == divindadeIdSelecionada).map(link => link.poder_divino_id);
+                    if (idsPoderes.length > 0) {
+                        idsPoderes.forEach(poderId => {
+                            const poderInfo = poderesDivinosDataT20[poderId];
+                            if (poderInfo) {
+                                htmlPoderes += `<div class="poder-item"><h4>${poderInfo.nome} (Divino)</h4><p>${poderInfo.descricao || ''}</p></div>`;
+                            }
+                        });
+                    } else {
+                        htmlPoderes = "<p>Esta divindade não concede poderes conhecidos.</p>";
+                    }
+                    poderesDivindadeDisplayDiv.insertAdjacentHTML('beforeend', htmlPoderes);
+                } else {
+                    poderesDivindadeDisplayDiv.insertAdjacentHTML('beforeend', '<p>Selecione uma divindade para ver seus poderes.</p>');
+                }
+            }
+
+            function atualizarHabilidadesClasseAuto(classeId, nivel) {
+                if (!habilidadesClasseAutoDisplayDiv) return;
+                const h4 = habilidadesClasseAutoDisplayDiv.querySelector('h4');
+                habilidadesClasseAutoDisplayDiv.innerHTML = '';
+                if (h4) habilidadesClasseAutoDisplayDiv.appendChild(h4);
+                if (classeId > 0) {
+                    const habilidadesGanhast = habilidadesClasseAutoData.filter(hab => hab.classe_id == classeId && hab.nivel_obtido <= nivel);
+                    let htmlHabilidades = "";
+                    if (habilidadesGanhast.length > 0) {
+                        habilidadesGanhast.forEach(hab => {
+                            htmlHabilidades += `<div class="poder-item"><h4>${hab.nome} (Nível ${hab.nivel_obtido})</h4><p>${hab.descricao || ''}</p></div>`;
+                        });
+                    } else {
+                        htmlHabilidades = "<p>Nenhuma habilidade automática de classe neste nível.</p>";
+                    }
+                    habilidadesClasseAutoDisplayDiv.insertAdjacentHTML('beforeend', htmlHabilidades);
+                } else {
+                    habilidadesClasseAutoDisplayDiv.insertAdjacentHTML('beforeend', '<p>Selecione uma classe.</p>');
+                }
+            }
+
+            // *** INÍCIO: LÓGICA DO MODAL DE PODERES ***
+
+            function renderizarPoderesEscolhidos() {
+                if (!poderesEscolhidosDisplayDiv) return;
+                const h4 = poderesEscolhidosDisplayDiv.querySelector('h4');
+                poderesEscolhidosDisplayDiv.innerHTML = '';
+                if (h4) poderesEscolhidosDisplayDiv.appendChild(h4);
+
+                if (poderesEscolhidos.length === 0) {
+                    poderesEscolhidosDisplayDiv.insertAdjacentHTML('beforeend', '<p>(Nenhum poder adquirido ainda)</p>');
+                    return;
+                }
+
+                poderesEscolhidos.forEach((poderRef, index) => {
+                    let poderInfo = null;
+                    let tipoLabel = "";
+                    if (poderRef.tipo_poder === 'classe') {
+                        poderInfo = poderesClasseData.find(p => p.id == poderRef.poder_id);
+                        tipoLabel = "Classe";
+                    } else if (poderRef.tipo_poder === 'geral') {
+                        poderInfo = poderesGeraisData.find(p => p.id == poderRef.poder_id);
+                        tipoLabel = poderInfo ? poderInfo.categoria : "Geral";
+                    }
+                    if (poderInfo) {
+                        const poderDiv = document.createElement('div');
+                        poderDiv.className = 'poder-item poder-escolhido';
+                        poderDiv.innerHTML = `
+                    <button type="button" class="btn-remover-poder" onclick="removerPoder(${index})">X</button>
+                    <h4>${poderInfo.nome} (${tipoLabel})</h4>
+                    <p>${poderInfo.descricao}</p>
+                    ${poderInfo.pre_requisito ? `<p class="pre-requisito"><strong>Pré-requisito:</strong> ${poderInfo.pre_requisito}</p>` : ''}
+                `;
+                        poderesEscolhidosDisplayDiv.appendChild(poderDiv);
+                    }
+                });
+            }
+
+            function criarHtmlPoder(poder, tipoPoder) {
+                const existe = poderesEscolhidos.some(p => p.poder_id == poder.id && p.tipo_poder === tipoPoder);
+                const desabilitado = existe ? 'disabled' : '';
+                const textoBotao = existe ? 'Adicionado' : 'Adicionar';
+                return `<div class="poder-item-modal">
+                    <div class="poder-item-modal-info">
+                        <h4>${poder.nome}</h4>
+                        <p>${poder.descricao}</p>
+                        ${poder.pre_requisito ? `<p class="pre-requisito"><strong>Pré-requisito:</strong> ${poder.pre_requisito}</p>` : ''}
+                    </div>
+                    <button type="button" class="btn-adicionar-poder" onclick="adicionarPoder(${poder.id}, '${tipoPoder}')" ${desabilitado}>
+                        ${textoBotao}
+                    </button>
+                </div>`;
+            }
+
+            function popularModalPoderes() {
+                const filtro = filtroPoderNome.value.toLowerCase();
+                const classeId = classeSelect.value;
+
+                const containerClasse = document.getElementById('modal-tab-classe');
+                if (containerClasse) {
+                    containerClasse.innerHTML = '';
+                    if (classeId) {
+                        const poderesDeClasseFiltrados = poderesClasseData.filter(p => p.classe_id == classeId && p.nome.toLowerCase().includes(filtro));
+                        if (poderesDeClasseFiltrados.length > 0) {
+                            poderesDeClasseFiltrados.forEach(p => containerClasse.innerHTML += criarHtmlPoder(p, 'classe'));
+                        } else {
+                            containerClasse.innerHTML = '<p>Nenhum poder de classe encontrado.</p>';
+                        }
+                    } else {
+                        containerClasse.innerHTML = '<p>Selecione uma classe na ficha principal primeiro.</p>';
+                    }
+                }
+
+                const containerCombate = document.getElementById('modal-tab-combate');
+                if (containerCombate) {
+                    containerCombate.innerHTML = '';
+                    const poderesCombate = poderesGeraisData.filter(p => p.categoria === 'Combate' && p.nome.toLowerCase().includes(filtro));
+                    if (poderesCombate.length > 0) {
+                        poderesCombate.forEach(p => containerCombate.innerHTML += criarHtmlPoder(p, 'geral'));
+                    } else {
+                        containerCombate.innerHTML = '<p>Nenhum poder de combate encontrado.</p>';
+                    }
+                }
+
+                const containerDestino = document.getElementById('modal-tab-destino');
+                if (containerDestino) {
+                    containerDestino.innerHTML = '';
+                    const poderesDestino = poderesGeraisData.filter(p => p.categoria === 'Destino' && p.nome.toLowerCase().includes(filtro));
+                    if (poderesDestino.length > 0) {
+                        poderesDestino.forEach(p => containerDestino.innerHTML += criarHtmlPoder(p, 'geral'));
+                    } else {
+                        containerDestino.innerHTML = '<p>Nenhum poder de destino encontrado.</p>';
+                    }
+                }
+
+                const containerMagia = document.getElementById('modal-tab-magia');
+                if (containerMagia) {
+                    containerMagia.innerHTML = '';
+                    const poderesMagia = poderesGeraisData.filter(p => p.categoria === 'Magia' && p.nome.toLowerCase().includes(filtro));
+                    if (poderesMagia.length > 0) {
+                        poderesMagia.forEach(p => containerMagia.innerHTML += criarHtmlPoder(p, 'geral'));
+                    } else {
+                        containerMagia.innerHTML = '<p>Nenhum poder de magia encontrado.</p>';
+                    }
+                }
+            }
+
+            window.adicionarPoder = function(poderId, tipoPoder) {
+                const idNum = parseInt(poderId);
+                const existe = poderesEscolhidos.some(p => p.poder_id == idNum && p.tipo_poder === tipoPoder);
+                if (!existe) {
+                    poderesEscolhidos.push({
+                        poder_id: idNum,
+                        tipo_poder: tipoPoder
+                    });
+                    renderizarPoderesEscolhidos();
+                    calcularTudoT20();
+                    popularModalPoderes();
+                }
+            }
+
+            window.removerPoder = function(index) {
+                poderesEscolhidos.splice(index, 1);
+                renderizarPoderesEscolhidos();
+                calcularTudoT20();
+                popularModalPoderes();
+            }
+            // *** FIM: LÓGICA DO MODAL DE PODERES ***
 
             // --- EVENT LISTENERS ---
             tabButtons.forEach(button => {
@@ -613,7 +1109,11 @@ function calcular_modificador($atributo_valor)
             });
 
             if (racaSelect) {
-                racaSelect.addEventListener('change', mostrarAjustesRaciais);
+                racaSelect.addEventListener('change', () => {
+                    mostrarAjustesRaciais();
+                    atualizarHabilidadesRaciais();
+                    calcularTudoT20();
+                });
             }
             if (nivelInput) {
                 nivelInput.addEventListener('input', calcularTudoT20);
@@ -625,14 +1125,20 @@ function calcular_modificador($atributo_valor)
                 classeSelect.addEventListener('change', () => {
                     atualizarClasseCSS();
                     calcularTudoT20();
+                    popularModalPoderes(); // Atualiza o modal quando a classe muda
                 });
             }
-            if (origemSelect) { // Listener para Origem
+            if (origemSelect) {
                 origemSelect.addEventListener('change', () => {
                     atualizarPoderOrigemT20();
-                    // calcularTudoT20(); // Descomentar se origem afetar cálculos
                 });
             }
+            if (divindadeSelect) {
+                divindadeSelect.addEventListener('change', () => {
+                    atualizarPoderesDivindade();
+                });
+            }
+
             if (periciasItems) {
                 periciasItems.forEach(item => {
                     const checkboxTreino = item.querySelector('.pericia-treino');
@@ -646,15 +1152,45 @@ function calcular_modificador($atributo_valor)
                 });
             }
 
+            // --- LISTENERS DO MODAL DE PODERES ---
+            if (btnAbrirModalPoderes) {
+                btnAbrirModalPoderes.addEventListener('click', () => {
+                    popularModalPoderes(); // Popula antes de abrir
+                    if (modalAdicionarPoder) modalAdicionarPoder.style.display = 'flex';
+                });
+            }
+            if (btnFecharModalPoderes) {
+                btnFecharModalPoderes.addEventListener('click', () => {
+                    if (modalAdicionarPoder) modalAdicionarPoder.style.display = 'none';
+                });
+            }
+            if (filtroPoderNome) {
+                filtroPoderNome.addEventListener('input', popularModalPoderes);
+            }
+            if (modalTabs) {
+                modalTabs.forEach(button => {
+                    button.addEventListener('click', () => {
+                        modalTabs.forEach(btn => btn.classList.remove('active'));
+                        modalTabContents.forEach(content => content.classList.remove('active'));
+                        button.classList.add('active');
+                        const targetContent = document.getElementById(button.dataset.tabModal);
+                        if (targetContent) {
+                            targetContent.classList.add('active');
+                        }
+                    });
+                });
+            }
+
             // --- INICIALIZAÇÃO ---
             mostrarAjustesRaciais();
             atualizarClasseCSS();
-            atualizarPoderOrigemT20(); // Exibe poder da origem inicial
-            calcularTudoT20(); // Calcula tudo ao carregar
+            atualizarPoderOrigemT20();
+            atualizarHabilidadesRaciais();
+            atualizarPoderesDivindade();
+            renderizarPoderesEscolhidos(); // Mostra os poderes salvos
+            calcularTudoT20();
         });
     </script>
-
-
 
 </body>
 
