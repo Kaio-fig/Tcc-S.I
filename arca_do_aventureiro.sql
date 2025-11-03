@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Máquina: localhost
--- Data de Criação: 30-Out-2025 às 17:12
+-- Data de Criação: 03-Nov-2025 às 13:13
 -- Versão do servidor: 5.6.13
 -- versão do PHP: 5.4.17
 
@@ -375,7 +375,7 @@ CREATE TABLE IF NOT EXISTS `personagem_t20_inventario` (
   PRIMARY KEY (`id`),
   KEY `idx_personagem_inventario` (`personagem_id`),
   KEY `fk_item_inventario_t20` (`item_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=10 ;
 
 -- --------------------------------------------------------
 
@@ -390,7 +390,7 @@ CREATE TABLE IF NOT EXISTS `personagem_t20_poderes` (
   `tipo_poder` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_personagem_poder` (`personagem_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=6 ;
 
 -- --------------------------------------------------------
 
@@ -476,9 +476,67 @@ CREATE TABLE IF NOT EXISTS `personagens_t20` (
   `sabedoria` int(11) NOT NULL DEFAULT '10',
   `carisma` int(11) NOT NULL DEFAULT '10',
   `data_criacao` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `treino_acrobacia` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_adestramento` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_atletismo` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_atuacao` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_cavalgar` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_conhecimento` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_cura` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_diplomacia` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_enganacao` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_fortitude` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_furtividade` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_guerra` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_iniciativa` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_intimidacao` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_intuicao` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_investigacao` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_jogatina` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_ladinagem` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_luta` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_misticismo` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_nobreza` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_oficio` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_percepcao` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_pilotagem` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_pontaria` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_reflexos` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_religiao` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_sobrevivencia` tinyint(1) NOT NULL DEFAULT '0',
+  `treino_vontade` tinyint(1) NOT NULL DEFAULT '0',
+  `outros_acrobacia` int(11) NOT NULL DEFAULT '0',
+  `outros_adestramento` int(11) NOT NULL DEFAULT '0',
+  `outros_atletismo` int(11) NOT NULL DEFAULT '0',
+  `outros_atuacao` int(11) NOT NULL DEFAULT '0',
+  `outros_cavalgar` int(11) NOT NULL DEFAULT '0',
+  `outros_conhecimento` int(11) NOT NULL DEFAULT '0',
+  `outros_cura` int(11) NOT NULL DEFAULT '0',
+  `outros_diplomacia` int(11) NOT NULL DEFAULT '0',
+  `outros_enganacao` int(11) NOT NULL DEFAULT '0',
+  `outros_fortitude` int(11) NOT NULL DEFAULT '0',
+  `outros_furtividade` int(11) NOT NULL DEFAULT '0',
+  `outros_guerra` int(11) NOT NULL DEFAULT '0',
+  `outros_iniciativa` int(11) NOT NULL DEFAULT '0',
+  `outros_intimidacao` int(11) NOT NULL DEFAULT '0',
+  `outros_intuicao` int(11) NOT NULL DEFAULT '0',
+  `outros_investigacao` int(11) NOT NULL DEFAULT '0',
+  `outros_jogatina` int(11) NOT NULL DEFAULT '0',
+  `outros_ladinagem` int(11) NOT NULL DEFAULT '0',
+  `outros_luta` int(11) NOT NULL DEFAULT '0',
+  `outros_misticismo` int(11) NOT NULL DEFAULT '0',
+  `outros_nobreza` int(11) NOT NULL DEFAULT '0',
+  `outros_oficio` int(11) NOT NULL DEFAULT '0',
+  `outros_percepcao` int(11) NOT NULL DEFAULT '0',
+  `outros_pilotagem` int(11) NOT NULL DEFAULT '0',
+  `outros_pontaria` int(11) NOT NULL DEFAULT '0',
+  `outros_reflexos` int(11) NOT NULL DEFAULT '0',
+  `outros_religiao` int(11) NOT NULL DEFAULT '0',
+  `outros_sobrevivencia` int(11) NOT NULL DEFAULT '0',
+  `outros_vontade` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `user_id_t20` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=4 ;
 
 -- --------------------------------------------------------
 

@@ -126,7 +126,7 @@ if ($tudo_ok) {
     $conn->commit();
     $conn->autocommit(TRUE);
     $conn->close();
-    header("Location: ../templates/ficha_op.php?personagem_id=" . $personagem_id . "&status=salvo");
+    header("Location: ../templates/meus_personagens.php?personagem_id=" . $personagem_id . "&status=salvo");
     exit();
 } else {
     $conn->rollback();
