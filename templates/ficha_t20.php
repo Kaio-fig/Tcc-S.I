@@ -580,6 +580,7 @@ function calcular_modificador($atributo_valor)
             const nivelInput = document.getElementById('nivel');
             const atributosInputs = document.querySelectorAll('.atributo-valor');
             const periciasItems = document.querySelectorAll('.pericia-item:not(.header)');
+
             // Spans de Status
             const pvAtualSpan = document.getElementById('pv_atual');
             const pvMaxSpan = document.getElementById('pv_max');
@@ -616,6 +617,24 @@ function calcular_modificador($atributo_valor)
             const cargaUsadaSpan = document.getElementById('carga_usada');
             const cargaMaximaSpan = document.getElementById('carga_maxima');
             const inventarioListaDiv = document.getElementById('lista-inventario');
+            const btnImportar = document.getElementById('btn-importar-imagem-t20');
+            const inputImagem = document.getElementById('input-imagem-t20');
+            const previewImagem = document.getElementById('preview-imagem-t20');
+            const containerImagem = document.getElementById('container-imagem-t20');
+            if (btnImportar && inputImagem) btnImportar.addEventListener('click', () => inputImagem.click());
+            if (containerImagem && inputImagem) containerImagem.addEventListener('click', () => inputImagem.click());
+            if (inputImagem) {
+                inputImagem.addEventListener('change', event => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            if (previewImagem) previewImagem.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
 
             // --- ESTADO GLOBAL DA FICHA ---
             // (Poderes de Raca, Origem, Divindade são exibidos, mas não rastreados aqui)
@@ -1348,18 +1367,18 @@ function calcular_modificador($atributo_valor)
                 itemParaAdicionar.equipado = 0; // Inicia desequipado
                 inventarioAtual.push(itemParaAdicionar);
 
-                calcularTudoT20(); // Recalcula carga e defesa
+                calcularTudoT20();
             }
 
             window.removerItemInventario = function(index) {
                 inventarioAtual.splice(index, 1);
-                calcularTudoT20(); // Recalcula
+                calcularTudoT20();
             }
 
             window.mudarQuantidade = function(index, novaQuantidade) {
                 if (inventarioAtual[index]) {
                     inventarioAtual[index].quantidade = parseInt(novaQuantidade) || 1;
-                    calcularTudoT20(); // Recalcula
+                    calcularTudoT20();
                 }
             }
 
@@ -1414,7 +1433,7 @@ function calcular_modificador($atributo_valor)
                 classeSelect.addEventListener('change', () => {
                     atualizarClasseCSS();
                     calcularTudoT20();
-                    popularModalPoderes(); // Atualiza o modal quando a classe muda
+                    popularModalPoderes();
                 });
             }
             if (origemSelect) {
