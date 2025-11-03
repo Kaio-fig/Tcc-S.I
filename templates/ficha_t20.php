@@ -597,15 +597,21 @@ function calcular_modificador($atributo_valor)
             const modalAdicionarPoder = document.getElementById('modal-adicionar-poder-t20');
             const btnAbrirModalPoderes = document.getElementById('btn-abrir-modal-poderes');
             const btnFecharModalPoderes = document.getElementById('btn-fechar-modal-poderes');
-            const modalTabs = document.querySelectorAll('.modal-tab-button');
-            const modalTabContents = document.querySelectorAll('.modal-tab-content');
+
+            // *** CORREÇÃO AQUI: Seletores de abas agora são específicos para o modal de PODERES ***
+            const modalTabs = document.querySelectorAll('#modal-adicionar-poder-t20 .modal-tab-button');
+            const modalTabContents = document.querySelectorAll('#modal-adicionar-poder-t20 .modal-tab-content');
+
             const filtroPoderNome = document.getElementById('filtro-poder-nome-t20');
             // Elementos do Inventário e Modal de Itens
             const modalAdicionarItem = document.getElementById('modal-adicionar-item-t20');
             const btnAbrirModalItem = document.getElementById('btn-abrir-modal-item');
             const btnFecharModalItem = document.getElementById('btn-fechar-modal-item');
+
+            // (Este seletor é específico para o modal de ITENS, o que está correto)
             const modalItemTabs = document.querySelectorAll('#modal-adicionar-item-t20 .modal-tab-button');
             const modalItemTabContents = document.querySelectorAll('#modal-adicionar-item-t20 .modal-tab-content');
+
             const filtroItemNome = document.getElementById('filtro-item-nome-t20');
             const cargaUsadaSpan = document.getElementById('carga_usada');
             const cargaMaximaSpan = document.getElementById('carga_maxima');
@@ -662,7 +668,10 @@ function calcular_modificador($atributo_valor)
             form.addEventListener('submit', (event) => {
                 // Limpa inputs antigos
                 form.querySelectorAll('input[name="poderes_escolhidos_id[]"], input[name="poderes_escolhidos_tipo[]"]').forEach(input => input.remove());
-                // (Adicionar lógica de inventário aqui futuramente)
+
+                // (Lógica de inventário para salvar)
+                form.querySelectorAll('input[name="inv_item_id[]"], input[name="inv_quantidade[]"], input[name="inv_equipado[]"]').forEach(input => input.remove());
+
 
                 // Adiciona inputs hidden para cada poder escolhido
                 poderesEscolhidos.forEach(poder => {
@@ -678,17 +687,21 @@ function calcular_modificador($atributo_valor)
                     inputType.value = poder.tipo_poder;
                     form.appendChild(inputType);
                 });
+
+                // Adiciona inputs hidden para o inventário
                 inventarioAtual.forEach(item => {
                     const inputId = document.createElement('input');
                     inputId.type = 'hidden';
                     inputId.name = 'inv_item_id[]';
                     inputId.value = item.id;
                     form.appendChild(inputId);
+
                     const inputQtd = document.createElement('input');
                     inputQtd.type = 'hidden';
                     inputQtd.name = 'inv_quantidade[]';
                     inputQtd.value = item.quantidade || 1;
                     form.appendChild(inputQtd);
+
                     const inputEquip = document.createElement('input');
                     inputEquip.type = 'hidden';
                     inputEquip.name = 'inv_equipado[]';
@@ -872,8 +885,6 @@ function calcular_modificador($atributo_valor)
                                 escudoEquipado = true;
                             }
                             if (item.tipo === 'Armadura') {
-                                // Simplificação: Armadura com penalidade -3 ou mais é pesada.
-                                // (Idealmente, o DB teria um flag 'is_pesada')
                                 if ((parseInt(item.penalidade_armadura) || 0) <= -3) {
                                     isArmaduraPesada = true;
                                 } else {
@@ -917,13 +928,10 @@ function calcular_modificador($atributo_valor)
                     defesaTotal += 2;
                 }
                 if (nomesPoderesEscolhidos.has('Estilo de Uma Arma') && !escudoEquipado) {
-                    // (Assumindo que não usar escudo = mão livre)
                     defesaTotal += 2;
                 }
                 if (nomesPoderesEscolhidos.has('Estilo de Arma e Escudo') && escudoEquipado) {
-                    // O bônus de +2 do poder já está somado no item (ex: Escudo Pesado +2)
-                    // Se for um +2 ADICIONAL, adicione aqui. Assumindo que não é:
-                    defesaTotal += 0; // Apenas para registro
+                    defesaTotal += 0;
                 }
                 if (nomesPoderesEscolhidos.has('Encouraçado') && isArmaduraPesada) {
                     defesaTotal += 2;
@@ -969,11 +977,8 @@ function calcular_modificador($atributo_valor)
                             }
                             const outrosValor = parseInt(inputOutros.value) || 0;
 
-                            // Aplica penalidade de armadura (que é negativa, ex: -3)
                             let penalidadeAplicada = 0;
                             if (atributoChaveAbrev === 'for' || atributoChaveAbrev === 'des') {
-                                // (Técnica T20: Penalidade só se aplica se NÃO for treinado?)
-                                // (Simplificação: Aplicando sempre em FOR/DES)
                                 penalidadeAplicada = penalidadeArmadura;
                             }
 
@@ -1134,11 +1139,11 @@ function calcular_modificador($atributo_valor)
                         const poderDiv = document.createElement('div');
                         poderDiv.className = 'poder-item poder-escolhido';
                         poderDiv.innerHTML = `
-                    <button type="button" class="btn-remover-poder" onclick="removerPoder(${index})">X</button>
-                    <h4>${poderInfo.nome} (${tipoLabel})</h4>
-                    <p>${poderInfo.descricao}</p>
-                    ${poderInfo.pre_requisito ? `<p class="pre-requisito"><strong>Pré-requisito:</strong> ${poderInfo.pre_requisito}</p>` : ''}
-                `;
+                <button type="button" class="btn-remover-poder" onclick="removerPoder(${index})">X</button>
+                <h4>${poderInfo.nome} (${tipoLabel})</h4>
+                <p>${poderInfo.descricao}</p>
+                ${poderInfo.pre_requisito ? `<p class="pre-requisito"><strong>Pré-requisito:</strong> ${poderInfo.pre_requisito}</p>` : ''}
+            `;
                         poderesEscolhidosDisplayDiv.appendChild(poderDiv);
                     }
                 });
@@ -1149,15 +1154,15 @@ function calcular_modificador($atributo_valor)
                 const desabilitado = existe ? 'disabled' : '';
                 const textoBotao = existe ? 'Adicionado' : 'Adicionar';
                 return `<div class="poder-item-modal">
-                    <div class="poder-item-modal-info">
-                        <h4>${poder.nome}</h4>
-                        <p>${poder.descricao}</p>
-                        ${poder.pre_requisito ? `<p class="pre-requisito"><strong>Pré-requisito:</strong> ${poder.pre_requisito}</p>` : ''}
-                    </div>
-                    <button type="button" class="btn-adicionar-poder" onclick="adicionarPoder(${poder.id}, '${tipoPoder}')" ${desabilitado}>
-                        ${textoBotao}
-                    </button>
-                </div>`;
+                <div class="poder-item-modal-info">
+                    <h4>${poder.nome}</h4>
+                    <p>${poder.descricao}</p>
+                    ${poder.pre_requisito ? `<p class="pre-requisito"><strong>Pré-requisito:</strong> ${poder.pre_requisito}</p>` : ''}
+                </div>
+                <button type="button" class="btn-adicionar-poder" onclick="adicionarPoder(${poder.id}, '${tipoPoder}')" ${desabilitado}>
+                    ${textoBotao}
+                </button>
+            </div>`;
             }
 
             function popularModalPoderes() {
@@ -1236,30 +1241,35 @@ function calcular_modificador($atributo_valor)
 
             // Modal Inventario
             function renderizarInventario() {
-                if (!inventarioListaDiv) return;
+                if (!inventarioListaDiv) {
+                    console.error("Div #lista-inventario não encontrada.");
+                    return;
+                }
 
                 // Limpa a lista (mantendo o cabeçalho)
-                while (inventarioListaDiv.children.length > 1) {
-                    inventarioListaDiv.removeChild(inventarioListaDiv.lastChild);
-                }
+                // Pega todos os filhos, exceto o primeiro (o cabeçalho)
+                const itensParaRemover = Array.from(inventarioListaDiv.children).slice(1);
+                itensParaRemover.forEach(child => inventarioListaDiv.removeChild(child));
+
 
                 if (inventarioAtual.length === 0) {
                     inventarioListaDiv.insertAdjacentHTML('beforeend', '<div class="item-inventario-vazio"><p>Inventário vazio.</p></div>');
+                    return; // Sai da função após mostrar a mensagem
                 }
 
                 inventarioAtual.forEach((item, index) => {
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'item-inventario';
-                    // Define o 'checked' para o checkbox de equipado
                     const isEquipado = item.equipado ? 'checked' : '';
 
+                    // As classes (ex: .item-equipado-check) correspondem ao CSS
                     itemDiv.innerHTML = `
-                    <input type="checkbox" class="item-equipado-check" onchange="alternarEquipado(${index})" ${isEquipado}>
-                    <span class="item-nome">${item.nome}</span>
-                    <input type="number" class="item-quantidade" value="${item.quantidade || 1}" min="1" onchange="mudarQuantidade(${index}, this.value)">
-                    <span class="item-espacos">${(item.espacos || 0) * (item.quantidade || 1)}</span>
-                    <button type="button" class="btn-remover-item" onclick="removerItemInventario(${index})">X</button>
-                `;
+                <input type="checkbox" class="item-equipado-check" onchange="alternarEquipado(${index})" ${isEquipado}>
+                <span class="item-nome">${item.nome}</span>
+                <input type="number" class="item-quantidade" value="${item.quantidade || 1}" min="1" onchange="mudarQuantidade(${index}, this.value)">
+                <span class="item-espacos">${(item.espacos || 0) * (item.quantidade || 1)}</span>
+                <button type="button" class="btn-remover-item" onclick="removerItemInventario(${index})">X</button>
+            `;
                     inventarioListaDiv.appendChild(itemDiv);
                 });
             }
@@ -1267,7 +1277,17 @@ function calcular_modificador($atributo_valor)
             // Popula o modal de itens com base nos filtros
             function popularModalItens() {
                 const filtro = filtroItemNome.value.toLowerCase();
-                const tipoFiltro = document.querySelector('#modal-adicionar-item-t20 .modal-tab-button.active').dataset.tabModal;
+                const tipoFiltroAtivo = document.querySelector('#modal-adicionar-item-t20 .modal-tab-button.active');
+                if (!tipoFiltroAtivo) {
+                    console.error("Bug de Abas: Nenhuma aba de item ativa encontrada. O modal de itens não pode ser populado.");
+                    // Opcional: força a primeira aba a ficar ativa
+                    // const primeiraAba = document.querySelector('#modal-adicionar-item-t20 .modal-tab-button');
+                    // if(primeiraAba) primeiraAba.classList.add('active');
+                    // ...e re-chama a função. Mas por enquanto, só parar é mais seguro.
+                    return;
+                }
+                const tipoFiltro = tipoFiltroAtivo.dataset.tabModal;
+
 
                 const containers = {
                     'modal-tab-armas': document.getElementById('modal-tab-armas'),
@@ -1304,16 +1324,16 @@ function calcular_modificador($atributo_valor)
                     }
                     itensFiltrados.forEach(item => {
                         containerAtual.innerHTML += `
-                        <div class="item-modal">
-                            <div class="item-modal-info">
-                                <h4>${item.nome} (Espaços: ${item.espacos})</h4>
-                                <p>${item.descricao || ''}</p>
-                                ${item.bonus_defesa ? `<p class="item-detalhe"><strong>Defesa:</strong> +${item.bonus_defesa}</p>` : ''}
-                                ${item.dano ? `<p class="item-detalhe"><strong>Dano:</strong> ${item.dano} | <strong>Crít:</strong> ${item.critico}</p>` : ''}
-                            </div>
-                            <button type="button" class="btn-adicionar" onclick="adicionarItemInventario(${item.id})">Adicionar</button>
+                    <div class="item-modal">
+                        <div class="item-modal-info">
+                            <h4>${item.nome} (Espaços: ${item.espacos})</h4>
+                            <p>${item.descricao || ''}</p>
+                            ${item.bonus_defesa ? `<p class="item-detalhe"><strong>Defesa:</strong> +${item.bonus_defesa}</p>` : ''}
+                            ${item.dano ? `<p class="item-detalhe"><strong>Dano:</strong> ${item.dano} | <strong>Crít:</strong> ${item.critico}</p>` : ''}
                         </div>
-                    `;
+                        <button type="button" class="btn-adicionar" onclick="adicionarItemInventario(${item.id})">Adicionar</button>
+                    </div>
+                `;
                     });
                 }
             }
@@ -1323,11 +1343,9 @@ function calcular_modificador($atributo_valor)
                 const itemInfo = todosOsItensT20[itemId];
                 if (!itemInfo) return;
 
-                // Verifica se o item já existe (não empilhável por padrão, exceto poção/corda?)
-                // Simplificação: Apenas adiciona como novo item
                 const itemParaAdicionar = JSON.parse(JSON.stringify(itemInfo)); // Cria cópia
                 itemParaAdicionar.quantidade = 1;
-                itemParaAdicionar.equipado = 0;
+                itemParaAdicionar.equipado = 0; // Inicia desequipado
                 inventarioAtual.push(itemParaAdicionar);
 
                 calcularTudoT20(); // Recalcula carga e defesa
@@ -1348,13 +1366,20 @@ function calcular_modificador($atributo_valor)
             window.alternarEquipado = function(index) {
                 if (inventarioAtual[index]) {
                     inventarioAtual[index].equipado = !inventarioAtual[index].equipado; // Inverte o valor
-                    // Lógica de desequipar outros itens (ex: só pode 1 armadura)
+
+                    // Lógica de desequipar outras armaduras
                     if (inventarioAtual[index].tipo === 'Armadura' && inventarioAtual[index].equipado) {
                         inventarioAtual.forEach((item, i) => {
                             if (i !== index && item.tipo === 'Armadura') item.equipado = 0;
                         });
                     }
-                    // (Adicionar lógica similar para Escudo se necessário)
+                    // Lógica de desequipar outros escudos
+                    if (inventarioAtual[index].tipo === 'Escudo' && inventarioAtual[index].equipado) {
+                        inventarioAtual.forEach((item, i) => {
+                            if (i !== index && item.tipo === 'Escudo') item.equipado = 0;
+                        });
+                    }
+
                     calcularTudoT20(); // Recalcula
                 }
             }
@@ -1395,11 +1420,13 @@ function calcular_modificador($atributo_valor)
             if (origemSelect) {
                 origemSelect.addEventListener('change', () => {
                     atualizarPoderOrigemT20();
+                    calcularTudoT20(); // Adicionado para recalcular bônus de origem
                 });
             }
             if (divindadeSelect) {
                 divindadeSelect.addEventListener('change', () => {
                     atualizarPoderesDivindade();
+                    calcularTudoT20(); // Adicionado para recalcular bônus de divindade
                 });
             }
 
@@ -1431,6 +1458,7 @@ function calcular_modificador($atributo_valor)
             if (filtroPoderNome) {
                 filtroPoderNome.addEventListener('input', popularModalPoderes);
             }
+            // Este listener agora só afeta as abas do modal de PODERES
             if (modalTabs) {
                 modalTabs.forEach(button => {
                     button.addEventListener('click', () => {
@@ -1460,6 +1488,7 @@ function calcular_modificador($atributo_valor)
             if (filtroItemNome) {
                 filtroItemNome.addEventListener('input', popularModalItens);
             }
+            // Este listener só afeta as abas do modal de ITENS
             if (modalItemTabs) {
                 modalItemTabs.forEach(button => {
                     button.addEventListener('click', () => {
@@ -1473,6 +1502,9 @@ function calcular_modificador($atributo_valor)
                 });
             }
 
+            // --- (Listeners da Imagem iriam aqui, se você os adicionou) ---
+
+
             // --- INICIALIZAÇÃO ---
             mostrarAjustesRaciais();
             atualizarClasseCSS();
@@ -1480,7 +1512,7 @@ function calcular_modificador($atributo_valor)
             atualizarHabilidadesRaciais();
             atualizarPoderesDivindade();
             renderizarPoderesEscolhidos();
-            renderizarInventario();
+            // renderizarInventario(); // Removido, pois calcularTudoT20() já chama
             calcularTudoT20();
         });
     </script>
