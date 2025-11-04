@@ -163,7 +163,7 @@ $result_racas = $conn->query("SELECT * FROM t20_racas");
 $racas_t20 = fetch_all_assoc_by_id($result_racas);
 
 // Classes
-$result_classes = $conn->query("SELECT * FROM t20_classes");
+$result_classes = $conn->query("SELECT * FROM t20_classes ORDER BY nome ASC");
 $classes_t20 = fetch_all_assoc_by_id($result_classes);
 
 // Origens

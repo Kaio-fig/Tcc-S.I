@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Máquina: localhost
--- Data de Criação: 04-Nov-2025 às 15:14
+-- Data de Criação: 04-Nov-2025 às 17:04
 -- Versão do servidor: 5.6.13
 -- versão do PHP: 5.4.17
 
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `inventario_op` (
   PRIMARY KEY (`id`),
   KEY `personagem_id` (`personagem_id`),
   KEY `item_id` (`item_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -377,7 +377,7 @@ CREATE TABLE IF NOT EXISTS `personagem_t20_inventario` (
   PRIMARY KEY (`id`),
   KEY `idx_personagem_inventario` (`personagem_id`),
   KEY `fk_item_inventario_t20` (`item_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -408,7 +408,7 @@ CREATE TABLE IF NOT EXISTS `personagem_t20_poderes` (
   `tipo_poder` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_personagem_poder` (`personagem_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -447,7 +447,7 @@ CREATE TABLE IF NOT EXISTS `personagens_op` (
   KEY `fk_origem` (`origem_id`),
   KEY `fk_classe` (`classe_id`),
   KEY `fk_trilha` (`trilha_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -462,7 +462,7 @@ CREATE TABLE IF NOT EXISTS `personagens_op_poderes` (
   `tipo_poder` enum('classe','paranormal') NOT NULL,
   PRIMARY KEY (`id`),
   KEY `personagem_id` (`personagem_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=10 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -570,7 +570,7 @@ CREATE TABLE IF NOT EXISTS `personagens_t20` (
   `outros_vontade` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `user_id_t20` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -902,7 +902,11 @@ INSERT INTO `t20_classes` (`id`, `nome`, `pv_inicial`, `pv_por_nivel`, `pm_por_n
 (2, 'Guerreiro', 20, 5, 3, 'Luta ou Pontaria, Fortitude', 'Adestramento, Atletismo, Cavalgar, Guerra, Iniciativa, Intimidação, Luta, Ofício, Percepção, Pontaria, Reflexos', 2),
 (3, 'Nobre', 16, 4, 4, 'Diplomacia ou Intimidação, Vontade', 'Adestramento, Atuação, Cavalgar, Conhecimento, Diplomacia, Enganação, Fortitude, Guerra, Iniciativa, Intimidação, Intuição, Investigação, Jogatina, Luta, Nobreza, Ofício, Percepção, Pontaria', 4),
 (4, 'Arcanista', 12, 3, 6, 'Misticismo, Vontade', 'Conhecimento, Diplomacia, Enganação, Guerra, Iniciativa, Intuição, Investigação, Nobreza, Ofício, Percepção', 2),
+(5, 'Clérigo', 16, 4, 5, 'Religião, Vontade', 'Conhecimento, Cura, Diplomacia, Fortitude, Guerra, Intuição, Luta, Misticismo, Nobreza, Ofício, Percepção', 2),
 (6, 'Bárbaro', 24, 6, 3, 'Fortitude, Luta', 'Adestramento, Atletismo, Cavalgar, Guerra, Iniciativa, Intimidação, Luta, Ofício, Percepção, Pontaria, Reflexos, Sobrevivência, Vontade', 4),
+(7, 'Bardo', 12, 3, 4, 'Atuação, Reflexos', 'Acrobacia, Cavalgar, Conhecimento, Diplomacia, Enganação, Furtividade, Iniciativa, Intuição, Investigação, Jogatina, Ladinagem, Luta, Misticismo, Nobreza, Ofício, Percepção, Pontaria, Vontade', 6),
+(8, 'Bucaneiro', 16, 4, 3, 'Luta ou Pontaria, Reflexos', 'Acrobacia, Atletismo, Atuação, Enganação, Fortitude, Furtividade, Iniciativa, Intimidação, Jogatina, Luta, Ofício, Percepção, Pilotagem, Pontaria', 4),
+(9, 'Cavaleiro', 20, 5, 3, 'Luta, Vontade', 'Adestramento, Atletismo, Cavalgar, Diplomacia, Fortitude, Guerra, Iniciativa, Intimidação, Luta, Nobreza, Percepção, Vontade', 2),
 (10, 'Druida', 16, 4, 4, 'Sobrevivência, Vontade', 'Adestramento, Atletismo, Cavalgar, Conhecimento, Cura, Fortitude, Iniciativa, Intuição, Luta, Misticismo, Ofício, Percepção, Religião, Sobrevivência', 4),
 (11, 'Inventor', 12, 3, 4, 'Ofício, Vontade', 'Conhecimento, Cura, Diplomacia, Enganação, Fortitude, Iniciativa, Intuição, Investigação, Luta, Misticismo, Ofício, Pilotagem, Pontaria', 4),
 (12, 'Ladino', 12, 3, 4, 'Ladinagem, Reflexos', 'Acrobacia, Atletismo, Atuação, Cavalgar, Conhecimento, Diplomacia, Enganação, Furtividade, Iniciativa, Intimidação, Intuição, Investigação, Jogatina, Luta, Misticismo, Ofício, Percepção, Pilotagem, Pontaria', 8),
@@ -1113,6 +1117,22 @@ INSERT INTO `t20_habilidades_classe_auto` (`id`, `classe_id`, `nivel_obtido`, `n
 (42, 6, 5, 'Poder de Bárbaro', 'Você aprende um novo poder de bárbaro.'),
 (43, 6, 5, 'Redução de Dano 2', 'Você recebe Redução de Dano 2 (todo dano que sofre é reduzido em 2).'),
 (44, 6, 20, 'Fúria Titânica', 'No 20º nível, quando em fúria, você recebe +2 em testes de ataque e rolagens de dano (além dos bônus normais) e seus bônus de Fúria são dobrados. Custo +10 PM.'),
+(45, 5, 3, 'Poder de Clérigo', 'Você aprende um novo poder de clérigo.'),
+(46, 5, 5, 'Magias (2º Círculo)', 'Você aprende a lançar magias divinas de 2º círculo.'),
+(47, 7, 1, 'Inspiração +1', 'Você pode gastar uma ação padrão e 1 PM para inspirar aliados em alcance curto. Eles recebem +1 em testes de perícia até o fim da cena. A cada 4 níveis, o bônus aumenta em +1 (Inspiração +2, +3, +4, +5).'),
+(48, 7, 1, 'Magias (Bardo)', 'Você pode lançar magias arcanas de 1º círculo (atributo-chave Carisma). A cada nível ímpar (3, 5, etc.), você aprende magias de um círculo maior (2º, 3º, 4º, 5º).'),
+(49, 7, 3, 'Poder de Bardo', 'Você aprende um novo poder de bardo.'),
+(50, 7, 3, 'Eclético', 'A partir do 2º nível, você pode gastar 2 PM para receber +2 em um teste de perícia (aumenta com o nível).'),
+(51, 7, 5, 'Inspiração +2', 'O bônus de Inspiração aumenta para +2.'),
+(52, 8, 1, 'Audácia', 'Você pode gastar 2 PM para somar seu Carisma no teste de ataque (não pode usar esta habilidade em testes de ataque).'),
+(53, 8, 1, 'Insolência', 'Você soma seu Carisma na Defesa (limitado pelo seu nível). Esta habilidade exige liberdade de movimentos (não funciona com armadura pesada ou condição imóvel).'),
+(54, 8, 2, 'Evasão', 'A partir do 2º nível, se sofrer um efeito que permite um teste de Reflexos para reduzir o dano à metade, você não sofre dano algum se passar no teste.'),
+(55, 8, 3, 'Esquiva Sagaz +1', 'No 3º nível, você recebe +1 na Defesa. Este bônus aumenta em +1 a cada quatro níveis (Esquiva Sagaz +2, +3, +4, +5).'),
+(56, 8, 5, 'Panache', 'No 5º nível, quando faz um acerto crítico ou reduz um inimigo a 0 PV, você recupera 1 PM.'),
+(57, 9, 1, 'Baluarte', 'Quando sofre um ataque, você pode gastar 1 PM para receber +2 na Defesa e em testes de resistência até o início do seu próximo turno. A cada 4 níveis, o bônus aumenta em +2 (Baluarte +4, +6, +8, +10).'),
+(58, 9, 1, 'Código de Honra', 'Você deve seguir um código de honra (ex: nunca atacar um oponente caído, nunca usar armas de ataque à distância). Se violar o código, perde todos os PM e só os recupera no próximo dia.'),
+(59, 9, 2, 'Duelo', 'A partir do 2º nível, pode gastar 2 PM para desafiar um oponente. Você recebe +2 em testes de ataque e rolagens de dano contra ele, mas sofre -5 contra outros. O bônus aumenta em +1 a cada 4 níveis.'),
+(60, 9, 5, 'Caminho do Cavaleiro', 'No 5º nível, escolha entre Bastão ou Montaria.'),
 (61, 10, 1, 'Devoto Fiel', 'Você se torna devoto de Allihanna, Megalokk ou Oceano. Você recebe dois poderes concedidos por ser devoto, em vez de apenas um.'),
 (62, 10, 1, 'Empatia Selvagem', 'Você pode se comunicar com animais. Você pode usar Adestramento para mudar atitude e persuasão com animais.'),
 (63, 10, 1, 'Magias (Druida)', 'Você pode lançar magias divinas de 1º círculo (atributo-chave Sabedoria) das escolas de Abjuração, Adivinhação e Transmutação. A cada nível ímpar (3, 5, etc.), aprende magias de um círculo maior.'),
@@ -1205,7 +1225,7 @@ INSERT INTO `t20_itens` (`id`, `user_id`, `nome`, `tipo`, `preco`, `espacos`, `b
 CREATE TABLE IF NOT EXISTS `t20_magias` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nome` varchar(100) NOT NULL,
-  `tipo` enum('Arcana','Divina') NOT NULL,
+  `tipo` enum('Arcana','Divina','Universal') NOT NULL,
   `circulo` int(11) NOT NULL,
   `escola` varchar(50) NOT NULL,
   `execucao` varchar(50) DEFAULT NULL,
@@ -1217,7 +1237,7 @@ CREATE TABLE IF NOT EXISTS `t20_magias` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `nome_magia_unica` (`nome`),
   KEY `idx_tipo_circulo_escola` (`tipo`,`circulo`,`escola`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=16 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=77 ;
 
 --
 -- Extraindo dados da tabela `t20_magias`
@@ -1238,7 +1258,66 @@ INSERT INTO `t20_magias` (`id`, `nome`, `tipo`, `circulo`, `escola`, `execucao`,
 (12, 'Resistência a Energia', 'Divina', 2, 'Abjuração', 'Padrão', 'Toque', '1 criatura', 'Cena', 'Nenhuma', 'O alvo recebe resistência 10 contra um tipo de dano (ácido, eletricidade, fogo, frio ou sônico).'),
 (13, 'Aparência Perfeita', 'Arcana', 2, 'Ilusão', 'Padrão', 'Pessoal', 'Você', 'Cena', 'Nenhuma', 'Você oculta imperfeições e parece mais belo e confiante. Você recebe +5 em testes de Carisma (exceto Intimidação).'),
 (14, 'Alterar Tamanho', 'Arcana', 2, 'Transmutação', 'Padrão', 'Curto', '1 criatura', 'Cena', 'Fortitude anula', 'Você altera o tamanho da criatura. Aumentar: +2 For, -1 Des, +1d6 dano. Diminuir: -2 For, +1 Des, -1d6 dano.'),
-(15, 'Bola de Fogo', 'Arcana', 3, 'Evocação', 'Padrão', 'Médio', 'Esfera com 6m de raio', 'Instantânea', 'Reflexos parcial', 'Uma explosão causa 6d6 de dano de fogo. Vítimas na área sofrem o dano total (metade se passarem na resistência).');
+(15, 'Bola de Fogo', 'Arcana', 3, 'Evocação', 'Padrão', 'Médio', 'Esfera com 6m de raio', 'Instantânea', 'Reflexos parcial', 'Uma explosão causa 6d6 de dano de fogo. Vítimas na área sofrem o dano total (metade se passarem na resistência).'),
+(17, 'Controlar Terra', 'Divina', 5, 'Transmutação', 'Padrão', 'Longo', 'cubos com 1,5m de lado', 'Sustentada', 'Veja texto', 'Você manipula a densidade e a forma da terra, lama, areia ou pedra. A Mágica não funciona se o objeto está sendo carregado por outra criatura.'),
+(18, 'Convocação Instântanea', 'Arcana', 5, 'Convocação', 'Padrão', 'Alcance', 'limitado', 'Permanente', 'Nenhuma', 'Você invoca um objeto de até 2 espaços que deve ter sido preparado com antecedência.'),
+(19, 'Crânio Voador de Vladislav', 'Arcana', 2, 'Necromancia', 'Padrão', 'Médio', '1 crânio', 'Instantânea', 'Fortitude parcial', 'Você atira um crânio envolto em energia negativa. Ele causa 4d4+4 de dano de trevas e o alvo fica abalado por 1 rodada.'),
+(20, 'Criar Elementos', 'Divina', 1, 'Convocação', 'Padrão', 'Curto', 'veja texto', 'Veja texto', 'Nenhuma', 'Você cria uma pequena porção de matéria de um dos quatro elementos básicos. Terra, Água, Fogo ou Ar.'),
+(21, 'Criar Ilusão', 'Arcana', 1, 'Ilusão', 'Padrão', 'Médio', 'efeito', 'Cena', 'Vontade desacredita', 'Você cria uma ilusão visual com até 4 cubos de 1,5m de lado. A magia é puramente visual; não é tátil, sonora, etc.'),
+(22, 'Cúpula de Repulsão', 'Divina', 5, 'Abjuração', 'Padrão', 'Pessoal', 'você', 'Sustentada', 'Vontade anula', 'Uma cúpula de energia impede a aproximação de criaturas, empurrando-as para 1,5m de você.'),
+(24, 'Deflagração de Mana', 'Divina', 5, 'Evocação', 'Padrão', 'Pessoal', 'esfera com 15m de raio', 'Instantânea', 'Resistência', 'Você libera sua mana em uma estrela em plena terra. Causa 10d10 de dano de essência e itens mágicos (exceto artefatos) são afetados.'),
+(25, 'Desespero Esmagador', 'Arcana', 2, 'Encantamento', 'Padrão', 'Curto', 'área', 'Cena', 'Fortitude parcial', 'Humanoides na área são acometidos de grande tristeza, ficando pasmados por 1 rodada.'),
+(26, 'Desejo', 'Arcana', 5, 'Transmutação', 'Padrão', 'Alcance', 'veja texto', 'Veja texto', 'Veja texto', 'Esta é a mais poderosa das magias, permitindo alterar a realidade a seu bel-prazer.'),
+(27, 'Desintegrar', 'Arcana', 4, 'Evocação', 'Padrão', 'Médio', '1 criatura ou objeto', 'Instantânea', 'Fortitude parcial', 'Você dispara um raio fino e esverdeado que causa 10d12 de dano de essência.'),
+(28, 'Despedaçar', 'Divina', 1, 'Evocação', 'Padrão', 'Curto', '1 objeto ou construto', 'Instantânea', 'Fortitude parcial', 'Esta magia emite um som alto e agudo. Causa 2d8 de dano sônico (ou 4d8 contra construto).'),
+(29, 'Despertar Consciência', 'Divina', 3, 'Encantamento', 'Completa', 'Toque', '1 animal ou planta', '1 dia', 'Nenhuma', 'Você desperta a consciência de um animal ou planta. Ele se torna seu parceiro iniciante.'),
+(30, 'Detectar Ameaças', 'Divina', 1, 'Adivinhação', 'Padrão', 'Pessoal', 'área', 'Cena', 'Nenhuma', 'Você recebe uma intuição aguçada sobre perigos em seu redor, recebendo +1 em Defesa e bônus em Percepção.'),
+(31, 'Detectar Magia', 'Arcana', 1, 'Adivinhação', 'Padrão', 'Curto', 'área', 'Cena', 'Nenhuma', 'Você detecta a presença de magias e itens mágicos na área. Auras mágicas brilham para você.'),
+(32, 'Dificultar Detecção', 'Arcana', 3, 'Abjuração', 'Padrão', 'Toque', '1 alvo', '1 dia', 'Nenhuma', 'Você protege o alvo contra magias de Adivinhação. Magias que tentarem detectar o alvo devem fazer um teste de Misticismo (CD 20).'),
+(33, 'Disfarce Ilusório', 'Arcana', 1, 'Ilusão', 'Padrão', 'Pessoal', 'você', 'Cena', 'Vontade anula', 'Você muda a aparência do seu equipamento. O disfarce é puramente visual. Você recebe +10 em testes de Enganação para parecer outra pessoa.'),
+(34, 'Dispersar as Trevas', 'Divina', 3, 'Evocação', 'Padrão', 'Pessoal', 'área', 'Veja texto', 'Nenhuma', 'Esta magia cria um forte brilho (mesma intensidade de luz do dia) em um raio de 9m.'),
+(35, 'Dissipar Magia', 'Universal', 2, 'Abjuração', 'Padrão', 'Médio', '1 criatura ou 1 objeto', 'Instantânea', 'Nenhuma', 'Você dissipa magias que estejam ativas. Faça um teste de Misticismo (CD 15 + círculo da magia) para dissipar.'),
+(36, 'Duplicata Ilusória', 'Arcana', 4, 'Ilusão', 'Padrão', 'Alcance', 'efeito', 'Cena', 'Vontade anula', 'Você cria uma cópia ilusória e semirreal de você mesmo. Ela é idêntica a você e compartilha seus sentidos.'),
+(37, 'Enfeitiçar', 'Arcana', 1, 'Encantamento', 'Padrão', 'Curto', '1 alvo', 'Cena', 'Vontade anula', 'O alvo fica enfeitiçado (prestativo) a você. Se você ou seus aliados o atacarem, o efeito é quebrado.'),
+(38, 'Engenho de Mana', 'Arcana', 5, 'Abjuração', 'Padrão', 'Médio', 'disco com 1,5m de diâmetro', 'Sustentada', 'Nenhuma', 'Você cria um disco de energia flutuante que emite uma aura antimagia. Magias não podem ser lançadas para dentro ou fora do disco.'),
+(39, 'Enxame de Pestes', 'Divina', 2, 'Convocação', 'Completa', 'Médio', 'esfera de 1,5m de raio', 'Sustentada', 'Fortitude reduz à metade', 'Você conjura um enxame de criaturas (insetos, morcegos, etc.) que causa 2d12 de dano de trevas.'),
+(40, 'Enxame Rubro de Ichabod', 'Arcana', 1, 'Evocação', 'Padrão', 'Alcance', 'enxame grande (quadrado de 3m)', 'Sustentada', 'Reflexos reduz à metade', 'Você cria um enxame de pequenas criaturas da Tormenta. Causa 4d12 de dano de ácido.'),
+(41, 'Erupção Glacial', 'Arcana', 5, 'Evocação', 'Padrão', 'Alcance', 'área', 'Instantânea', 'Resistência', 'Pedaços de gelo irrompem do chão, causando 4d6 de dano de corte e 4d6 de dano de frio e ficam caídas.'),
+(42, 'Escudo da Fé', 'Divina', 1, 'Abjuração', 'Reação', 'Curto', '1 criatura', '1 rodada', 'Nenhuma', 'Um escudo místico se manifesta no momento de um bloqueio. O alvo recebe +2 na Defesa.'),
+(43, 'Esculpir Sons', 'Arcana', 2, 'Ilusão', 'Padrão', 'Médio', 'alvo', 'Cena', 'Vontade anula', 'Esta magia altera os sons emitidos pelo alvo. Ela é capaz de criar sons, torná-los audíveis ou inaudíveis, etc.'),
+(44, 'Escuridão', 'Divina', 1, 'Necromancia', 'Padrão', 'Alcance', 'objeto', 'Cena', 'Vontade anula (veja texto)', 'O alvo emana sombras em uma área com 6m de raio, causando escuridão (camuflagem leve).'),
+(45, 'Explosão Caleidoscópica', 'Arcana', 4, 'Ilusão', 'Padrão', 'Alcance', 'área', 'Instantânea', 'Resistência', 'Esta magia cria uma forte explosão de luzes estroboscópicas e sons caóticos.'),
+(46, 'Explosão de Chamas', 'Arcana', 1, 'Evocação', 'Padrão', 'Alcance', 'área', 'Instantânea', 'Reflexos reduz à metade', 'Um leque de chamas irrompe de suas mãos, causando 2d6 de dano de fogo às criaturas na área.'),
+(47, 'Ferver Sangue', 'Arcana', 1, 'Evocação', 'Padrão', 'Curto', 'alvo', 'Sustentada', 'Fortitude parcial', 'O sangue do alvo aquece. Causa 6d8 de dano de fogo e fica enjoado.'),
+(48, 'Físico Divino', 'Divina', 1, 'Transmutação', 'Padrão', 'Toque', '1 alvo', 'Cena', 'Nenhuma', 'Você fortalece o corpo do alvo. Ele recebe +2 em Força, Destreza ou Constituição (à sua escolha).'),
+(49, 'Flecha Ácida', 'Arcana', 2, 'Evocação', 'Padrão', 'Médio', '1 criatura ou objeto', 'Duração', 'Reflexos parcial', 'Você dispara um projétil de ácido. Se falhar no teste de resistência, o alvo sofre 4d6 de dano de ácido e 2d6 no início dos seus próximos turnos.'),
+(50, 'Forma Etérea', 'Arcana', 4, 'Transmutação', 'Completa', 'Alcance', 'pessoal', 'Cena', 'Nenhuma', 'Você e todo o equipamento que está carregando tornam-se etéreos (incorpóreos).'),
+(51, 'Fúria do Panteão', 'Divina', 5, 'Evocação', 'Completa', 'Alcance', 'cubo com 9m de lado', 'Sustentada', 'Resistência', 'Você cria uma tempestade de tormenta. Causa 10d6 de dano de eletricidade, 10d6 de dano de trevas e 10d6 de dano de impacto.'),
+(52, 'Globo da Verdade de Gwen', 'Divina', 2, 'Adivinhação', 'Padrão', 'Alcance', '1 globo', 'Duração', 'Nenhuma', 'Cria um globo flutuante e intangível que o segue. Ele brilha e revela a verdade, criaturas e objetos invisíveis são revelados.'),
+(53, 'Globo de Invulnerabilidade', 'Arcana', 5, 'Abjuração', 'Padrão', 'Pessoal', 'área', 'Sustentada', 'Nenhuma', 'Você cria uma esfera mágica brilhante com 3m de raio que detém qualquer magia de 2º círculo ou menor.'),
+(54, 'Guardião Divino', 'Divina', 4, 'Convocação', 'Padrão', 'Alcance', '1 criatura', 'Cena', 'Nenhuma', 'Você invoca um elemental Pequeno (Água, Ar, Fogo ou Terra) que o auxilia em combate.'),
+(55, 'Heroísmo', 'Divina', 3, 'Encantamento', 'Padrão', 'Toque', '1 alvo', 'Cena', 'Nenhuma', 'Esta magia imbui uma criatura com coragem e valentia. O alvo fica imune a medo e recebe +5 PV temporários.'),
+(56, 'Hipnotismo', 'Arcana', 1, 'Encantamento', 'Padrão', 'Alcance', '1 alvo ou humanoide', 'Duração', 'Vontade anula', 'Suas palavras e movimentos ritmados deixam o alvo fascinado. Ele fica imóvel.'),
+(57, 'Ilusão Lancinante', 'Arcana', 2, 'Ilusão', 'Padrão', 'Médio', 'área', 'Sustentada', 'Vontade anula', 'Você cria uma área de ilusão. Criaturas na área devem fazer um teste de Vontade; se falharem, acreditam que é real e sofrem 1d6 de dano mental.'),
+(58, 'Imagem Espelhada', 'Arcana', 1, 'Ilusão', 'Padrão', 'Pessoal', 'você', 'Duração', 'Nenhuma', 'Três cópias ilusórias suas aparecem. Elas o imitam, tornando difícil saber quem é você. Você recebe +6 na Defesa.'),
+(59, 'Imobilizar', 'Arcana', 5, 'Encantamento', 'Padrão', 'Curto', 'alvo', 'Sustentada', 'Vontade parcial', 'O alvo fica paralisado. No final de cada turno, pode fazer um novo teste de Vontade para se libertar.'),
+(60, 'Infligir Ferimentos', 'Divina', 1, 'Necromancia', 'Padrão', 'Toque', '1 alvo', 'Instantânea', 'Fortitude reduz à metade', 'Você catalisa energia negativa contra um alvo, causando 2d8+2 de dano de trevas.'),
+(61, 'Intervenção Divina', 'Divina', 5, 'Evocação', 'Completa', 'Alcance', 'veja texto', 'Duração', 'Veja texto', 'Você pede a sua divindade para interceder diretamente.'),
+(62, 'Invisibilidade', 'Arcana', 2, 'Ilusão', 'Padrão', 'Alcance', 'alvo', '1 rodada', 'Nenhuma', 'O alvo fica invisível. O efeito termina se o alvo fizer uma ação hostil.'),
+(63, 'Invulnerabilidade', 'Universal', 5, 'Abjuração', 'Padrão', 'Pessoal', 'você', 'Duração', 'Nenhuma', 'Esta magia cria uma barreira mística que protege você contra efeitos nocivos mentais ou físicos.'),
+(64, 'Lágrimas de Wynna', 'Divina', 1, 'Abjuração', 'Padrão', 'Alcance', '1 criatura', 'Instantânea', 'Vontade parcial', 'Se o alvo falhar, perde a habilidade de lançar magias até o fim da cena.'),
+(65, 'Lança Ígnea de Aleph', 'Arcana', 5, 'Evocação', 'Padrão', 'Alcance', 'alvo', 'Duração', 'Reflexos parcial', 'Esta magia foi desenvolvida pelo mago Aleph. Um relâmpago de chamas causa 6d6 de dano de fogo.'),
+(66, 'Legião', 'Arcana', 5, 'Encantamento', 'Padrão', 'Alcance', 'até 10 criaturas', 'Duração', 'Vontade anula', 'Você domina a mente dos alvos. Os alvos ficam sob seu controle, mas têm direito a um teste de Vontade a cada turno.'),
+(67, 'Leque Cromático', 'Arcana', 1, 'Ilusão', 'Padrão', 'Alcance', 'pessoal', 'Cena', 'Vontade parcial', 'Uma série de luzes brilhantes surge de suas mãos, deixando os animas e humanoides na área atordoados.'),
+(68, 'Lendas e Histórias', 'Universal', 3, 'Adivinhação', 'Padrão', 'Alcance', '1 objeto ou local', 'Duração', 'Nenhuma', 'Você descobre informações sobre um objeto ou local que esteja tocando.'),
+(69, 'Libertação', 'Universal', 4, 'Abjuração', 'Padrão', 'Alcance', '1 criatura', 'Duração', 'Nenhuma', 'O alvo fica imune a efeitos de movimento e pode ignorar qualquer efeito que impeça o movimento.'),
+(70, 'Ligação Sombria', 'Divina', 4, 'Necromancia', 'Padrão', 'Alcance', '1 criatura', '1 dia', 'Fortitude anula', 'Cria um elo entre seu coração e o alvo. Você sofre metade do dano que o alvo sofrer (e vice-versa).'),
+(71, 'Ligação Telepática', 'Arcana', 2, 'Adivinhação', 'Padrão', 'Alcance', '2 criaturas voluntárias', '1 dia', 'Nenhuma', 'Você cria um elo mental entre duas criaturas. Elas podem se comunicar telepaticamente.'),
+(72, 'Localização', 'Arcana', 2, 'Adivinhação', 'Padrão', 'Alcance', 'pessoal', 'Cena', 'Nenhuma', 'Esta magia pode encontrar uma criatura ou objeto. Você sabe a direção e distância aproximada.'),
+(73, 'Luz', 'Universal', 1, 'Evocação', 'Padrão', 'Alcance', 'objeto', 'Cena', 'Vontade anula (veja texto)', 'O alvo emite luz (como uma tocha). Se for um objeto em posse de uma criatura, ela pode anular.'),
+(74, 'Manto de Sombras', 'Universal', 3, 'Ilusão', 'Padrão', 'Alcance', 'toque', 'Cena', 'Nenhuma', 'O alvo fica coberto por um manto de sombras. Ele ganha camuflagem total na escuridão.'),
+(75, 'Manto do Cruzado', 'Divina', 4, 'Evocação', 'Padrão', 'Alcance', 'pessoal', 'Duração', 'Nenhuma', 'Você invoca o poder de sua divindade na forma de um manto de energia. O manto ilumina e causa dano a inimigos adjacentes.'),
+(76, 'Mão Poderosa de Talude', 'Arcana', 4, 'Evocação', 'Padrão', 'Alcance', 'médio', 'efeito', 'Sustentada', 'Esta magia cria uma mão flutuante de grande tamanho que você pode controlar.');
 
 -- --------------------------------------------------------
 
@@ -1830,8 +1909,8 @@ ALTER TABLE `personagem_t20_inventario`
 -- Limitadores para a tabela `personagem_t20_magias`
 --
 ALTER TABLE `personagem_t20_magias`
-  ADD CONSTRAINT `fk_magia_personagem` FOREIGN KEY (`personagem_id`) REFERENCES `personagens_t20` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_magia_id` FOREIGN KEY (`magia_id`) REFERENCES `t20_magias` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_magia_id` FOREIGN KEY (`magia_id`) REFERENCES `t20_magias` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_magia_personagem` FOREIGN KEY (`personagem_id`) REFERENCES `personagens_t20` (`id`) ON DELETE CASCADE;
 
 --
 -- Limitadores para a tabela `personagem_t20_poderes`
@@ -1858,8 +1937,8 @@ ALTER TABLE `personagens_op_poderes`
 -- Limitadores para a tabela `personagens_op_rituais`
 --
 ALTER TABLE `personagens_op_rituais`
-  ADD CONSTRAINT `fk_ritual_personagem` FOREIGN KEY (`personagem_id`) REFERENCES `personagens_op` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_ritual_id` FOREIGN KEY (`ritual_id`) REFERENCES `rituais_op` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_ritual_id` FOREIGN KEY (`ritual_id`) REFERENCES `rituais_op` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_ritual_personagem` FOREIGN KEY (`personagem_id`) REFERENCES `personagens_op` (`id`) ON DELETE CASCADE;
 
 --
 -- Limitadores para a tabela `personagens_t20`
