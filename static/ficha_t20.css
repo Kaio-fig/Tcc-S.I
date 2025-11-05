@@ -1,11 +1,11 @@
-/* --- GERAL E VARIÁVEIS DE COR --- */
+/* --- GERAL E VARIÁVEIS DE COR (TEMA VERMELHO T20) --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 :root {
     --cor-primaria: #8a0303;
-    /* Vermelho T20 */
+    /* Vermelho T20 (Restaurado) */
     --cor-secundaria: #c20707;
-    /* Vermelho T20 (Mais claro) */
+    /* Vermelho T20 (Mais claro) (Restaurado) */
     --cor-fundo: #f4f7fa;
     --cor-surface: #ffffff;
     --cor-texto-primario: #212529;
@@ -26,7 +26,6 @@ body {
     color: var(--cor-texto-primario);
     padding: 2rem;
     font-size: 16px;
-    /* Tamanho base */
 }
 
 /* --- LAYOUT PRINCIPAL --- */
@@ -35,7 +34,6 @@ body {
     margin: auto;
 }
 
-/* Estilo para o cabeçalho */
 .cabecalho-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -70,12 +68,12 @@ body {
 .info-racial {
     font-size: 0.8rem;
     color: var(--cor-secundaria);
+    /* Vermelho claro */
     font-weight: 500;
     margin-top: 0.25rem;
     min-height: 1em;
 }
 
-/* Layout principal das colunas */
 .conteudo-grid {
     display: grid;
     grid-template-columns: 350px 1fr;
@@ -155,11 +153,38 @@ h3 {
     font-weight: 700;
     color: var(--cor-texto-primario);
     line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
 }
 
 .status-box .valor span {
     display: inline-block;
 }
+
+.status-box .valor .status-atual {
+    width: 70px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--cor-texto-primario);
+    border: none;
+    background-color: transparent;
+    text-align: right;
+    padding: 0;
+    margin-right: 2px;
+}
+
+.status-box .valor .status-atual::-webkit-outer-spin-button,
+.status-box .valor .status-atual::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.status-box .valor .status-atual[type=number] {
+    -moz-appearance: textfield;
+}
+
 
 /* --- COLUNA PRINCIPAL --- */
 .abas-nav {
@@ -196,7 +221,6 @@ h3 {
     display: block;
 }
 
-/* Estilo para Atributos com Input */
 .atributos-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -233,14 +257,13 @@ h3 {
     -moz-appearance: textfield;
 }
 
-/* --- SEÇÃO DE PERÍCIAS (REFEITA COM GRID) --- */
+/* --- SEÇÃO DE PERÍCIAS --- */
 .pericias-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0 2rem;
 }
 
-/* Estilo para cada linha de perícia */
 .pericia-item {
     display: grid;
     grid-template-columns: 1fr auto 40px 40px 40px 50px;
@@ -250,7 +273,6 @@ h3 {
     border-bottom: 1px solid #eee;
 }
 
-/* Cabeçalho da tabela de perícias */
 .pericia-item.header {
     font-weight: 700;
     color: var(--cor-texto-secundario);
@@ -266,7 +288,6 @@ h3 {
     text-align: left;
 }
 
-/* Nome da Perícia */
 .pericia-nome {
     font-size: 0.95rem;
     white-space: nowrap;
@@ -281,11 +302,11 @@ h3 {
 
 .so-treinado-marker {
     color: var(--cor-primaria);
+    /* Vermelho */
     font-weight: bold;
     margin-left: 0.1rem;
 }
 
-/* Valores calculados e Input "Outros" */
 .pericia-total,
 .pericia-metade-nivel,
 .pericia-mod-attr {
@@ -316,7 +337,6 @@ h3 {
     -moz-appearance: textfield;
 }
 
-/* Checkbox de Treino */
 .pericia-treino {
     justify-self: center;
     width: 1rem;
@@ -327,11 +347,11 @@ h3 {
     background-color: #f9f9f9;
 }
 
-/* Estilos básicos para Poderes e Equipamento (placeholder) */
 .poder-item {
     padding: 1rem;
     border: 1px solid var(--cor-borda);
     border-left: 4px solid var(--cor-primaria);
+    /* Vermelho */
     border-radius: 4px;
     margin-bottom: 1rem;
 }
@@ -417,7 +437,7 @@ h3 {
     margin-top: 1rem;
 }
 
-/* --- ESTILOS PARA O MODAL DE PODERES T20 --- */
+/* --- MODAIS (Estilo unificado) --- */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -450,7 +470,6 @@ h3 {
     margin-top: 0;
 }
 
-/* Abas dentro do Modal */
 .modal-abas-nav {
     display: flex;
     background-color: var(--cor-fundo);
@@ -477,7 +496,9 @@ h3 {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.modal-filtros-poderes input[type="text"] {
+.modal-filtros-poderes input[type="text"],
+.modal-filtros-magias input,
+.modal-filtros-magias select {
     width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
@@ -486,7 +507,6 @@ h3 {
     margin-bottom: 1rem;
 }
 
-/* Wrapper da lista de poderes */
 .modal-lista-wrapper {
     overflow-y: auto;
     min-height: 300px;
@@ -512,9 +532,9 @@ h3 {
     font-style: italic;
 }
 
-
-/* Item individual no modal (PODER) */
-.poder-item-modal {
+/* Item individual no modal (PODER e ITEM) */
+.poder-item-modal,
+.item-modal {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -522,21 +542,25 @@ h3 {
     border-bottom: 1px solid var(--cor-borda);
 }
 
-.poder-item-modal:last-child {
+.poder-item-modal:last-child,
+.item-modal:last-child {
     border-bottom: none;
 }
 
-.poder-item-modal-info {
+.poder-item-modal-info,
+.item-modal-info {
     flex: 1;
     padding-right: 1rem;
 }
 
-.poder-item-modal-info h4 {
+.poder-item-modal-info h4,
+.item-modal-info h4 {
     color: var(--cor-primaria);
     margin-bottom: 0.25rem;
 }
 
-.poder-item-modal-info p {
+.poder-item-modal-info p,
+.item-modal-info p {
     font-size: 0.9rem;
     color: var(--cor-texto-secundario);
     line-height: 1.4;
@@ -549,7 +573,9 @@ h3 {
     margin-top: 0.25rem;
 }
 
-.btn-adicionar-poder {
+.btn-adicionar-poder,
+.btn-adicionar,
+.btn-adicionar-magia {
     padding: 0.5rem 1rem;
     font-weight: 700;
     border: none;
@@ -561,19 +587,24 @@ h3 {
     transition: background-color 0.2s;
 }
 
-.btn-adicionar-poder:hover {
+.btn-adicionar-poder:hover,
+.btn-adicionar:hover,
+.btn-adicionar-magia:hover {
     background-color: var(--cor-primaria);
     /* Vermelho escuro */
 }
 
-.btn-adicionar-poder:disabled {
+.btn-adicionar-poder:disabled,
+.btn-adicionar:disabled,
+.btn-adicionar-magia:disabled {
     background-color: #ccc;
     color: #777;
     cursor: not-allowed;
 }
 
-/* Botão de Remover Poder na Ficha Principal */
-.poder-escolhido {
+/* Botão de Remover (Poder e Magia) */
+.poder-escolhido,
+.magia-item-conhecida {
     position: relative;
     padding-right: 35px;
 }
@@ -600,6 +631,7 @@ h3 {
 }
 
 
+/* --- INVENTÁRIO --- */
 .inventario-header {
     display: flex;
     justify-content: space-between;
@@ -631,35 +663,6 @@ h3 {
     border-radius: 4px;
 }
 
-
-.item-modal {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 1rem 0.5rem;
-    border-bottom: 1px solid var(--cor-borda);
-}
-
-.item-modal:last-child {
-    border-bottom: none;
-}
-
-.item-modal-info {
-    flex: 1;
-    padding-right: 1rem;
-}
-
-.item-modal-info h4 {
-    color: var(--cor-primaria);
-    margin-bottom: 0.25rem;
-}
-
-.item-modal-info p {
-    font-size: 0.9rem;
-    color: var(--cor-texto-secundario);
-    line-height: 1.4;
-}
-
 .item-detalhe {
     font-size: 0.85rem !important;
     font-weight: 700;
@@ -667,27 +670,11 @@ h3 {
     margin-top: 0.25rem;
 }
 
-
-.btn-adicionar {
-    padding: 0.5rem 1rem;
-    font-weight: 700;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background-color: var(--cor-secundaria);
-    color: white;
-    transition: background-color 0.2s;
-}
-
-.btn-adicionar:hover {
-    background-color: var(--cor-primaria);
-}
-
 #lista-inventario {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    margin-bottom: 1rem; 
+    margin-bottom: 1rem;
 }
 
 .item-inventario-vazio {
@@ -725,42 +712,60 @@ h3 {
     border-radius: 6px;
 }
 
-
-
-.inv-header-equipado,
-.item-equipado-check {
+/* Colunas do Inventário */
+.col-equipado {
     width: 80px;
     flex-shrink: 0;
+    text-align: center;
 }
+
+.col-nome {
+    flex: 1;
+    min-width: 150px;
+}
+
+.col-qtd {
+    width: 80px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.col-espacos {
+    width: 80px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.col-acoes {
+    width: 40px;
+    flex-shrink: 0;
+    text-align: right;
+}
+
 .item-equipado-check {
     width: 1.2rem;
     height: 1.2rem;
-    margin-left: 20px; 
+    margin-left: 20px;
     margin-right: 40px;
 }
 
-.inv-header-nome,
 .item-nome {
-    flex: 1; /* O nome ocupa o espaço restante */
+    flex: 1;
     min-width: 150px;
     font-weight: 700;
     font-size: 1.05rem;
 }
 
-.inv-header-qtd,
 .item-quantidade {
     width: 80px;
     flex-shrink: 0;
     text-align: center;
-}
-.item-quantidade {
     padding: 0.25rem;
     font-size: 1rem;
     border: 1px solid var(--cor-borda);
     border-radius: 4px;
 }
 
-.inv-header-espacos,
 .item-espacos {
     width: 80px;
     flex-shrink: 0;
@@ -770,12 +775,6 @@ h3 {
     font-weight: 700;
 }
 
-.inv-header-remover,
-.btn-remover-item {
-    width: 40px;
-    flex-shrink: 0;
-    text-align: right;
-}
 .btn-remover-item {
     width: 28px;
     height: 28px;
@@ -787,10 +786,68 @@ h3 {
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s;
-    /* Remove 'position' se houver */
 }
+
 .btn-remover-item:hover {
     background-color: var(--cor-primaria);
     color: white;
 }
 
+/* --- ESTILOS DE MAGIAS --- */
+
+.modal-filtros-magias {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-filtros-magias input,
+.modal-filtros-magias select {
+    flex: 1;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+}
+
+.magias-conhecidas-lista {
+    max-height: 800px;
+    overflow-y: auto;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.magia-item-conhecida {
+    padding: 1.5rem;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-fundo);
+    border-radius: 6px;
+}
+
+.magia-item-conhecida h4 {
+    color: var(--cor-primaria);
+    margin: 0 0 0.5rem 0;
+}
+
+.magia-meta {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.magia-item-conhecida p {
+    font-size: 0.95rem;
+    color: var(--cor-texto-primario);
+    line-height: 1.5;
+}
+
+.magia-item-conhecida .btn-remover-poder {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
