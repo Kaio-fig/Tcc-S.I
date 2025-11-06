@@ -493,7 +493,6 @@ $conn->close();
                                 <tbody>
                                 </tbody>
                             </table>
-                            <button type="button" class="btn btn-small" id="btn-abrir-modal-ataque" disabled>(Adicionar Ataque)</button>
                         </div>
 
                         <div class="bloco">
@@ -1035,120 +1034,147 @@ $conn->close();
                 }
 
                 // 6. CALCULO AUTOMATICO DE ATAQUES
+
                 function atualizarTabelaAtaques(modificadores, nomesPoderesEscolhidos, metadeNivel) {
+                    // Segurança
                     if (!tabelaAtaquesBody) return;
+                    if (typeof todosOsItensT20 === 'undefined') return;
+                    if (typeof inventarioAtual === 'undefined') return;
+                    if (typeof nivelInput === 'undefined') return;
+
                     tabelaAtaquesBody.innerHTML = ''; // Limpa a tabela
 
-                    const modForca = modificadores['forca'] || 0;
-                    const modDestreza = modificadores['destreza'] || 0;
+                    var modForca = modificadores['forca'] || 0;
+                    var modDestreza = modificadores['destreza'] || 0;
 
-                    let armasEquipadas = [];
+                    var armasEquipadas = [];
                     if (typeof inventarioAtual !== 'undefined' && Array.isArray(inventarioAtual)) {
 
-                        // --- A NOVA CORREÇÃO ESTÁ AQUI ---
-                        // Usamos .toLowerCase() para garantir que apanha "Arma", "arma", "Arma (Simples)", etc.
-                        armasEquipadas = inventarioAtual.filter(item =>
-                            item.equipado &&
-                            item.tipo &&
-                            item.tipo.toLowerCase().includes('arma')
-                        );
-                        // --- FIM DA CORREÇÃO ---
+                        // 1. Filtra pelos IDs dos itens equipados
+                        var idsEquipados = [];
+                        for (var i = 0; i < inventarioAtual.length; i++) {
+                            if (inventarioAtual[i].equipado) {
+                                idsEquipados.push(inventarioAtual[i]);
+                            }
+                        }
+
+                        // 2. Mapeia os IDs para os objetos completos dos itens
+                        var itensEquipados = [];
+                        for (var j = 0; j < idsEquipados.length; j++) {
+                            var invItem = idsEquipados[j];
+                            var fullItem = todosOsItensT20[invItem.id]; // Busca na base de dados de itens
+
+                            if (fullItem) {
+                                // Anexa a quantidade (para referência futura, se necessário)
+                                // É importante criar uma CÓPIA para não sujar o objeto original
+                                var itemCopia = JSON.parse(JSON.stringify(fullItem));
+                                itemCopia.quantidade = invItem.quantidade;
+                                itensEquipados.push(itemCopia);
+                            }
+                        }
+
+                        // 3. Filtra apenas os itens que são armas
+                        for (var k = 0; k < itensEquipados.length; k++) {
+                            var item = itensEquipados[k];
+                            // O seu DB usa 'Arma' como tipo
+                            if (item && item.tipo && item.tipo.toLowerCase().indexOf('arma') !== -1) {
+                                armasEquipadas.push(item);
+                            }
+                        }
                     }
 
                     // Se não tiver armas, adiciona ataque desarmado
                     if (armasEquipadas.length === 0) {
-                        const modLuta = modForca; // Ataque desarmado usa Força
-                        const treinoLutaEl = document.getElementById('treino_luta');
-                        const outrosLutaEl = document.getElementById('outros_luta');
-                        let treinoLuta = 0;
+                        var modLuta = modForca; // Ataque desarmado usa Força
+                        var treinoLutaEl = document.getElementById('treino_luta');
+                        var outrosLutaEl = document.getElementById('outros_luta');
+                        var treinoLuta = 0;
                         if (treinoLutaEl && treinoLutaEl.checked) {
-                            const nivel = parseInt(nivelInput.value) || 1;
+                            var nivel = parseInt(nivelInput.value) || 1;
                             if (nivel >= 15) treinoLuta = 6;
                             else if (nivel >= 7) treinoLuta = 4;
                             else treinoLuta = 2;
                         }
-                        const outrosLuta = (outrosLutaEl && parseInt(outrosLutaEl.value)) || 0;
-                        const totalLuta = modLuta + metadeNivel + treinoLuta + outrosLuta;
+                        var outrosLuta = (outrosLutaEl && parseInt(outrosLutaEl.value)) || 0;
+                        var totalLuta = modLuta + metadeNivel + treinoLuta + outrosLuta;
 
-                        tabelaAtaquesBody.innerHTML = `
-            <tr>
-                <td>Ataque Desarmado</td>
-                <td>1d20+${totalLuta}</td>
-                <td>1d3+${modForca}</td>
-                <td>x2</td>
-                <td>Impacto</td>
-                <td>Curto</td>
-                <td></td>
-            </tr>
-        `;
+                        tabelaAtaquesBody.innerHTML =
+                            '<tr>' +
+                            '    <td>Ataque Desarmado</td>' +
+                            '    <td>1d20+' + totalLuta + '</td>' +
+                            '    <td>1d3+' + modForca + '</td>' +
+                            '    <td>x2</td>' +
+                            '    <td>Impacto</td>' +
+                            '    <td>Curto</td>' +
+                            '    <td></td>' +
+                            '</tr>';
                         return; // Sai da função
                     }
 
                     // Se tem armas, itera sobre elas
-                    armasEquipadas.forEach(arma => {
-                        let modAtributo = 0;
-                        let modDano = 0;
-                        let periciaNome = 'luta'; // Padrão para armas corpo-a-corpo
-                        let atributoChave = arma.atributo_chave ? arma.atributo_chave.toLowerCase() : 'for';
+                    armasEquipadas.forEach(function(arma) {
+                        var modAtributo = 0;
+                        var modDano = 0;
+                        var periciaNome = 'luta';
 
-                        let usaAcuidade = nomesPoderesEscolhidos.has('Acuidade com Arma') && (arma.categoria === 'Leve' || arma.categoria === 'Arremesso');
+                        var isDisparo = arma.alcance && (arma.alcance.toLowerCase().indexOf('médio') !== -1 || arma.alcance.toLowerCase().indexOf('longo') !== -1);
+                        var isArremesso = false; // TBD (DB não tem info)
+                        var isLeve = (arma.espacos || 1) <= 1; // Heurística: se ocupa 1 espaço, é leve
 
-                        if (arma.categoria === 'Disparo') {
+                        var usaAcuidade = nomesPoderesEscolhidos.indexOf('Acuidade com Arma') !== -1 && (isLeve || isArremesso);
+
+                        if (isDisparo) {
                             periciaNome = 'pontaria';
                             modAtributo = modDestreza;
                             modDano = 0;
-                        } else if (arma.categoria === 'Arremesso') {
+                        } else if (isArremesso) {
                             periciaNome = 'pontaria';
                             modAtributo = usaAcuidade ? Math.max(modForca, modDestreza) : modForca;
                             modDano = modForca;
                         } else {
                             // Armas Corpo-a-Corpo
                             periciaNome = 'luta';
-                            modAtributo = (usaAcuidade && arma.categoria === 'Leve') ? modDestreza : modForca;
+                            modAtributo = (usaAcuidade && isLeve) ? modDestreza : modForca;
                             modDano = modForca;
                         }
 
-                        if (atributoChave === 'des' && arma.categoria !== 'Disparo') {
-                            modAtributo = modDestreza;
-                            if (usaAcuidade && arma.categoria === 'Leve') {
-                                modDano = modDestreza;
-                            } else {
-                                modDano = 0;
-                            }
+                        if (usaAcuidade && isLeve && !isArremesso) {
+                            modDano = modDestreza;
                         }
 
-                        let bonusTreino = 0;
-                        const checkboxTreino = document.getElementById(`treino_${periciaNome}`);
-                        const outrosPericiaEl = document.getElementById(`outros_${periciaNome}`);
+                        var bonusTreino = 0;
+                        var checkboxTreino = document.getElementById('treino_' + periciaNome);
+                        var outrosPericiaEl = document.getElementById('outros_' + periciaNome);
                         if (checkboxTreino && checkboxTreino.checked) {
-                            const nivel = parseInt(nivelInput.value) || 1;
+                            var nivel = parseInt(nivelInput.value) || 1;
                             if (nivel >= 15) bonusTreino = 6;
                             else if (nivel >= 7) bonusTreino = 4;
                             else bonusTreino = 2;
                         }
-                        const outrosPericia = (outrosPericiaEl && parseInt(outrosPericiaEl.value)) || 0;
+                        var outrosPericia = (outrosPericiaEl && parseInt(outrosPericiaEl.value)) || 0;
 
-                        const testeTotal = `1d20+${modAtributo + metadeNivel + bonusTreino + outrosPericia}`;
-                        const danoTotal = `${arma.dano} + ${modDano}`;
+                        var totalAtributo = modAtributo + metadeNivel + bonusTreino + outrosPericia;
+                        var testeTotal = '1d20+' + totalAtributo;
+                        var danoBase = arma.dano || '1d3';
+                        var danoTotal = danoBase + '+' + modDano;
 
-                        tabelaAtaquesBody.innerHTML += `
-            <tr>
-                <td>${arma.nome}</td>
-                <td>${testeTotal}</td>
-                <td>${danoTotal}</td>
-                <td>${arma.critico || 'x2'}</td>
-                <td>${arma.tipo_dano || 'N/D'}</td>
-                <td>${arma.alcance || 'Curto'}</td>
-                <td></td>
-            </tr>
-        `;
+                        tabelaAtaquesBody.innerHTML +=
+                            '<tr>' +
+                            '    <td>' + arma.nome + '</td>' +
+                            '    <td>' + testeTotal + '</td>' +
+                            '    <td>' + danoTotal + '</td>' +
+                            '    <td>' + (arma.critico || 'x2') + '</td>' +
+                            '    <td>' + (arma.tipo_dano || 'N/D') + '</td>' +
+                            '    <td>' + (arma.alcance || 'Curto') + '</td>' +
+                            '    <td></td>' +
+                            '</tr>';
                     });
                 }
 
                 // 7. ATUALIZA OUTRAS PARTES DA UI
                 atualizarHabilidadesClasseAuto(classeId, nivel);
-                atualizarTabelaAtaques(modificadores, nomesPoderesEscolhidos, metadeNivel)
                 renderizarInventario();
+                atualizarTabelaAtaques(modificadores, nomesPoderesEscolhidos, metadeNivel);
                 atualizarDisponibilidadeMagias();
             }
 
