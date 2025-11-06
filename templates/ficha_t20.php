@@ -869,6 +869,7 @@ $conn->close();
                 });
 
                 // 3. CÁLCULO PV e PM
+                // 3. CÁLCULO PV e PM
                 var pvMax = 0;
                 var pmMax = 0;
                 var conMod = modificadores['constituicao'] || 0;
@@ -902,6 +903,27 @@ $conn->close();
                     }
                 }
 
+                // Bônus Poderes
+                if (nomesPoderesEscolhidos.indexOf('Vitalidade') !== -1) pvMax += nivel;
+                if (nomesPoderesEscolhidos.indexOf('Vontade de Ferro') !== -1) pmMax += Math.floor(nivel / 2);
+
+                // <-- CORREÇÃO AQUI
+                // Adiciona o bônus do poder "Poder Mágico" (ID 69) de Arcanista
+                if (nomesPoderesEscolhidos.indexOf('Poder Mágico') !== -1) pmMax += nivel;
+
+                if (pvMaxSpan) pvMaxSpan.textContent = pvMax > 0 ? pvMax : '--';
+                if (pmMaxSpan) pmMaxSpan.textContent = pmMax > 0 ? pmMax : '--';
+
+                if (pvAtualInput.value === '0' || pvAtualInput.value === (pvMaxSpan.dataset.oldMax || '0')) {
+                    pvAtualInput.value = pvMax > 0 ? pvMax : 0;
+                }
+                if (pmAtualInput.value === '0' || pmAtualInput.value === (pmMaxSpan.dataset.oldMax || '0')) {
+                    pmAtualInput.value = pmMax > 0 ? pmMax : 0;
+                }
+                pvMaxSpan.dataset.oldMax = pvMax > 0 ? pvMax : '0';
+                pmMaxSpan.dataset.oldMax = pmMax > 0 ? pmMax : '0';
+
+
                 // Bônus Poderes (FIX JS: Trocado .has() por .indexOf())
                 if (nomesPoderesEscolhidos.indexOf('Vitalidade') !== -1) pvMax += nivel;
                 if (nomesPoderesEscolhidos.indexOf('Vontade de Ferro') !== -1) pmMax += Math.floor(nivel / 2);
@@ -926,6 +948,7 @@ $conn->close();
                 var penalidadeArmadura = 0;
                 var escudoEquipado = false;
                 var modDesNaDefesa = modificadores['destreza'] || 0;
+                var usandoArmaduraPesada = false; // <-- Variável de controle
 
                 if (typeof inventarioAtual !== 'undefined' && Array.isArray(inventarioAtual)) {
                     inventarioAtual.forEach(function(item) {
@@ -948,8 +971,10 @@ $conn->close();
                                 escudoEquipado = true;
                             }
                             if (itemInfo.tipo === 'Armadura') {
+                                // Definição de Armadura Pesada (penalidade -3 ou pior, ex: Cota de Malha)
                                 if ((parseInt(itemInfo.penalidade_armadura) || 0) <= -3) {
-                                    if (modDesNaDefesa > 1) modDesNaDefesa = 1;
+                                    usandoArmaduraPesada = true; // <-- Define que está usando armadura pesada
+                                    if (modDesNaDefesa > 1) modDesNaDefesa = 1; // Limita Destreza
                                 }
                             }
                         }
@@ -961,18 +986,34 @@ $conn->close();
                 if (cargaMaxima < 10) cargaMaxima = 10;
                 cargaMaxima += bonusCarga;
 
-                // FIX JS: Trocado .has() por .indexOf()
                 if (nomesPoderesEscolhidos.indexOf('Costas Largas') !== -1) cargaMaxima += 5;
 
                 if (cargaUsadaSpan) cargaUsadaSpan.textContent = cargaUsada;
                 if (cargaMaximaSpan) cargaMaximaSpan.textContent = cargaMaxima;
 
+                // --- CÁLCULO DE DEFESA ---
                 var defesaTotal = 10 + modDesNaDefesa + defesaItens;
 
-                // FIX JS: Trocado .has() por .indexOf()
                 if (nomesPoderesEscolhidos.indexOf('Esquiva') !== -1) defesaTotal += 2;
                 if (nomesPoderesEscolhidos.indexOf('Estilo de Uma Arma') !== -1 && !escudoEquipado) defesaTotal += 2;
                 if (nomesPoderesEscolhidos.indexOf('Estilo de Arma e Escudo') !== -1 && escudoEquipado) defesaTotal += 2;
+
+                // Adiciona os bônus de 'Encouraçado' e seus poderes dependentes
+                if (usandoArmaduraPesada) { //
+                    if (nomesPoderesEscolhidos.indexOf('Encouraçado') !== -1) {
+                        // Bônus base do Encouraçado
+                        defesaTotal += 2; //
+
+                        // Bônus adicional por 'Inexpugnável'
+                        if (nomesPoderesEscolhidos.indexOf('Inexpugnável') !== -1) {
+                            defesaTotal += 2; //
+                        }
+                        // Bônus adicional por 'Fanático'
+                        if (nomesPoderesEscolhidos.indexOf('Fanático') !== -1) {
+                            defesaTotal += 2; //
+                        }
+                    }
+                }
 
                 if (defesaTotalSpan) defesaTotalSpan.textContent = defesaTotal;
 
@@ -1062,11 +1103,8 @@ $conn->close();
                         var itensEquipados = [];
                         for (var j = 0; j < idsEquipados.length; j++) {
                             var invItem = idsEquipados[j];
-                            var fullItem = todosOsItensT20[invItem.id]; // Busca na base de dados de itens
-
+                            var fullItem = todosOsItensT20[invItem.id];
                             if (fullItem) {
-                                // Anexa a quantidade (para referência futura, se necessário)
-                                // É importante criar uma CÓPIA para não sujar o objeto original
                                 var itemCopia = JSON.parse(JSON.stringify(fullItem));
                                 itemCopia.quantidade = invItem.quantidade;
                                 itensEquipados.push(itemCopia);
@@ -1076,8 +1114,7 @@ $conn->close();
                         // 3. Filtra apenas os itens que são armas
                         for (var k = 0; k < itensEquipados.length; k++) {
                             var item = itensEquipados[k];
-                            // O seu DB usa 'Arma' como tipo
-                            if (item && item.tipo && item.tipo.toLowerCase().indexOf('arma') !== -1) {
+                            if (item && item.tipo && item.tipo.toLowerCase() === 'arma') {
                                 armasEquipadas.push(item);
                             }
                         }
@@ -1743,10 +1780,39 @@ $conn->close();
             }
             window.alternarEquipado = function(index) {
                 if (inventarioAtual[index]) {
+
+                    // CORREÇÃO: Pega a informação completa do item (que inclui o 'tipo')
+                    var itemInfo = todosOsItensT20[inventarioAtual[index].id];
+                    if (!itemInfo) return; // Item não encontrado, aborta
+
+                    // 1. Alterna o estado do item clicado
                     inventarioAtual[index].equipado = !inventarioAtual[index].equipado;
-                    // (Lógica para desequipar outras armaduras/escudos)
-                    // ...
-                    calcularTudoT20(); // <-- GATILHO
+
+                    // 2. CORREÇÃO: Usa 'itemInfo.tipo' para verificar
+                    if (itemInfo.tipo === 'Armadura' && inventarioAtual[index].equipado) {
+                        // Desequipa outras armaduras
+                        inventarioAtual.forEach(function(item, i) {
+                            // CORREÇÃO: Busca o 'tipo' do outro item também
+                            var outroItemInfo = todosOsItensT20[item.id];
+                            if (i != index && outroItemInfo && outroItemInfo.tipo === 'Armadura') {
+                                item.equipado = 0;
+                            }
+                        });
+                    }
+
+                    // 3. CORREÇÃO: Usa 'itemInfo.tipo' para verificar (Escudo)
+                    if (itemInfo.tipo === 'Escudo' && inventarioAtual[index].equipado) {
+                        // Desequipa outros escudos
+                        inventarioAtual.forEach(function(item, i) {
+                            var outroItemInfo = todosOsItensT20[item.id];
+                            if (i != index && outroItemInfo && outroItemInfo.tipo === 'Escudo') {
+                                item.equipado = 0;
+                            }
+                        });
+                    }
+
+                    // 4. Chama o cálculo (o trecho que você colou), que agora receberá o estado correto
+                    calcularTudoT20();
                 }
             }
             window.removerItemInventario = function(index) {
@@ -1756,28 +1822,6 @@ $conn->close();
             window.mudarQuantidade = function(index, novaQuantidade) {
                 if (inventarioAtual[index]) {
                     inventarioAtual[index].quantidade = parseInt(novaQuantidade) || 1;
-                    calcularTudoT20();
-                }
-            }
-            window.alternarEquipado = function(index) {
-                if (inventarioAtual[index]) {
-                    inventarioAtual[index].equipado = !inventarioAtual[index].equipado;
-
-                    if (inventarioAtual[index].tipo === 'Armadura' && inventarioAtual[index].equipado) {
-                        inventarioAtual.forEach((item, i) => {
-                            if (i !== index && item.tipo === 'Armadura') {
-                                item.equipado = 0;
-                            }
-                        });
-                    }
-
-                    if (inventarioAtual[index].tipo === 'Escudo' && inventarioAtual[index].equipado) {
-                        inventarioAtual.forEach((item, i) => {
-                            if (i !== index && item.tipo === 'Escudo') {
-                                item.equipado = 0; // 0 ou false
-                            }
-                        });
-                    }
                     calcularTudoT20();
                 }
             }
