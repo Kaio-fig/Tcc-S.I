@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Máquina: localhost
--- Data de Criação: 05-Nov-2025 às 15:28
+-- Data de Criação: 06-Nov-2025 às 12:11
 -- Versão do servidor: 5.6.13
 -- versão do PHP: 5.4.17
 
@@ -377,7 +377,7 @@ CREATE TABLE IF NOT EXISTS `personagem_t20_inventario` (
   PRIMARY KEY (`id`),
   KEY `idx_personagem_inventario` (`personagem_id`),
   KEY `fk_item_inventario_t20` (`item_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=2 ;
 
 -- --------------------------------------------------------
 
@@ -393,7 +393,7 @@ CREATE TABLE IF NOT EXISTS `personagem_t20_magias` (
   UNIQUE KEY `personagem_magia_unique` (`personagem_id`,`magia_id`),
   KEY `fk_magia_personagem` (`personagem_id`),
   KEY `fk_magia_id` (`magia_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=7 ;
 
 -- --------------------------------------------------------
 
@@ -447,7 +447,7 @@ CREATE TABLE IF NOT EXISTS `personagens_op` (
   KEY `fk_origem` (`origem_id`),
   KEY `fk_classe` (`classe_id`),
   KEY `fk_trilha` (`trilha_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=2 ;
 
 -- --------------------------------------------------------
 
@@ -478,7 +478,7 @@ CREATE TABLE IF NOT EXISTS `personagens_op_rituais` (
   UNIQUE KEY `personagem_ritual_unique` (`personagem_id`,`ritual_id`),
   KEY `fk_ritual_personagem` (`personagem_id`),
   KEY `fk_ritual_id` (`ritual_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=6 ;
 
 -- --------------------------------------------------------
 
@@ -570,7 +570,7 @@ CREATE TABLE IF NOT EXISTS `personagens_t20` (
   `outros_vontade` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `user_id_t20` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=2 ;
 
 -- --------------------------------------------------------
 
