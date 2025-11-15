@@ -400,7 +400,7 @@ $conn->close();
             <h1><i class="fas fa-globe-americas"></i> Editor de Mundo: <?php echo htmlspecialchars($mundo['nome']); ?></h1>
 
             <!-- Formulário de Salvamento -->
-            <form id="form-salvar" action="ficha_mundo.php" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px;">
+            <form id="form-salvar" action="novo_mundo.php" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px;">
                 <!-- Dados principais do mundo -->
                 <input type="hidden" name="id" value="<?php echo $mundo['id']; ?>">
                 <input type="hidden" name="imagem_antiga" value="<?php echo htmlspecialchars($mundo['imagem_mundo']); ?>">
